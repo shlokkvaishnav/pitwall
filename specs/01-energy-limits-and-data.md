@@ -93,3 +93,10 @@ Jolpica gives a free CSV dump of its full database for non-commercial use. The f
 | D4 Dump = API | For the races in the API cache, at least 99.5% of the (driver, lap) rows have the same position and lap time (±0.001 s) in the dump and in the API. |
 
 The data check also reports the same numbers for 2022 to 2025 (pre-training data). D1 to D3 apply to these seasons too.
+
+## Result note (2026-11-15)
+D1, D2 and D4 pass on the dump. D3 fails: 83.8% (2022 to 2025) and 82.0% (2026 development), not 95%.
+The cause is not a data defect. Post-race time penalties change the final result after the last lap
+(for example, 2026 round 6: three drivers lost four places each after the finish).
+Thus, D3 was a wrong check. Later specs use the laps table for the order during the race and the results table only for the final classification.
+No race is excluded because of D3.
