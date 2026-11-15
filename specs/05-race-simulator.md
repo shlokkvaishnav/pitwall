@@ -37,3 +37,18 @@ This is a development preview of rule R4. Stage 3 (strategy agent) is allowed on
 
 ## 5. Output
 `results/05-race-simulator.json`: the inputs and the scores for each race, the rule results, and the git commit SHA.
+
+## Result (2026-11-16)
+S1 and S2 fail. Version A of the simulator is worse than the grid before the race.
+
+| Metric (rounds 4 to 12) | Simulator | Grid baseline |
+|---|---|---|
+| Mean Spearman with the official order | 0.724 | 0.785 |
+| Mean podium Brier score | 0.085 | 0.070 |
+
+S3 shows that the simulator is over-confident: in the bins 0.4 to 1.0 the real podium frequency is lower than the probability,
+and in the bin 0 to 0.2 it is higher (0.034 against 0.012).
+
+**Consequence.** Stage 3 (strategy agent) stays blocked (spec 00, R5). A version B needs a new spec, written before its run.
+Possible causes for version B to test: noisy driver pace from few races, lap noise that is too small for a full race,
+and no qualifying information (the grid only gives the order).

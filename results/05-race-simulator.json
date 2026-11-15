@@ -1,0 +1,181 @@
+{
+  "spec": "05-race-simulator",
+  "commit": "7ec9b53cb2423271b672a6710a0308c67c8ac859",
+  "rules": {
+    "S1_spearman_sim": 0.7236473536783135,
+    "S1_spearman_grid": 0.7846470752043507,
+    "S1_pass": false,
+    "S2_brier_sim": 0.08528054292929294,
+    "S2_brier_grid": 0.0699669064444887,
+    "S2_pass": false,
+    "S3_reliability": [
+      {
+        "bin": "0.0-0.2",
+        "n": 147,
+        "mean_p": 0.012159863945578232,
+        "freq": 0.034013605442176874
+      },
+      {
+        "bin": "0.2-0.4",
+        "n": 15,
+        "mean_p": 0.28150000000000003,
+        "freq": 0.4
+      },
+      {
+        "bin": "0.4-0.6",
+        "n": 22,
+        "mean_p": 0.5032954545454547,
+        "freq": 0.36363636363636365
+      },
+      {
+        "bin": "0.6-0.8",
+        "n": 11,
+        "mean_p": 0.6781818181818182,
+        "freq": 0.5454545454545454
+      },
+      {
+        "bin": "0.8-1.0",
+        "n": 3,
+        "mean_p": 0.8191666666666667,
+        "freq": 0.6666666666666666
+      }
+    ]
+  },
+  "races": [
+    {
+      "round": 4,
+      "name": "Miami Grand Prix",
+      "spearman_sim": 0.8534571723426212,
+      "spearman_grid": 0.8802889576883385,
+      "brier_sim": 0.06511890909090909,
+      "brier_grid": 0.09623890852410168,
+      "inputs": {
+        "pit_loss_s": 21.24900000000001,
+        "wear_s_per_lap": -0.04205817678375686,
+        "sc_rate": 1.5,
+        "dnf_hazard": 0.0026946107784431143,
+        "laps": 57
+      }
+    },
+    {
+      "round": 5,
+      "name": "Canadian Grand Prix",
+      "spearman_sim": 0.6558823529411765,
+      "spearman_grid": 0.7852941176470588,
+      "brier_sim": 0.1078248409090909,
+      "brier_grid": 0.11602466460396905,
+      "inputs": {
+        "pit_loss_s": 20.15300000000002,
+        "wear_s_per_lap": -0.02930588635114876,
+        "sc_rate": 2.5,
+        "dnf_hazard": 0.002831010452961673,
+        "laps": 68
+      }
+    },
+    {
+      "round": 6,
+      "name": "Monaco Grand Prix",
+      "spearman_sim": 0.5529411764705882,
+      "spearman_grid": 0.65,
+      "brier_sim": 0.10492636363636366,
+      "brier_grid": 0.07428202378884363,
+      "inputs": {
+        "pit_loss_s": 20.125,
+        "wear_s_per_lap": -0.04697182239841284,
+        "sc_rate": 1.25,
+        "dnf_hazard": 0.002992419204681474,
+        "laps": 78
+      }
+    },
+    {
+      "round": 7,
+      "name": "Barcelona Grand Prix",
+      "spearman_sim": 0.45098039215686275,
+      "spearman_grid": 0.6446078431372549,
+      "brier_sim": 0.10260427272727272,
+      "brier_grid": 0.03659567970361371,
+      "inputs": {
+        "pit_loss_s": 23.208000000000027,
+        "wear_s_per_lap": 0.029103528709404018,
+        "sc_rate": 0.25,
+        "dnf_hazard": 0.0030078465562336522,
+        "laps": 66
+      }
+    },
+    {
+      "round": 8,
+      "name": "Austrian Grand Prix",
+      "spearman_sim": 0.8534571723426212,
+      "spearman_grid": 0.9215686274509803,
+      "brier_sim": 0.08006922727272728,
+      "brier_grid": 0.08177377834892553,
+      "inputs": {
+        "pit_loss_s": 21.501000000000005,
+        "wear_s_per_lap": 0.02664347448528584,
+        "sc_rate": 1.25,
+        "dnf_hazard": 0.0030790498931758197,
+        "laps": 71
+      }
+    },
+    {
+      "round": 9,
+      "name": "British Grand Prix",
+      "spearman_sim": 0.5744360902255639,
+      "spearman_grid": 0.6015037593984961,
+      "brier_sim": 0.07162161363636364,
+      "brier_grid": 0.06651010611162127,
+      "inputs": {
+        "pit_loss_s": 25.686000000000007,
+        "wear_s_per_lap": -0.04368586635586634,
+        "sc_rate": 1.75,
+        "dnf_hazard": 0.0030055414670799286,
+        "laps": 52
+      }
+    },
+    {
+      "round": 10,
+      "name": "Belgian Grand Prix",
+      "spearman_sim": 0.9508771929824561,
+      "spearman_grid": 0.8105263157894737,
+      "brier_sim": 0.05686556818181818,
+      "brier_grid": 0.035496613968327526,
+      "inputs": {
+        "pit_loss_s": 19.442000000000007,
+        "wear_s_per_lap": 0.03772272727273086,
+        "sc_rate": 0.75,
+        "dnf_hazard": 0.0028810846436305433,
+        "laps": 44
+      }
+    },
+    {
+      "round": 11,
+      "name": "Hungarian Grand Prix",
+      "spearman_sim": 0.8315789473684211,
+      "spearman_grid": 0.9175438596491228,
+      "brier_sim": 0.1039316590909091,
+      "brier_grid": 0.0936275335539995,
+      "inputs": {
+        "pit_loss_s": 21.714,
+        "wear_s_per_lap": 0.01596325455982453,
+        "sc_rate": 0.5,
+        "dnf_hazard": 0.0028294546226214894,
+        "laps": 70
+      }
+    },
+    {
+      "round": 12,
+      "name": "Dutch Grand Prix",
+      "spearman_sim": 0.7892156862745099,
+      "spearman_grid": 0.8504901960784315,
+      "brier_sim": 0.07456243181818183,
+      "brier_grid": 0.029152849396996413,
+      "inputs": {
+        "pit_loss_s": 23.78800000000001,
+        "wear_s_per_lap": -0.009546022940918476,
+        "sc_rate": 2.25,
+        "dnf_hazard": 0.002735812357709061,
+        "laps": 72
+      }
+    }
+  ]
+}
