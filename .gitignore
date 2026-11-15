@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.venv/
+.env
+*.egg-info/
+.ruff_cache/
+.pytest_cache/
+.hypothesis/
+.DS_Store
+# Raw data stays here. Do not commit it.
+/data/
+/runs/
