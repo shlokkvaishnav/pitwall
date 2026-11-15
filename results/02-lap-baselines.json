@@ -1,0 +1,113 @@
+{
+  "spec": "02-lap-baselines",
+  "commit": "1c2b1e697bf58409ced70188cd4a27f629e84837",
+  "rounds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+  ],
+  "excluded_rounds": [],
+  "pooled_mae_s": {
+    "previous_lap": 1.0523131462333826,
+    "linear_stint": 1.4804018480438323,
+    "local_trend": 1.1264505398015454
+  },
+  "L1_bar_for_R1": "previous_lap",
+  "neutral_fraction": 0.09107829857097542,
+  "L2_pass": true,
+  "races": [
+    {
+      "round": 1,
+      "n_laps": 808,
+      "previous_lap": 0.9739108910891089,
+      "linear_stint": 1.2276721220053632,
+      "local_trend": 1.0530301970895648
+    },
+    {
+      "round": 2,
+      "n_laps": 782,
+      "previous_lap": 0.5610907928388739,
+      "linear_stint": 0.6737524590253056,
+      "local_trend": 0.577075460806312
+    },
+    {
+      "round": 3,
+      "n_laps": 885,
+      "previous_lap": 0.4494327683615817,
+      "linear_stint": 0.64385020717837,
+      "local_trend": 0.47906999202128264
+    },
+    {
+      "round": 4,
+      "n_laps": 823,
+      "previous_lap": 0.5434848116646409,
+      "linear_stint": 0.630974605570016,
+      "local_trend": 0.5387947275369247
+    },
+    {
+      "round": 5,
+      "n_laps": 1038,
+      "previous_lap": 1.677554913294798,
+      "linear_stint": 2.0129605447679872,
+      "local_trend": 1.7845335881482418
+    },
+    {
+      "round": 6,
+      "n_laps": 1130,
+      "previous_lap": 0.8121389380530972,
+      "linear_stint": 1.2719856442607385,
+      "local_trend": 1.0025255692714197
+    },
+    {
+      "round": 7,
+      "n_laps": 1005,
+      "previous_lap": 1.3674248756218905,
+      "linear_stint": 1.7274208121752836,
+      "local_trend": 1.3638153008609448
+    },
+    {
+      "round": 8,
+      "n_laps": 1157,
+      "previous_lap": 1.0590985306828005,
+      "linear_stint": 1.5754889913615175,
+      "local_trend": 1.1602054031143945
+    },
+    {
+      "round": 9,
+      "n_laps": 855,
+      "previous_lap": 1.6732081871345028,
+      "linear_stint": 1.9800052775889532,
+      "local_trend": 1.6967303685512742
+    },
+    {
+      "round": 10,
+      "n_laps": 689,
+      "previous_lap": 1.02422641509434,
+      "linear_stint": 1.3469897615901234,
+      "local_trend": 0.9752550956231726
+    },
+    {
+      "round": 11,
+      "n_laps": 1250,
+      "previous_lap": 0.8019263999999999,
+      "linear_stint": 1.0251328188802462,
+      "local_trend": 0.8355160537172477
+    },
+    {
+      "round": 12,
+      "n_laps": 1087,
+      "previous_lap": 1.5114921803127872,
+      "linear_stint": 3.1664396076004286,
+      "local_trend": 1.7751157033945806
+    }
+  ]
+}
