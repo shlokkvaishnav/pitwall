@@ -58,6 +58,8 @@ def _fake_api(calls):
 def test_parse_time():
     assert parse_time("1:23.456") == pytest.approx(83.456)
     assert parse_time("23.4") == pytest.approx(23.4)
+    assert parse_time("00:01:16.29") == pytest.approx(76.29)
+    assert math.isnan(parse_time(None)) and math.isnan(parse_time(float("nan")))
     assert math.isnan(parse_time("")) and math.isnan(parse_time("DNF"))
 
 

@@ -20,13 +20,16 @@ PAGE = 100
 
 
 def parse_time(text: str | None) -> float:
-    """'1:23.456' -> 83.456 s, '23.456' -> 23.456 s. Missing or bad text gives NaN."""
-    if not text:
+    """'1:23.456' -> 83.456 s, '23.456' -> 23.456 s, '00:01:16.29' -> 76.29 s. Missing or bad text gives NaN."""
+    if not isinstance(text, str) or not text.strip():
         return float("nan")
-    m = re.fullmatch(r"(?:(\d+):)?(\d+(?:\.\d+)?)", text.strip())
-    if not m:
+    parts = text.strip().split(":")
+    if len(parts) > 3 or not all(re.fullmatch(r"\d+(?:\.\d+)?", x) for x in parts):
         return float("nan")
-    return float(m.group(1) or 0) * 60 + float(m.group(2))
+    value = 0.0
+    for x in parts:
+        value = value * 60 + float(x)
+    return value
 
 
 def _http_get(url: str) -> dict:
