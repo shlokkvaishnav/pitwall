@@ -13,7 +13,7 @@ from pathlib import Path
 import pandas as pd
 
 from pitwall import baselines as bl
-from pitwall.data import Jolpica, load_race
+from pitwall.dump import Dump
 from pitwall.laps import clean_mask, lap_table
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -22,14 +22,14 @@ NAMES = ("previous_lap", "linear_stint", "local_trend")
 
 def main() -> None:
     check = json.loads((ROOT / "results" / "01-data-check.json").read_text())
-    bad = set(check["rules"]["D1_failed_rounds"])
-    bad |= {r["round"] for r in check["races"] if r["pitstop_on_known_lap"] < 0.99}
-    rounds = [r["round"] for r in check["races"] if r["round"] not in bad]
+    dev = check["races"]["development"]
+    bad = {r["round"] for r in dev if r["lap_coverage"] < 0.90 or r["pitstop_on_known_lap"] < 0.99}
+    rounds = [r["round"] for r in dev if r["round"] not in bad]
 
-    client = Jolpica(ROOT / "data" / "jolpica-cache")
+    dump = Dump(ROOT / "data" / "raw" / "jolpica-dump" / "csv")
     per_race, frames, neutral = [], [], []
     for rnd in rounds:
-        laps = lap_table(load_race(client, 2026, rnd))
+        laps = lap_table(dump.race(2026, rnd))
         preds = {n: getattr(bl, n)(laps) for n in NAMES}
         keep = clean_mask(laps) & pd.concat(preds, axis=1).notna().all(axis=1)
         err = {n: (preds[n][keep] - laps.loc[keep, "time_s"]).abs() for n in NAMES}
@@ -50,7 +50,7 @@ def main() -> None:
         "pooled_mae_s": pooled,
         "L1_bar_for_R1": bar,
         "neutral_fraction": neutral_frac,
-        "L2_pass": pooled["previous_lap"] < 2.0 and 0.02 <= neutral_frac <= 0.30,
+        "L2_pass": bool(pooled["previous_lap"] < 2.0 and 0.02 <= neutral_frac <= 0.30),
         "races": per_race,
     }
     (ROOT / "results" / "02-lap-baselines.json").write_text(json.dumps(out, indent=2))
