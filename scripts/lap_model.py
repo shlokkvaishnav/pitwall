@@ -10,49 +10,21 @@ import json
 import subprocess
 from pathlib import Path
 
-import lightgbm as lgb
 import numpy as np
 import pandas as pd
 
 from pitwall.dump import Dump
 from pitwall.evaluate import dm_block_bootstrap
-from pitwall.features import FEATURES, build
-from pitwall.laps import lap_table
-from pitwall.splits import split_of
+from pitwall.features import FEATURES
+from pitwall.lapmodel import PARAMS, development_rounds, fit_predict, pretrain_features, race_features
 
 ROOT = Path(__file__).resolve().parents[1]
-PARAMS = {
-    "objective": "l1",
-    "n_estimators": 400,
-    "learning_rate": 0.03,
-    "num_leaves": 31,
-    "min_child_samples": 50,
-    "colsample_bytree": 0.8,
-    "random_state": 0,
-    "verbose": -1,
-}
-
-
-def race_features(dump: Dump, season: int, rnd: int) -> pd.DataFrame:
-    f = build(lap_table(dump.race(season, rnd)))
-    f["season"], f["round"] = season, rnd
-    return f[f["use"]]
-
-
-def fit_predict(train: pd.DataFrame, test: pd.DataFrame) -> np.ndarray:
-    model = lgb.LGBMRegressor(**PARAMS).fit(train[FEATURES], train["delta"])
-    return test["last1"].to_numpy() + model.predict(test[FEATURES]), model
 
 
 def main() -> None:
     dump = Dump(ROOT / "data" / "raw" / "jolpica-dump" / "csv")
-    pre = []
-    for season in (2022, 2023, 2024, 2025):
-        for rnd in dump.schedule(season)["round"]:
-            pre.append(race_features(dump, season, int(rnd)))
-    pre = pd.concat(pre, ignore_index=True)
-    sched = dump.schedule(2026)
-    dev_rounds = [int(r) for r, d in zip(sched["round"], sched["date"]) if split_of(d) == "development"]
+    pre = pretrain_features(dump)
+    dev_rounds = development_rounds(dump)
     dev = {r: race_features(dump, 2026, r) for r in dev_rounds}
     print("pretrain rows", len(pre), "dev rows", sum(len(v) for v in dev.values()), flush=True)
 
