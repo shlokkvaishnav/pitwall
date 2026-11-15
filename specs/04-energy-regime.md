@@ -39,3 +39,23 @@ The claim "public lap times show an energy regime" needs E1, E2 and E3. If E1 pa
 
 ## 5. Output
 `results/04-energy-regime.json`: the MAE for each model, the rule results, the fitted HMM parameters for 2026 and for 2022 to 2025, and the git commit SHA.
+
+## Result (2026-11-16)
+All three rules fail. The claim "public lap times show an energy regime" is **not supported**.
+
+| Model | Pooled MAE (9,034 laps, rounds 4 to 12) |
+|---|---|
+| none (`gbm_pretrain`) | 1.027 s |
+| ar1 | 1.024 s |
+| hmm2 | 1.059 s |
+
+- E1 fails: `hmm2` is worse than `none` (DM p = 1.00).
+- E2 fails: `hmm2` is worse than `ar1` (DM p = 0.97).
+- E3 fails: separation 0.13 (2026) and 0.16 (2022 to 2025). The 95% interval of the difference is −0.15 to +0.10.
+
+**Interpretation.** The second state of `hmm2` has σ = 8.4 s (2026) and 5.8 s (2022 to 2025), and it stays for approximately two laps.
+This is an outlier state (traffic, incidents, driver errors), not a push or harvest regime. The same state is in both periods.
+The residual standard deviation is larger in 2026 (3.0 s) than in 2022 to 2025 (1.8 s). This comes from outliers, not from a regime.
+
+**Limit.** Lap times are a coarse signal. Energy use inside a lap (for example, on one straight) can cancel over the lap.
+This result does not say that 2026 drivers do not manage energy. It says that public lap times alone do not show it.
