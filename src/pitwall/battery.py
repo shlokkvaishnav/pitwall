@@ -35,14 +35,25 @@ class LapResult:
     deployed_mj: float
 
 
-def simulate_lap(power_kw: np.ndarray, dt_s: np.ndarray | float, charge0_mj: float, limits: Limits) -> LapResult:
+def simulate_lap(
+    power_kw: np.ndarray,
+    dt_s: np.ndarray | float,
+    charge0_mj: float,
+    limits: Limits,
+    deploy_cap_kw: np.ndarray | None = None,
+) -> LapResult:
     """Apply the requested power profile for one lap and enforce all limits.
+
+    deploy_cap_kw: optional limit on deploy power at each step (for example, the speed curve of the regulations).
 
     Each step clips the power to the power limits, to the charge in the store,
     to the free space in the store, and to the harvest budget that is left for the lap.
     """
     power = np.asarray(power_kw, dtype=float)
     dt = np.broadcast_to(np.asarray(dt_s, dtype=float), power.shape)
+    cap = np.full(power.shape, limits.max_deploy_kw) if deploy_cap_kw is None else np.asarray(deploy_cap_kw, float)
+    if cap.shape != power.shape:
+        raise ValueError("deploy_cap_kw must have the same shape as power_kw")
     if np.any(dt <= 0):
         raise ValueError("time steps must be > 0")
     if not 0 <= charge0_mj <= limits.capacity_mj:
@@ -53,8 +64,8 @@ def simulate_lap(power_kw: np.ndarray, dt_s: np.ndarray | float, charge0_mj: flo
     charges = np.empty_like(power)
     accepted = np.empty_like(power)
     harvested = deployed = 0.0
-    for i, (p, step) in enumerate(zip(power, dt)):
-        p = float(np.clip(p, -limits.max_harvest_kw, limits.max_deploy_kw))
+    for i, (p, step, c) in enumerate(zip(power, dt, cap)):
+        p = float(np.clip(p, -limits.max_harvest_kw, min(limits.max_deploy_kw, c)))
         energy = p * step / 1000.0  # kW * s = kJ -> MJ
         if energy > 0:
             energy = min(energy, charge)
