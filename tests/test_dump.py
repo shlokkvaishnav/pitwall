@@ -52,6 +52,7 @@ def dump(tmp_path):
 def test_schedule_skips_cancelled_rounds(dump):
     s = dump.schedule(2026)
     assert s["round"].tolist() == [1, 2]
+    assert s["circuit_id"].tolist() == [1, 1]
 
 
 def test_race_joins_tables(dump):

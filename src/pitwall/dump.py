@@ -28,7 +28,7 @@ class Dump:
     @cached_property
     def rounds(self) -> pd.DataFrame:
         seasons = self._read("season")[["id", "year"]].rename(columns={"id": "season_id"})
-        r = self._read("round")[["id", "season_id", "number", "name", "date", "is_cancelled"]]
+        r = self._read("round")[["id", "season_id", "circuit_id", "number", "name", "date", "is_cancelled"]]
         r = r.merge(seasons, on="season_id")
         r = r[~_bool(r["is_cancelled"])].copy()
         r["date"] = pd.to_datetime(r["date"]).dt.date
@@ -63,7 +63,7 @@ class Dump:
 
     def schedule(self, season: int) -> pd.DataFrame:
         s = self.race_sessions[self.race_sessions["year"] == season]
-        out = s[["number", "name", "date"]].rename(columns={"number": "round"})
+        out = s[["number", "name", "date", "circuit_id"]].rename(columns={"number": "round"})
         return out.sort_values("round", ignore_index=True)
 
     def race(self, season: int, rnd: int, *, allow_holdout: bool = False) -> Race:
