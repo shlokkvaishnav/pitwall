@@ -39,3 +39,7 @@ Each prediction for lap n uses only clean laps of the same driver before lap n, 
 
 ## 7. Output
 `results/02-lap-baselines.json`: the MAE for each baseline and each race, the selected bar, the neutralised fraction, and the git commit SHA.
+
+## Amendment A1 (2026-11-15)
+The data comes from the Jolpica CSV dump (spec 01, amendment A2), not from the API cache. The races and the rules do not change.
+D3 is not used to exclude races (spec 01, result note).
