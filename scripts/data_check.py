@@ -32,9 +32,9 @@ def rules_for(races: list[dict]) -> dict:
         "D1_pass": all(d1),
         "D1_failed": [(r["season"], r["round"]) for r, ok in zip(races, d1) if not ok],
         "D2_pitstops_on_known_lap": pits_ok / pits,
-        "D2_pass": pits_ok / pits >= 0.99,
+        "D2_pass": bool(pits_ok / pits >= 0.99),
         "D3_last_lap_order_match": order_ok / drivers,
-        "D3_pass": order_ok / drivers >= 0.95,
+        "D3_pass": bool(order_ok / drivers >= 0.95),
     }
 
 
