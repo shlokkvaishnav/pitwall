@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pitwall</title>
+<meta name="description" content="Finds the hidden battery state of 2026 F1 cars from public timing data, then tests a race simulator and a pit-strategy agent.">
+<style>
+  :root { --bg:#fbfaf7; --fg:#1d1d1b; --muted:#6b6a66; --line:#e4e1da; --accent:#b4332b; --card:#ffffff; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#141513; --fg:#ecebe6; --muted:#9d9b94; --line:#2c2d2a; --accent:#ef7a6f; --card:#1b1c1a; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width:760px; margin:0 auto; padding:56px 16px 80px; }
+  h1 { font-size:2rem; letter-spacing:-0.02em; margin:0 0 8px; }
+  .lede { color:var(--muted); font-size:1.1rem; margin:0 0 32px; }
+  h2 { font-size:1.05rem; margin:36px 0 12px; }
+  .status { border:1px solid var(--line); background:var(--card); border-radius:10px; padding:14px 18px; }
+  .status b { color:var(--accent); }
+  ol { padding-left:20px; } li { margin:6px 0; }
+  table { width:100%; border-collapse:collapse; font-size:0.95rem; }
+  th, td { text-align:left; padding:8px 6px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--muted); font-weight:500; width:34%; }
+  footer { margin-top:56px; color:var(--muted); font-size:0.85rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>pitwall</h1>
+  <p class="lede">This project finds the hidden battery state and tyre wear of 2026 F1 cars from public timing data. Then it uses them in a race simulator and a pit-strategy agent.</p>
+  <div class="status"><b>Status:</b> M0 is done. The charter, the holdout lock and the energy store are ready. There are no results yet.</div>
+  <h2>How it works</h2>
+  <ol>
+    <li>A state-space model estimates the battery charge and the tyre wear of each car.</li>
+    <li>A race simulator uses these states. We compare it with real races first.</li>
+    <li>A strategy agent learns pit decisions in the simulator, only if the simulator passes its test.</li>
+  </ol>
+  <h2>Tests</h2>
+  <table>
+    <tr><th>Holdout</th><td>The 2026 races on or after 1 September 2026. They are locked until the final spec.</td></tr>
+    <tr><th>Lap time</th><td>The error must be at least 5% lower than the best baseline (Diebold-Mariano p &lt; 0.05).</td></tr>
+    <tr><th>Straights</th><td>The error of the speed loss at the end of long straights must be at least 10% lower.</td></tr>
+    <tr><th>Simulator</th><td>The finishing order must be better than the grid order.</td></tr>
+  </table>
+  <footer>This site shows statistics only. Data: FastF1 and Jolpica-F1. FastF1 data is not official F1 data.</footer>
+</main>
+</body>
+</html>
