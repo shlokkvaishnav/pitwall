@@ -79,3 +79,15 @@ The code does not use a limit until spec 01 records its source.
 
 ## 9. Output
 A static site on GitHub Pages. It has no server.
+
+## Amendment A1 (2026-11-15)
+**Reason.** FastF1 3.9 needs an F1 TV account for all live timing data, also for 2025. We do not have this account.
+Thus, we use only Jolpica-F1. Jolpica gives lap times, positions, pit stops, grid and results. It does not give car data or tyre compounds.
+
+**Changes.**
+1. Data (section 3): the only source is Jolpica-F1. FastF1 is not used.
+2. State model (section 2, stage 1): the hidden states are the tyre wear, the tyre compound and the energy mode of each lap.
+   We estimate them from lap times, gaps and pit stops only. The regulation limits stay as constraints on the energy mode.
+3. Rule R2 (straights) is removed, because it needs car data. We record this rule as "not tested".
+4. Rule R1 baselines: "linear tyre wear per stint" uses stints from the pit stops. The compound is not known.
+5. All other rules do not change.

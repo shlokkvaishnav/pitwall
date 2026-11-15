@@ -54,3 +54,22 @@ If a race fails D1 or D2, we record it, and later specs do not use it.
 
 ## 7. Output
 `results/01-data-check.json`: the results for each race, the rule results, and the git commit SHA.
+
+## Amendment A1 (2026-11-15)
+**Reason.** See spec 00, amendment A1. FastF1 does not give data without an F1 TV account.
+
+**Changes to section 5 (data layer).**
+- `pitwall.data` loads from the Jolpica-F1 API (`https://api.jolpi.ca/ergast/f1/`): schedule, laps, pit stops, results.
+- The client keeps a cache in `data/jolpica-cache/`. It sends not more than one request each 8 s,
+  because the API allows approximately 500 requests each hour.
+- The loader checks the race date with `pitwall.splits` before it gets the laps. A holdout race raises `HoldoutError`.
+
+**Changes to section 6 (rules).** D2 and D3 needed car data. We replace them:
+
+| Rule | Pass condition |
+|---|---|
+| D1 Laps | For each race, the laps table has at least 90% of the laps of the classified drivers (laps from the results). |
+| D2 Pit stops | At least 99% of pit stops are on a lap that is in the laps table for that driver. |
+| D3 Order | For at least 95% of classified drivers, the position on the last lap is the same as the result position. |
+
+Section 4 (limits) does not change. The limits are constraints on the hidden energy mode.
