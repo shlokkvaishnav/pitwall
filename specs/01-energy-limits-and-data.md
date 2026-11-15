@@ -73,3 +73,23 @@ If a race fails D1 or D2, we record it, and later specs do not use it.
 | D3 Order | For at least 95% of classified drivers, the position on the last lap is the same as the result position. |
 
 Section 4 (limits) does not change. The limits are constraints on the hidden energy mode.
+
+## Amendment A2 (2026-11-15)
+**Reason.** The API is slow: approximately 12 minutes for each race. 2022 to 2026 has approximately 110 races.
+Jolpica gives a free CSV dump of its full database for non-commercial use. The free dump is 14 days old.
+
+**Change to section 5 (data layer).**
+- The source is the free "delayed" CSV dump: uploaded 2026-11-01T02:34:25Z,
+  SHA-256 `34ae3788503c17931e500c347211efaa534a93fced707ed7788bfe17dd2c4334`.
+  It has all races before that date. The 2026 holdout races after that date are not in it. This is correct for the lock.
+- `pitwall.dump` reads the dump into the same `Race` object as the API loader. Race sessions only (type `R`).
+- The API loader stays for checks.
+- We keep the dump in `data/raw/jolpica-dump/`. Git ignores this folder. Do not commit the dump. Do not publish it.
+
+**Change to section 6 (rules).** D1 to D3 run on the dump. We add one rule:
+
+| Rule | Pass condition |
+|---|---|
+| D4 Dump = API | For the races in the API cache, at least 99.5% of the (driver, lap) rows have the same position and lap time (±0.001 s) in the dump and in the API. |
+
+The data check also reports the same numbers for 2022 to 2025 (pre-training data). D1 to D3 apply to these seasons too.
