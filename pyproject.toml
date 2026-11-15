@@ -6,7 +6,7 @@ requires-python = ">=3.10"
 dependencies = ["numpy", "pandas", "scipy"]
 
 [project.optional-dependencies]
-model = ["lightgbm"]
+model = ["lightgbm", "scikit-learn"]
 ml = ["torch"]
 dev = ["pytest", "ruff", "hypothesis"]
 
