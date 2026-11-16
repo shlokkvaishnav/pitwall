@@ -1,0 +1,200 @@
+{
+  "spec": "06-race-simulator-b",
+  "commit": "52622b90aa1f410c98ac5ce0c44acfcf4b29ed00",
+  "rules": {
+    "S1_spearman_B": 0.7440324667878848,
+    "S1_spearman_grid": 0.7846470752043507,
+    "S1_pass": false,
+    "S2_brier_B": 0.07850741666666666,
+    "S2_brier_grid": 0.0699669064444887,
+    "S2_pass": false,
+    "S3_reliability_B": [
+      {
+        "bin": "0.0-0.2",
+        "n": 135,
+        "mean_p": 0.029659259259259257,
+        "freq": 0.007407407407407408
+      },
+      {
+        "bin": "0.2-0.4",
+        "n": 46,
+        "mean_p": 0.3279021739130435,
+        "freq": 0.34782608695652173
+      },
+      {
+        "bin": "0.4-0.6",
+        "n": 17,
+        "mean_p": 0.4654411764705882,
+        "freq": 0.5882352941176471
+      },
+      {
+        "bin": "0.6-0.8",
+        "n": 0,
+        "mean_p": null,
+        "freq": null
+      },
+      {
+        "bin": "0.8-1.0",
+        "n": 0,
+        "mean_p": null,
+        "freq": null
+      }
+    ]
+  },
+  "ablations": {
+    "ablation_a_no_shock": {
+      "spearman": 0.7526160171671008,
+      "brier": 0.07734902525252527
+    },
+    "ablation_b_form_with_shock": {
+      "spearman": 0.6986330204596459,
+      "brier": 0.07933722474747475
+    }
+  },
+  "races": [
+    {
+      "round": 4,
+      "name": "Miami Grand Prix",
+      "beta_q": 0.1741218331041295,
+      "beta_f": 0.5556435602200401,
+      "sigma_r": 0.6118192103694052,
+      "fit_rows": 1802,
+      "spearman_grid": 0.8802889576883385,
+      "brier_grid": 0.09623890852410168,
+      "spearman_B": 0.8844169246646028,
+      "brier_B": 0.07101981818181818,
+      "spearman_ablation_a_no_shock": 0.8782249742002064,
+      "brier_ablation_a_no_shock": 0.063168,
+      "spearman_ablation_b_form_with_shock": 0.8534571723426212,
+      "brier_ablation_b_form_with_shock": 0.0647710909090909
+    },
+    {
+      "round": 5,
+      "name": "Canadian Grand Prix",
+      "beta_q": 0.1752848305577807,
+      "beta_f": 0.559670319874958,
+      "sigma_r": 0.6115291119142945,
+      "fit_rows": 1820,
+      "spearman_grid": 0.7852941176470588,
+      "brier_grid": 0.11602466460396905,
+      "spearman_B": 0.7823529411764706,
+      "brier_B": 0.08808193181818182,
+      "spearman_ablation_a_no_shock": 0.788235294117647,
+      "brier_ablation_a_no_shock": 0.09788561363636367,
+      "spearman_ablation_b_form_with_shock": 0.6176470588235293,
+      "brier_ablation_b_form_with_shock": 0.09280995454545454
+    },
+    {
+      "round": 6,
+      "name": "Monaco Grand Prix",
+      "beta_q": 0.17680347530883014,
+      "beta_f": 0.5663497393083525,
+      "sigma_r": 0.6133438242676762,
+      "fit_rows": 1841,
+      "spearman_grid": 0.65,
+      "brier_grid": 0.07428202378884363,
+      "spearman_B": 0.4735294117647058,
+      "brier_B": 0.09463765909090908,
+      "spearman_ablation_a_no_shock": 0.5147058823529412,
+      "brier_ablation_a_no_shock": 0.09640418181818182,
+      "spearman_ablation_b_form_with_shock": 0.4382352941176471,
+      "brier_ablation_b_form_with_shock": 0.1006919090909091
+    },
+    {
+      "round": 7,
+      "name": "Barcelona Grand Prix",
+      "beta_q": 0.17834864582508578,
+      "beta_f": 0.5635376728863383,
+      "sigma_r": 0.6142176644959292,
+      "fit_rows": 1862,
+      "spearman_grid": 0.6446078431372549,
+      "brier_grid": 0.03659567970361371,
+      "spearman_B": 0.47794117647058826,
+      "brier_B": 0.08346143181818182,
+      "spearman_ablation_a_no_shock": 0.482843137254902,
+      "brier_ablation_a_no_shock": 0.0857960909090909,
+      "spearman_ablation_b_form_with_shock": 0.40441176470588236,
+      "brier_ablation_b_form_with_shock": 0.09282240909090911
+    },
+    {
+      "round": 8,
+      "name": "Austrian Grand Prix",
+      "beta_q": 0.18012832519277364,
+      "beta_f": 0.5735794942199238,
+      "sigma_r": 0.6154337749176544,
+      "fit_rows": 1883,
+      "spearman_grid": 0.9215686274509803,
+      "brier_grid": 0.08177377834892553,
+      "spearman_B": 0.894736842105263,
+      "brier_B": 0.07236797727272727,
+      "spearman_ablation_a_no_shock": 0.8844169246646028,
+      "brier_ablation_a_no_shock": 0.0719109090909091,
+      "spearman_ablation_b_form_with_shock": 0.8534571723426212,
+      "brier_ablation_b_form_with_shock": 0.07017545454545457
+    },
+    {
+      "round": 9,
+      "name": "British Grand Prix",
+      "beta_q": 0.18127451454573415,
+      "beta_f": 0.5769311376080632,
+      "sigma_r": 0.6134769370902959,
+      "fit_rows": 1903,
+      "spearman_grid": 0.6015037593984961,
+      "brier_grid": 0.06651010611162127,
+      "spearman_B": 0.5593984962406015,
+      "brier_B": 0.07728063636363637,
+      "spearman_ablation_a_no_shock": 0.5714285714285714,
+      "brier_ablation_a_no_shock": 0.07074627272727273,
+      "spearman_ablation_b_form_with_shock": 0.5639097744360902,
+      "brier_ablation_b_form_with_shock": 0.07570231818181818
+    },
+    {
+      "round": 10,
+      "name": "Belgian Grand Prix",
+      "beta_q": 0.18393809276911705,
+      "beta_f": 0.5808376395672822,
+      "sigma_r": 0.6125804040388202,
+      "fit_rows": 1925,
+      "spearman_grid": 0.8105263157894737,
+      "brier_grid": 0.035496613968327526,
+      "spearman_B": 0.9701754385964911,
+      "brier_B": 0.06500454545454547,
+      "spearman_ablation_a_no_shock": 0.9736842105263157,
+      "brier_ablation_a_no_shock": 0.05278297727272727,
+      "spearman_ablation_b_form_with_shock": 0.9456140350877192,
+      "brier_ablation_b_form_with_shock": 0.06187370454545454
+    },
+    {
+      "round": 11,
+      "name": "Hungarian Grand Prix",
+      "beta_q": 0.18897218034063626,
+      "beta_f": 0.5881277289885449,
+      "sigma_r": 0.6149033795789288,
+      "fit_rows": 1945,
+      "spearman_grid": 0.9175438596491228,
+      "brier_grid": 0.0936275335539995,
+      "spearman_B": 0.8473684210526315,
+      "brier_B": 0.07829515909090906,
+      "spearman_ablation_a_no_shock": 0.8491228070175438,
+      "brier_ablation_a_no_shock": 0.08782531818181817,
+      "spearman_ablation_b_form_with_shock": 0.819298245614035,
+      "brier_ablation_b_form_with_shock": 0.07897529545454546
+    },
+    {
+      "round": 12,
+      "name": "Dutch Grand Prix",
+      "beta_q": 0.19181901585951502,
+      "beta_f": 0.5883759162563826,
+      "sigma_r": 0.6153914025500682,
+      "fit_rows": 1967,
+      "spearman_grid": 0.8504901960784315,
+      "brier_grid": 0.029152849396996413,
+      "spearman_B": 0.806372549019608,
+      "brier_B": 0.07641759090909092,
+      "spearman_ablation_a_no_shock": 0.8308823529411766,
+      "brier_ablation_a_no_shock": 0.06962186363636363,
+      "spearman_ablation_b_form_with_shock": 0.7916666666666667,
+      "brier_ablation_b_form_with_shock": 0.07621288636363638
+    }
+  ]
+}
