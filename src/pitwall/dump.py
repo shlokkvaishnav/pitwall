@@ -88,6 +88,12 @@ class Dump:
         times = pd.Series([parse_time(t) for t in lap["time"]], index=lap["session_entry_id"].map(ids).values)
         return times.groupby(level=0).min().rename("best_s")
 
+    @cached_property
+    def driver_codes(self) -> pd.Series:
+        """Driver reference -> three-letter abbreviation."""
+        dr = self._read("driver")[["reference", "abbreviation"]]
+        return dr.set_index("reference")["abbreviation"]
+
     def schedule(self, season: int) -> pd.DataFrame:
         s = self.race_sessions[self.race_sessions["year"] == season]
         out = s[["number", "name", "date", "circuit_id"]].rename(columns={"number": "round"})
