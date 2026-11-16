@@ -27,3 +27,23 @@ Training: all duels of 2022 to 2025 with compounds (260). There is no other fit.
 
 ## 5. Output
 `results/09-undercut-replication.json`: the counts, the scores, the rule result and the git commit SHA.
+
+## Result (2026-11-16, commit fe613f4)
+R9-W1 passes. The decision-time model of spec 08 works on 136 duels that no model saw before.
+
+| Model | Known when A pits? | Log loss (136 duels, 2018 to 2021) | Brier skill score |
+|---|---|---|---|
+| base_rate | yes | 0.694 | 0 |
+| full07 | no | 0.606 | 0.17 |
+| full_c | no | 0.613 | 0.15 |
+| direct | yes | 0.632 | 0.12 |
+| two_stage | yes | 0.633 | 0.12 |
+
+- R9-W1: `two_stage` is better than `base_rate` by −0.061 per duel, p = 0.016 (51 race blocks).
+- R9-F: `full_c` (with the wait known) is better by −0.082 per duel, p = 0.009.
+- The response model is correct for 51% of duels.
+- The success rate is 43% in 2018 to 2021, and 50% in the training duels of 2022 to 2025.
+
+**Consequence.** Together with spec 08, the decision-time undercut model works on three periods:
+2022 to 2025 (Brier skill 0.09, p = 0.054), 2018 to 2021 (0.12, p = 0.016) and 2026 (0.21, 29 duels).
+The compounds still add nothing: `full_c` is a little worse than `full07` on these duels.
