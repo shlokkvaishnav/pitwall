@@ -91,3 +91,8 @@ Thus, we use only Jolpica-F1. Jolpica gives lap times, positions, pit stops, gri
 3. Rule R2 (straights) is removed, because it needs car data. We record this rule as "not tested".
 4. Rule R1 baselines: "linear tyre wear per stint" uses stints from the pit stops. The compound is not known.
 5. All other rules do not change.
+
+## Amendment A2 (2026-11-16)
+1. The seasons 2018 to 2021 are a new split, "early". We use them only for the undercut replication (spec 09).
+   The lap model, the energy regime and the simulator do not use them.
+2. The holdout and all other splits do not change.
