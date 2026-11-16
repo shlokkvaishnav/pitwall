@@ -1,0 +1,92 @@
+{
+  "spec": "10-undercut-open-events",
+  "commit": "bd5dc3d646aff1807fcd20a9a72db3e6613083f1",
+  "counts": {
+    "all": 1198,
+    "with_tyre_life": 1190,
+    "train": 744,
+    "test": 377,
+    "by_season": {
+      "2018": 90,
+      "2019": 131,
+      "2020": 95,
+      "2021": 132,
+      "2022": 131,
+      "2023": 165,
+      "2024": 198,
+      "2025": 179,
+      "2026": 69
+    }
+  },
+  "rules": {
+    "O1_test_scores": {
+      "base_rate": {
+        "log_loss": 0.6949380198904208,
+        "brier": 0.25083809385363076,
+        "bss": 0.0
+      },
+      "pitwall_style": {
+        "log_loss": 0.5748736987965121,
+        "brier": 0.19602991065822742,
+        "bss": 0.21850023795582285
+      },
+      "decision": {
+        "log_loss": 0.5730726323741465,
+        "brier": 0.19540637237475167,
+        "bss": 0.22098605768876822
+      },
+      "two_stage": {
+        "log_loss": 0.5755813841636861,
+        "brier": 0.19659758480910075,
+        "bss": 0.21623712814601626
+      }
+    },
+    "O1_base_rate_test": 0.4588859416445623,
+    "O2_dm_two_stage_vs_pitwall_style": {
+      "mean_diff": 0.0007076853671741013,
+      "p_value": 0.5621,
+      "n": 377,
+      "n_groups": 45
+    },
+    "O2_pass": false,
+    "O3_2026_scores": {
+      "base_rate": {
+        "log_loss": 0.666846035173811,
+        "brier": 0.23692655659014783,
+        "bss": 0.0
+      },
+      "pitwall_style": {
+        "log_loss": 0.6010760577758405,
+        "brier": 0.2103513911927784,
+        "bss": 0.11216625852264006
+      },
+      "decision": {
+        "log_loss": 0.6008382611726801,
+        "brier": 0.2104410884001569,
+        "bss": 0.11178767197384021
+      },
+      "two_stage": {
+        "log_loss": 0.6004075730883772,
+        "brier": 0.20882785551013855,
+        "bss": 0.11859667183116318
+      }
+    },
+    "O3_n": 64
+  },
+  "coefficients_standardised": {
+    "pitwall_style": {
+      "gap_s": -0.5397,
+      "age_diff": 0.8048,
+      "log_remaining": 0.3602
+    },
+    "two_stage_success": {
+      "gap_s": -0.5838,
+      "age_diff": 0.7625,
+      "log_remaining": 0.0773,
+      "race_lap_frac": 0.2257,
+      "fresh_a": 0.0728,
+      "wait_capped": 0.2327,
+      "no_stop": -1.0353
+    }
+  }
+}
