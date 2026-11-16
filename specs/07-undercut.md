@@ -42,3 +42,27 @@ We also report the Brier score and the coefficients of `full`.
 
 ## 5. Output
 `results/07-undercut.json`: the duel counts, the scores, the rule results, the coefficients and the git commit SHA.
+
+## Result (2026-11-16, commit addd44b)
+U1 and U2 pass. U3 shows no clear change in 2026.
+
+| Model | Log loss, 2022 to 2025 (LOSO, 285 duels) | Log loss, 2026 rounds 4 to 12 (29 duels) |
+|---|---|---|
+| base_rate | 0.696 | 0.694 |
+| gap_only | 0.662 | 0.609 |
+| full | **0.615** | **0.558** |
+
+- U1: `full` is better than `base_rate`. The mean difference is −0.080 per duel, p = 0.001 (75 race blocks).
+- U2: `full` is also better on 2026: −0.136 per duel. The bootstrap gave p < 0.0001, but it has only 9 race blocks. Thus, this p-value is not precise.
+- U3: success rate 45% in 2026 (31 duels) and 49% in 2022 to 2025. The difference is −4 points, with a 95% interval of −22 to +11 points. We cannot say that the undercut is different in 2026.
+
+Coefficients of `full` (2022 to 2025, standardised inputs):
+| Input | Coefficient | Meaning |
+|---|---|---|
+| gap | −0.63 | A larger gap makes the undercut less probable to work. |
+| wait (L_B − L) | +0.60 | Each lap that B stays out gives A more time on new tyres. |
+| tyre-age difference (B − A) | +0.24 | Older tyres on B help A. |
+| race fraction | −0.28 | Late stops work less. |
+
+**Limit.** Jolpica has no tyre compounds. A change of compound can explain a part of the error.
+The outcome is the order after the out-lap of B. A can lose the position again later.
