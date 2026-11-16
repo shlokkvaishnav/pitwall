@@ -35,3 +35,26 @@ If S1 and S2 pass, we can run the R4 holdout test of spec 00 with version B. If 
 
 ## 5. Output
 `results/06-race-simulator-b.json`: β_q, β_f, σ_r and the scores for each race, the rule results, the ablations, and the git commit SHA.
+
+## Result (2026-11-16)
+S1 and S2 fail. Version B is better than version A, but it is still worse than the grid before the race.
+
+| Metric (rounds 4 to 12) | Version A (spec 05) | Version B | (a) No pace shock | (b) Form + pace shock | Grid baseline |
+|---|---|---|---|---|---|
+| Mean Spearman with the official order | 0.724 | 0.744 | 0.753 | 0.699 | 0.785 |
+| Mean podium Brier score | 0.085 | 0.079 | 0.077 | 0.079 | 0.070 |
+
+Fit (round 12): β_q = 0.19, β_f = 0.59, σ_r = 0.62 s per lap, 1,967 driver rows. The values are stable over the rounds.
+
+- The qualifying gap helps: ablation (b), which has no qualifying gap, is the worst version.
+- The pace shock does not help. Ablation (a), without the shock, is a little better than version B on both metrics.
+- S3: the bins 0 to 0.2 and 0.2 to 0.4 are now well calibrated (0.030 against 0.007, and 0.33 against 0.35).
+  Version B gives no probability above 0.6, but in the bin 0.4 to 0.6 the real frequency is higher (0.59 against 0.47).
+  Thus, version B is now a little under-confident for the favourites.
+- The simulator wins on 2 of 9 races for Spearman (rounds 4 and 10), and on 4 of 9 races for Brier.
+
+**Interpretation.** The grid already contains the qualifying pace, and in 2026 the grid order is hard to change in a race.
+A lap-time simulator adds noise from the pit plan and the passing rule, and this noise is larger than the information it adds.
+
+**Consequence.** Stage 3 (strategy agent) stays blocked (spec 00, R5). We do not make more simulator versions on the same
+nine development races, because each new version increases the risk of a fit to these races (forking paths).
