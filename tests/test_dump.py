@@ -67,3 +67,14 @@ def test_race_joins_tables(dump):
 def test_holdout_race_is_refused(dump):
     with pytest.raises(HoldoutError):
         dump.race(2026, 2)
+
+
+def test_qualifying_best_lap(tmp_path):
+    tables = dict(TABLES)
+    tables["sessionentry"] += "1002,e,,,,,,t,t,2,0,1,500,100,0,\n1003,e,,,,,,t,t,2,0,2,501,100,0,\n"
+    tables["lap"] += "6,l,,f,f,1,1,1002,00:01:20.000\n7,l,,f,t,,,1002,00:01:19.500\n8,l,,t,f,2,2,1003,00:01:10.000\n"
+    for name, text in tables.items():
+        (tmp_path / f"formula_one_{name}.csv").write_text(text)
+    q = Dump(tmp_path).qualifying(2026, 1)
+    # the deleted lap of beta is not used, so beta has no time
+    assert q.to_dict() == {"alpha": pytest.approx(79.5)}

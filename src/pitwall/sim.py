@@ -1,4 +1,4 @@
-"""Lap-by-lap Monte Carlo race simulator, version A (specs/05-race-simulator.md)."""
+"""Lap-by-lap Monte Carlo race simulator, version A (spec 05) with the pace shock of version B (spec 06)."""
 
 from __future__ import annotations
 
@@ -32,6 +32,7 @@ class RaceStats:
     starters: int
     classified: int
     laps: int
+    clean_laps: dict[str, int] | None = None  # driver -> number of clean laps
 
 
 def race_stats(race: Race, circuit_id: int) -> RaceStats:
@@ -72,6 +73,7 @@ def race_stats(race: Race, circuit_id: int) -> RaceStats:
         starters=int((res["laps"] > 0).sum()),
         classified=len(cls),
         laps=int(res["laps"].max()),
+        clean_laps=t[clean].groupby("driver").size().astype(int).to_dict(),
     )
 
 
@@ -86,6 +88,7 @@ class SimInputs:
     sc_rate: float  # mean neutralised periods per race
     dnf_hazard: float  # per car per lap
     laps: int
+    pace_shock_s: float = 0.0  # SD of one pace offset per driver per run (spec 06)
 
 
 def inputs_from_history(
@@ -147,10 +150,14 @@ def simulate(inp: SimInputs, runs: int = 2000, seed: int = 0) -> np.ndarray:
         for start in rng.integers(2, max(n - SC_LAPS, 3), counts[r]):
             sc[r, start : start + SC_LAPS] = True
 
+    pace = np.broadcast_to(inp.pace, (runs, d))
+    if inp.pace_shock_s > 0:
+        pace = pace + rng.normal(0, inp.pace_shock_s, (runs, d))
+
     rows = np.arange(runs)[:, None]
     for lap in range(2, n + 1):
         order = np.argsort(np.where(alive, cum, np.inf), axis=1)
-        t = inp.pace[None] + inp.wear_s_per_lap * age + rng.normal(0, inp.noise_s, (runs, d))
+        t = pace + inp.wear_s_per_lap * age + rng.normal(0, inp.noise_s, (runs, d))
         pitting = (pit_laps == lap).any(-1)
         t = t + np.where(pitting, inp.pit_loss_s, 0.0)
         age = np.where(pitting, 1.0, age + 1.0)
