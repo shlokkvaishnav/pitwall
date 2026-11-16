@@ -25,7 +25,8 @@ def linear_stint(laps: pd.DataFrame, min_laps: int = 3) -> pd.Series:
     clean = clean_mask(laps)
     out = pd.Series(np.nan, index=laps.index)
     for _, g in laps.groupby(["driver", "stint"]):
-        xs, ys = [], []
+        xs: list[float] = []
+        ys: list[float] = []
         for idx, age, t, ok in zip(g.index, g["tyre_age"], g["time_s"], clean[g.index]):
             if len(xs) >= min_laps:
                 slope, icpt = np.polyfit(xs, ys, 1)
@@ -49,16 +50,16 @@ def local_trend(laps: pd.DataFrame, level_std: float = 0.15, slope_std: float = 
     r = obs_std**2
     out = pd.Series(np.nan, index=laps.index)
     for _, g in laps.groupby(["driver", "stint"]):
-        x, p = None, None
+        x, p, started = np.zeros(2), np.eye(2), False
         for idx, t, ok in zip(g.index, g["time_s"], clean[g.index]):
-            if x is not None:
+            if started:
                 x = f @ x
                 p = f @ p @ f.T + q
                 out[idx] = x[0]
             if not ok:
                 continue
-            if x is None:
-                x, p = np.array([t, 0.05]), np.diag([1.0, 0.05**2])
+            if not started:
+                x, p, started = np.array([t, 0.05]), np.diag([1.0, 0.05**2]), True
                 continue
             s = p[0, 0] + r
             k = p[:, 0] / s
