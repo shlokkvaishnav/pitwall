@@ -39,3 +39,16 @@ We score all candidates and `previous_lap` on the same laps: clean laps with a p
 
 ## 6. Output
 `results/03-lap-model.json`: the MAE for each candidate and race, the rule results, the feature importance, and the git commit SHA.
+
+## Result (2026-11-16, commit 11b962c)
+S1, S2 and S3 pass.
+
+| Model | Pooled MAE (9,034 laps, rounds 4 to 12) |
+|---|---|
+| previous_lap | 1.161 s |
+| gbm_pretrain | 1.027 s |
+| gbm_2026 | 1.748 s |
+
+- S1: the ratio is 0.885 (the pass condition is 0.95 or less).
+- S2: the mean difference is −0.133 s. No bootstrap sample of the 9 race blocks gave a difference of 0 or more (p < 0.0001).
+- S3: `gbm_pretrain` is better than `gbm_2026`. The 2022 to 2025 data helps, although the 2026 cars are different.
