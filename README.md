@@ -31,8 +31,10 @@ Read the charter: [specs/00-charter.md](specs/00-charter.md).
 | [04](specs/04-energy-regime.md) | Hidden energy regime in lap times | **Fail:** no regime. The second state is an outlier state. |
 | [05](specs/05-race-simulator.md) | Simulator version A against the grid | **Fail:** Spearman 0.72 against 0.79 |
 | [06](specs/06-race-simulator-b.md) | Simulator version B (qualifying pace) against the grid | **Fail:** Spearman 0.74 against 0.79 |
+| [07](specs/07-undercut.md) | Undercut model: does the car that pits first come out ahead? | **Pass:** log loss 0.62 against 0.70 (2022 to 2025), 0.56 against 0.69 (2026) |
 
 The strategy agent is blocked, because no simulator is better than the grid.
+The undercut model (spec 07) tests one strategy decision without the simulator.
 
 ## Quick start
 ```bash
