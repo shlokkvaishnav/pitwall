@@ -3,6 +3,7 @@ install:
 	python3 -m venv .venv && .venv/bin/pip install -q -e ".[dev]" && $(MAKE) fix-pth
 test:
 	.venv/bin/pytest -q
+	node --test tests/js/*.test.mjs
 lint:
 	.venv/bin/ruff check src tests scripts
 format:
