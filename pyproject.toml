@@ -8,7 +8,7 @@ dependencies = ["numpy", "pandas", "scipy"]
 [project.optional-dependencies]
 model = ["lightgbm", "scikit-learn"]
 ml = ["torch"]
-dev = ["pytest", "ruff", "hypothesis"]
+dev = ["pytest", "ruff", "hypothesis", "mypy", "pandas-stubs"]
 
 [build-system]
 requires = ["setuptools>=68"]
@@ -24,3 +24,6 @@ pythonpath = ["src"]
 [tool.ruff]
 line-length = 120
 src = ["src", "tests"]
+
+[tool.mypy]
+ignore_missing_imports = true

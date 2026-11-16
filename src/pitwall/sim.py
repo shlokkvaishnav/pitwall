@@ -58,8 +58,8 @@ def race_stats(race: Race, circuit_id: int) -> RaceStats:
     res = race.results
     cls = res[res["classified"]]
     stops = race.pitstops.groupby("driver")["stop"].max()
-    neutral = t.groupby("lap")["neutral"].first().sort_index()
-    neutral = neutral[neutral.index > 1].astype(int).to_numpy()
+    by_lap = t.groupby("lap")["neutral"].first().sort_index()
+    neutral = by_lap[by_lap.index > 1].astype(int).to_numpy()
     periods = int(((neutral[1:] == 1) & (neutral[:-1] == 0)).sum() + (neutral[:1] == 1).sum()) if len(neutral) else 0
     return RaceStats(
         season=race.season,
@@ -69,11 +69,11 @@ def race_stats(race: Race, circuit_id: int) -> RaceStats:
         wear_slope=float(np.median(slopes)) if slopes else float("nan"),
         stops=[int(stops.get(d, 0)) for d in cls["driver"]],
         neutral_periods=periods,
-        pace=pace,
+        pace={str(k): float(v) for k, v in pace.items()},
         starters=int((res["laps"] > 0).sum()),
         classified=len(cls),
         laps=int(res["laps"].max()),
-        clean_laps=t[clean].groupby("driver").size().astype(int).to_dict(),
+        clean_laps={str(k): int(v) for k, v in t[clean].groupby("driver").size().items()},
     )
 
 
@@ -112,7 +112,7 @@ def inputs_from_history(
     this_season = [h for h in history if h.season == 2026]
     if this_season:
         dnf = 1 - sum(h.classified for h in this_season) / max(sum(h.starters for h in this_season), 1)
-        dnf_h = dnf / np.mean([h.laps for h in this_season])
+        dnf_h = float(dnf / np.mean([h.laps for h in this_season]))
     else:
         dnf_h = 0.0
 
@@ -140,8 +140,8 @@ def simulate(inp: SimInputs, runs: int = 2000, seed: int = 0) -> np.ndarray:
     pit_laps = np.full((runs, d, max(max_stops, 1)), -1)
     for k in range(1, max_stops + 1):
         base = np.round(k * n / (n_stops + 1))
-        lap = np.clip(base + rng.integers(-3, 4, (runs, d)), 2, n - 1)
-        pit_laps[..., k - 1] = np.where(n_stops >= k, lap, -1)
+        plan_lap = np.clip(base + rng.integers(-3, 4, (runs, d)), 2, n - 1)
+        pit_laps[..., k - 1] = np.where(n_stops >= k, plan_lap, -1)
 
     # safety-car periods
     sc = np.zeros((runs, n + 1), dtype=bool)

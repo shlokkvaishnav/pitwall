@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 import numpy as np
 import pandas as pd
 
@@ -10,7 +12,7 @@ from .features import FEATURES, build
 from .laps import lap_table
 from .splits import split_of
 
-PARAMS = {
+PARAMS: dict[str, Any] = {
     "objective": "l1",
     "n_estimators": 400,
     "learning_rate": 0.03,
