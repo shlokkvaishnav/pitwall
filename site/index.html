@@ -29,7 +29,7 @@
 <main>
   <h1>pitwall</h1>
   <p class="lede">This project finds the hidden battery state and tyre wear of 2026 F1 cars from public timing data. Then it uses them in a race simulator and a pit-strategy agent.</p>
-  <div class="status"><b>Status:</b> 6 specs are done. The lap model passes. The energy regime and two simulator versions fail. The strategy agent is blocked.</div>
+  <div class="status"><b>Status:</b> 7 specs are done. The lap model and the undercut model pass. The energy regime and two simulator versions fail. The full strategy agent is blocked.</div>
   <h2>How it works</h2>
   <ol>
     <li>A gradient-boosting model predicts the next lap time of each car.</li>
@@ -42,6 +42,7 @@
     <tr><th>Lap model</th><td><b>Pass.</b> Mean error 1.03 s against 1.16 s for the previous lap (11.5% lower, p &lt; 0.0001).</td></tr>
     <tr><th>Energy regime</th><td><b>Fail.</b> The hidden Markov model is worse than no correction. Its second state is an outlier state, not an energy mode.</td></tr>
     <tr><th>Simulator A</th><td><b>Fail.</b> Spearman 0.72 against 0.79 for the grid order. Podium Brier 0.085 against 0.070.</td></tr>
+    <tr><th>Undercut</th><td><b>Pass.</b> A model of the gap, the wait of the rival, the tyre age and the race lap predicts if the undercut works. Log loss 0.56 against 0.69 for the base rate on 2026 (29 duels).</td></tr>
     <tr><th>Simulator B</th><td><b>Fail.</b> With qualifying pace: Spearman 0.74, Brier 0.079. Better than A, but worse than the grid.</td></tr>
   </table>
   <h2>Method</h2>

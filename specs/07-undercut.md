@@ -66,3 +66,5 @@ Coefficients of `full` (2022 to 2025, standardised inputs):
 
 **Limit.** Jolpica has no tyre compounds. A change of compound can explain a part of the error.
 The outcome is the order after the out-lap of B. A can lose the position again later.
+The wait (L_B − L) is known only after B reacts. Thus, at the time when A pits, the model gives the probability of success
+for each possible wait, not one probability.
