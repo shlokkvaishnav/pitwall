@@ -43,3 +43,19 @@ def test_no_duel_with_a_neutralised_lap():
     b = [90.0, 90, 90, 90, 90, 90, 140, 110, 89, 90]
     c = [93.0, 90, 90, 90, 90, 90, 140, 90, 90, 90]
     assert duels(_race(a, b, 5, 7, extra=[("c", c)])).empty
+
+
+def test_open_duel_without_a_later_stop_uses_the_last_common_lap():
+    from pitwall.undercut import open_duels
+
+    a = [91.0, 90, 90, 90, 110, 88, 88, 88, 88, 88]
+    b = [90.0, 90, 90, 90, 90, 90, 90, 90, 90, 90]
+    pits = _race(a, b, 5, 2).pitstops  # b stops on lap 2 only, before a
+    race = _race(a, b, 5, 2)
+    race.pitstops = pits
+    d = open_duels(race)
+    assert len(d) == 1
+    row = d.iloc[0]
+    assert not row["b_responds"] and row["remaining_laps"] == 5
+    # after lap 10: a = 91 + 270 + 110 + 440 = 911, b = 900 -> b is ahead
+    assert not bool(row["a_ahead"])
