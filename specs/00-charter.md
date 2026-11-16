@@ -96,3 +96,10 @@ Thus, we use only Jolpica-F1. Jolpica gives lap times, positions, pit stops, gri
 1. The seasons 2018 to 2021 are a new split, "early". We use them only for the undercut replication (spec 09).
    The lap model, the energy regime and the simulator do not use them.
 2. The holdout and all other splits do not change.
+
+## Amendment A3 (2026-11-16)
+1. Stage 3 (the reinforcement-learning strategy agent) is removed. Reasons: no simulator beats the grid (specs 05 and 06),
+   and published agents (arXiv 2501.04068, 2512.21570, 2602.23056) already cover this stage and test only inside their own simulators.
+   We record rule R5 as "not tested".
+2. The main result of the project is now the undercut model (specs 07 to 10). The simulator results stay as a simulator-fidelity check.
+3. For all grid comparisons, the Spearman correlation uses the classified drivers only (spec 05, rule S1).
