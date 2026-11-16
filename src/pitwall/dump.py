@@ -11,6 +11,8 @@ import pandas as pd
 from .data import Race, parse_time
 from .splits import assert_not_holdout
 
+QUALIFYING_TYPES = ("Q1", "Q2", "Q3")
+
 
 def _bool(s: pd.Series) -> pd.Series:
     return s.astype(str).str.lower().isin(("t", "true", "1"))
@@ -60,6 +62,31 @@ class Dump:
     @cached_property
     def pitstops(self) -> pd.DataFrame:
         return self._read("pitstop")[["session_entry_id", "lap_id", "number", "duration"]]
+
+    @cached_property
+    def timed_laps(self) -> pd.DataFrame:
+        """All laps with a time, also the rows without a lap number (fastest-lap rows)."""
+        lap = self._read("lap", usecols=["session_entry_id", "time", "is_deleted"])
+        return lap[~_bool(lap["is_deleted"]) & lap["time"].notna()]
+
+    @cached_property
+    def qualifying_sessions(self) -> pd.DataFrame:
+        s = self._read("session")[["id", "round_id", "type", "is_cancelled"]]
+        s = s[s["type"].isin(QUALIFYING_TYPES) & ~_bool(s["is_cancelled"])]
+        return s.rename(columns={"id": "session_id"}).merge(self.rounds, on="round_id")
+
+    def qualifying(self, season: int, rnd: int, *, allow_holdout: bool = False) -> pd.Series:
+        """Best qualifying lap (s) of each driver over Q1, Q2 and Q3 of one round (spec 06)."""
+        s = self.qualifying_sessions
+        s = s[(s["year"] == season) & (s["number"] == rnd)]
+        if s.empty:
+            return pd.Series(dtype=float, name="best_s")
+        assert_not_holdout(s["date"].iloc[0], allow_holdout=allow_holdout)
+        ent = self.entries[self.entries["session_id"].isin(s["session_id"])]
+        ids = ent.set_index("session_entry_id")["driver"]
+        lap = self.timed_laps[self.timed_laps["session_entry_id"].isin(ids.index)]
+        times = pd.Series([parse_time(t) for t in lap["time"]], index=lap["session_entry_id"].map(ids).values)
+        return times.groupby(level=0).min().rename("best_s")
 
     def schedule(self, season: int) -> pd.DataFrame:
         s = self.race_sessions[self.race_sessions["year"] == season]
