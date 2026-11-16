@@ -33,6 +33,7 @@ Read the charter: [specs/00-charter.md](specs/00-charter.md).
 | [06](specs/06-race-simulator-b.md) | Simulator version B (qualifying pace) against the grid | **Fail:** Spearman 0.74 against 0.79 |
 | [07](specs/07-undercut.md) | Undercut model: does the car that pits first come out ahead? | **Pass:** log loss 0.62 against 0.70 (2022 to 2025), 0.56 against 0.69 (2026) |
 | [08](specs/08-undercut-b.md) | Undercut with tyre compounds, and a model that uses only data known when the driver pits | **Mixed:** compounds add nothing (fail). Decision-time model: p = 0.054 on 2022 to 2025 (fail, the bar is 0.05), pass on 2026. |
+| [09](specs/09-undercut-replication.md) | The decision-time undercut model on 136 new duels (2018 to 2021) | **Pass:** log loss 0.63 against 0.69, p = 0.016 |
 
 The strategy agent is blocked, because no simulator is better than the grid.
 The undercut model (spec 07) tests one strategy decision without the simulator.
