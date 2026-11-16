@@ -29,7 +29,7 @@
 <main>
   <h1>pitwall</h1>
   <p class="lede">This project finds the hidden battery state and tyre wear of 2026 F1 cars from public timing data. Then it uses them in a race simulator and a pit-strategy agent.</p>
-  <div class="status"><b>Status:</b> 7 specs are done. The lap model and the undercut model pass. The energy regime and two simulator versions fail. The full strategy agent is blocked.</div>
+  <div class="status"><b>Status:</b> 8 specs are done. The lap model and the undercut model pass. The energy regime and two simulator versions fail. The full strategy agent is blocked.</div>
   <h2>How it works</h2>
   <ol>
     <li>A gradient-boosting model predicts the next lap time of each car.</li>
@@ -43,6 +43,7 @@
     <tr><th>Energy regime</th><td><b>Fail.</b> The hidden Markov model is worse than no correction. Its second state is an outlier state, not an energy mode.</td></tr>
     <tr><th>Simulator A</th><td><b>Fail.</b> Spearman 0.72 against 0.79 for the grid order. Podium Brier 0.085 against 0.070.</td></tr>
     <tr><th>Undercut</th><td><b>Pass.</b> A model of the gap, the wait of the rival, the tyre age and the race lap predicts if the undercut works. Log loss 0.56 against 0.69 for the base rate on 2026 (29 duels).</td></tr>
+    <tr><th>Undercut B</th><td><b>Mixed.</b> Tyre compounds add nothing, but a new set of tyres helps. A model that uses only data known when the driver pits: Brier skill 0.09 on 2022 to 2025 (p = 0.054, just above the bar) and 0.21 on 2026.</td></tr>
     <tr><th>Simulator B</th><td><b>Fail.</b> With qualifying pace: Spearman 0.74, Brier 0.079. Better than A, but worse than the grid.</td></tr>
   </table>
   <h2>Method</h2>
@@ -50,7 +51,7 @@
     <tr><th>Specs</th><td>We write a spec with pass/fail rules before each run. We keep failed results.</td></tr>
     <tr><th>Holdout</th><td>The 2026 races on or after 1 September 2026. The code locks them until the final spec.</td></tr>
   </table>
-  <footer>This site shows statistics only. Data: the Jolpica-F1 database dump.</footer>
+  <footer>This site shows statistics only. Data: the Jolpica-F1 database dump and TracingInsights open data.</footer>
 </main>
 </body>
 </html>

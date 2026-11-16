@@ -32,6 +32,7 @@ Read the charter: [specs/00-charter.md](specs/00-charter.md).
 | [05](specs/05-race-simulator.md) | Simulator version A against the grid | **Fail:** Spearman 0.72 against 0.79 |
 | [06](specs/06-race-simulator-b.md) | Simulator version B (qualifying pace) against the grid | **Fail:** Spearman 0.74 against 0.79 |
 | [07](specs/07-undercut.md) | Undercut model: does the car that pits first come out ahead? | **Pass:** log loss 0.62 against 0.70 (2022 to 2025), 0.56 against 0.69 (2026) |
+| [08](specs/08-undercut-b.md) | Undercut with tyre compounds, and a model that uses only data known when the driver pits | **Mixed:** compounds add nothing (fail). Decision-time model: p = 0.054 on 2022 to 2025 (fail, the bar is 0.05), pass on 2026. |
 
 The strategy agent is blocked, because no simulator is better than the grid.
 The undercut model (spec 07) tests one strategy decision without the simulator.
@@ -43,5 +44,6 @@ make check   # lint and tests
 ```
 
 ## Data
-The Jolpica-F1 database dump (lap times, pit stops, results, qualifying). We check its SHA-256.
+- The Jolpica-F1 database dump (lap times, pit stops, results, qualifying). We check its SHA-256.
+- TracingInsights open data (tyre compound, tyre life and stint for each lap; MIT and Apache-2.0). We do not download holdout races.
 Do not commit raw data. The site shows statistics only.
