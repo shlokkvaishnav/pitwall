@@ -3,58 +3,87 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>pitwall</title>
-<meta name="description" content="Tests a lap model, an energy regime and a race simulator for 2026 F1 against real races. Pre-registered rules.">
+<title>pitwall — F1 undercut strategy</title>
+<meta name="description" content="Pit first, come out ahead? An F1 undercut model that runs in your browser.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%238c2346'/%3E%3Cpath d='M7 22h18M9 22l3-9h8l3 9' stroke='white' stroke-width='2.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/style.css">
 <style>
-  :root { --bg:#fbfaf7; --fg:#1d1d1b; --muted:#6b6a66; --line:#e4e1da; --accent:#b4332b; --card:#ffffff; }
-  @media (prefers-color-scheme: dark) {
-    :root { --bg:#141513; --fg:#ecebe6; --muted:#9d9b94; --line:#2c2d2a; --accent:#ef7a6f; --card:#1b1c1a; }
-  }
-  * { box-sizing: border-box; }
-  body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
-  main { max-width:760px; margin:0 auto; padding:56px 16px 80px; }
-  h1 { font-size:2rem; letter-spacing:-0.02em; margin:0 0 8px; }
-  .lede { color:var(--muted); font-size:1.1rem; margin:0 0 32px; }
-  h2 { font-size:1.05rem; margin:36px 0 12px; }
-  .status { border:1px solid var(--line); background:var(--card); border-radius:10px; padding:14px 18px; }
-  .status b { color:var(--accent); }
-  ol { padding-left:20px; } li { margin:6px 0; }
-  table { width:100%; border-collapse:collapse; font-size:0.95rem; }
-  th, td { text-align:left; padding:8px 6px; border-bottom:1px solid var(--line); vertical-align:top; }
-  th { color:var(--muted); font-weight:500; width:34%; }
-  footer { margin-top:56px; color:var(--muted); font-size:0.85rem; }
+  .gauge-num { font: 600 3.6rem/1 var(--serif); letter-spacing: -.03em; fill: var(--ink); font-variant-numeric: tabular-nums; }
+  .gauge-word { font: 600 .8rem/1 var(--sans); letter-spacing: .12em; text-transform: uppercase; }
+  .lane { stroke: var(--rule); stroke-width: 1.5; stroke-dasharray: 3 5; }
+  .car { transition: transform .45s cubic-bezier(.2,.8,.2,1); }
+  .lbl { font: 600 10px/1 var(--sans); letter-spacing: .08em; fill: var(--muted); }
+  .bar-lbl { font-size: 13px; fill: var(--ink); }
+  .bar-val { font: 600 12px/1 var(--sans); font-variant-numeric: tabular-nums; }
+  #map rect.cell { shape-rendering: crispEdges; }
+  .tip { font-size: .8rem; color: var(--muted); margin-top: .6rem; }
 </style>
 </head>
 <body>
-<main>
-  <h1>pitwall</h1>
-  <p class="lede">This project finds the hidden battery state and tyre wear of 2026 F1 cars from public timing data. Then it uses them in a race simulator and a pit-strategy agent.</p>
-  <div class="status"><b>Status:</b> 10 specs are done. The lap model and the undercut model pass. The undercut model also works on 2018 to 2021. The energy regime and two simulator versions fail. The strategy agent is removed.</div>
-  <p><a href="undercut.html"><b>Try the undercut calculator →</b></a> The model runs in your browser.</p>
-  <h2>How it works</h2>
-  <ol>
-    <li>A gradient-boosting model predicts the next lap time of each car.</li>
-    <li>A hidden Markov model looks for "push" and "harvest" laps in the errors of the lap model.</li>
-    <li>A Monte Carlo race simulator gives a probability for each finishing position.</li>
-    <li>A strategy agent learns pit decisions in the simulator, only if the simulator passes its test.</li>
-  </ol>
-  <h2>Results (2026 rounds 4 to 12)</h2>
-  <table>
-    <tr><th>Lap model</th><td><b>Pass.</b> Mean error 1.03 s against 1.16 s for the previous lap (11.5% lower, p &lt; 0.0001).</td></tr>
-    <tr><th>Energy regime</th><td><b>Fail.</b> The hidden Markov model is worse than no correction. Its second state is an outlier state, not an energy mode.</td></tr>
-    <tr><th>Simulator A</th><td><b>Fail.</b> Spearman 0.72 against 0.79 for the grid order. Podium Brier 0.085 against 0.070.</td></tr>
-    <tr><th>Undercut</th><td><b>Pass.</b> A model of the gap, the wait of the rival, the tyre age and the race lap predicts if the undercut works. Log loss 0.56 against 0.69 for the base rate on 2026 (29 duels).</td></tr>
-    <tr><th>Undercut B</th><td><b>Mixed.</b> Tyre compounds add nothing, but a new set of tyres helps. A model that uses only data known when the driver pits: Brier skill 0.09 on 2022 to 2025 (p = 0.054, just above the bar) and 0.21 on 2026.</td></tr>
-    <tr><th>Undercut replication</th><td><b>Pass.</b> On 136 duels from 2018 to 2021 that no model saw before, the decision-time model has a Brier skill of 0.12 (p = 0.016).</td></tr>
-    <tr><th>Open events</th><td><b>Fail.</b> Without the response condition, our two-stage model is equal to the simple published model (Brier skill 0.22 on 2024 to 2025, p = 0.56). The simple model works in three eras with public data only.</td></tr>
-    <tr><th>Simulator B</th><td><b>Fail.</b> With qualifying pace: Spearman 0.74, Brier 0.079. Better than A, but worse than the grid.</td></tr>
-  </table>
-  <h2>Method</h2>
-  <table>
-    <tr><th>Specs</th><td>We write a spec with pass/fail rules before each run. We keep failed results.</td></tr>
-    <tr><th>Holdout</th><td>The 2026 races on or after 1 September 2026. The code locks them until the final spec.</td></tr>
-  </table>
-  <footer>This site shows statistics only. Data: the Jolpica-F1 database dump and TracingInsights open data.</footer>
-</main>
+<div class="wrap">
+  <nav class="top">
+    <span class="brand">pitwall</span>
+    <a href="https://github.com/shlokkvaishnav/pitwall"><svg class="icon" viewBox="0 0 16 16"><use href="assets/icons/github.svg#gh"/></svg>Code &amp; method</a>
+  </nav>
+
+  <header class="hero">
+    <div class="kicker">F1 strategy · 2018 – 2026</div>
+    <h1>Will the undercut work?</h1>
+    <p class="sub">You are close behind. You pit first, on fresh tyres. Do you come out ahead when your rival pits? Move the sliders.</p>
+  </header>
+
+  <section>
+    <div class="grid g2">
+      <div class="panel">
+        <div class="ctl"><div class="ctl-head"><label for="gap">Gap to the car ahead</label><output id="gapV"></output></div>
+          <input id="gap" type="range" min="0.1" max="3" step="0.1" value="1.2"></div>
+        <div class="ctl"><div class="ctl-head"><label for="ageA">Laps on your tyres</label><output id="ageAV"></output></div>
+          <input id="ageA" type="range" min="1" max="40" step="1" value="16"></div>
+        <div class="ctl"><div class="ctl-head"><label for="ageB">Laps on the rival's tyres</label><output id="ageBV"></output></div>
+          <input id="ageB" type="range" min="1" max="40" step="1" value="22"></div>
+        <div class="ctl"><div class="ctl-head"><label for="left">Laps to go</label><output id="leftV"></output></div>
+          <input id="left" type="range" min="3" max="60" step="1" value="28"></div>
+        <svg id="strip" viewBox="0 0 320 92" role="img" aria-label="You and the rival on track before your stop">
+          <line class="lane" x1="8" x2="312" y1="34" y2="34"/><line class="lane" x1="8" x2="312" y1="70" y2="70"/>
+          <text class="lbl" x="8" y="22">RIVAL</text><text class="lbl" x="8" y="58">YOU</text>
+          <g id="carB" class="car"><rect x="-15" y="27" width="30" height="14" rx="7" fill="var(--cool)"/></g>
+          <g id="carA" class="car"><rect x="-15" y="63" width="30" height="14" rx="7" fill="var(--accent)"/></g>
+          <line id="gapLine" y1="52" y2="52" stroke="var(--muted)" stroke-width="1"/>
+          <text id="gapTxt" class="tick" y="49" text-anchor="middle"></text>
+        </svg>
+      </div>
+      <div class="panel">
+        <svg id="gauge" viewBox="0 0 320 196" role="img" aria-label="Probability that the undercut works">
+          <defs><linearGradient id="arc" x1="0" x2="1"><stop offset="0" stop-color="var(--cool)"/><stop offset="1" stop-color="var(--accent)"/></linearGradient></defs>
+          <path d="M30 150 A130 130 0 0 1 290 150" fill="none" stroke="var(--chip)" stroke-width="22" stroke-linecap="round"/>
+          <path id="arcFill" d="M30 150 A130 130 0 0 1 290 150" fill="none" stroke="url(#arc)" stroke-width="22" stroke-linecap="round" pathLength="100" stroke-dasharray="0 100" style="transition: stroke-dasharray .45s cubic-bezier(.2,.8,.2,1)"/>
+          <circle id="knob" r="9" fill="var(--card)" stroke="var(--ink)" stroke-width="3" style="transition: cx .45s cubic-bezier(.2,.8,.2,1), cy .45s cubic-bezier(.2,.8,.2,1)"/>
+          <text id="pct" class="gauge-num" x="160" y="138" text-anchor="middle">–</text>
+          <text id="word" class="gauge-word" x="160" y="184" text-anchor="middle"></text>
+        </svg>
+        <svg id="curve" viewBox="0 0 320 130" role="img" aria-label="Chance against the gap"></svg>
+        <div class="tip">The line: your chance at every gap, with the other sliders as they are.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>The undercut map</h2>
+    <p class="cap">Every gap against every tyre advantage, at <b id="mapLaps"></b> laps to go. Red: pit now. Blue: stay out.</p>
+    <div class="panel"><svg id="map" role="img" aria-label="Map of undercut chance by gap and tyre advantage"></svg></div>
+  </section>
+
+  <section>
+    <h2>What moves the odds</h2>
+    <p class="cap">From your situation above: how much one change moves your chance.</p>
+    <div class="panel"><svg id="bars" role="img" aria-label="Effect of single changes on the chance"></svg></div>
+  </section>
+
+  <footer>
+    <p>Learned from <span id="nEvents">1,190</span> real pit duels, 2018 – 2026, public timing data only (Jolpica-F1, TracingInsights). Runs in your browser.</p>
+    <p><a href="https://github.com/shlokkvaishnav/pitwall">github.com/shlokkvaishnav/pitwall</a></p>
+  </footer>
+</div>
+<script type="module" src="app.js"></script>
 </body>
 </html>
