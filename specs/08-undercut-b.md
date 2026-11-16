@@ -69,17 +69,17 @@ C1 fails. W1 fails by a small margin (p = 0.054). T1 passes.
 | two_stage | yes | 0.652 | 0.09 | 0.581 | 0.21 |
 
 - **C1 fails.** The compounds do not make the spec 07 model better: −0.002 per duel, p = 0.41.
-  In the coefficients,  (a new set) has a weight of +0.34, but  has only +0.03.
+  In the coefficients, `fresh_a` (a new set) has a weight of +0.34, but `compound_step` has only +0.03.
   Thus, a new set of tyres is more important than the compound. Most duels (229 of 291) have a step of −1 or 0.
-- **W1 fails by a small margin.** At decision time,  is better than  by −0.044 per duel, but p = 0.054 (the rule is p < 0.05).
+- **W1 fails by a small margin.** At decision time, `two_stage` is better than `base_rate` by −0.044 per duel, but p = 0.054 (the rule is p < 0.05).
   We do not change the rule after the result.
-- **W2.**  and  are equal (p = 0.51). The response model is correct for 44% of duels (LOSO).
-  The cost of not knowing the wait is +0.052 per duel ( against ). Thus, the wait of B is the largest unknown at decision time.
-- **T1 passes.** On 2026,  is better than : −0.114 per duel, p = 0.0003 with 9 race blocks (not precise).
+- **W2.** `two_stage` and `direct` are equal (p = 0.51). The response model is correct for 44% of duels (LOSO).
+  The cost of not knowing the wait is +0.052 per duel (`two_stage` against `full_c`). Thus, the wait of B is the largest unknown at decision time.
+- **T1 passes.** On 2026, `two_stage` is better than `base_rate`: −0.114 per duel, p = 0.0003 with 9 race blocks (not precise).
 
 **Comparison.** An independent preprint (arXiv 2607.06495) uses 2,134 undercut events, features from pit time only, and reports a Brier skill score of 0.107.
 Our decision-time models get 0.09 (LOSO 2022 to 2025) and 0.21 (2026, few duels). The two studies use different duel definitions.
 
 **Status of the two limits of spec 07.**
 1. Compounds: fixed in the data (TracingInsights, 92% of duels). The compound adds no information, but a new set does.
-2. Wait: fixed in the method ( gives one probability at decision time). The signal at decision time is about half of the signal with the wait.
+2. Wait: fixed in the method (`two_stage` gives one probability at decision time). The signal at decision time is about half of the signal with the wait.
