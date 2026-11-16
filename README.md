@@ -1,51 +1,71 @@
 # pitwall
 
-pitwall tries to find the hidden battery state and tyre wear of 2026 F1 cars from public timing data.
-Then it tests a race simulator and a pit-strategy agent against real races.
+**Will the undercut work?** You are close behind a rival in a Formula 1 race. You pit first, for fresh tyres.
+pitwall gives the probability that you come out ahead when the rival pits too.
 
-## Why
-The 2026 F1 cars get approximately half of their power from the battery.
-Energy use changes lap times and overtakes. But public data does not show the battery state.
-Also, the tyre models from earlier years may not work on the 2026 cars.
+**Live:** <https://shlokkvaishnav.github.io/pitwall/> — the model runs in your browser.
 
-## How it works
-1. **Lap model.** A gradient-boosting model predicts the next lap time of each car. It learns on 2022 to 2025 and on earlier 2026 races.
-2. **Energy regime.** A hidden Markov model looks for "push" and "harvest" laps in the lap-time residuals.
-3. **Race simulator.** A lap-by-lap Monte Carlo simulator gives a probability for each finishing position.
-4. **Strategy agent.** A reinforcement-learning agent learns pit decisions in the simulator.
-   We train it only if the simulator passes its test on the holdout.
+[![The pitwall site](docs/site.png)](https://shlokkvaishnav.github.io/pitwall/)
 
-## Method
-- We write a spec before each experiment. Each spec has pass/fail rules with numbers.
-- The 2026 races on or after 1 September 2026 are a locked holdout. The code enforces the lock.
-- We keep failed results, and we report them.
+## What it does
+- **Undercut model.** A logistic regression on three numbers that a strategist knows when the car pits:
+  the gap to the car ahead, the tyre-age difference and the laps to go. It learned from 1,190 real pit duels (2018 to 2026).
+- **Lap-time model.** A gradient-boosting model (LightGBM) that predicts the next lap time of each car.
+- **Race simulator.** A Monte Carlo model that plays each race 2,000 times and gives a probability for each finishing position.
+- **A web page with no server.** The model is exported to JSON. The page computes the probability, a map and a sensitivity chart in JavaScript.
 
-Read the charter: [specs/00-charter.md](specs/00-charter.md).
+## What works and what does not
+| Part | Result |
+|---|---|
+| Undercut model | **Works.** Brier skill 0.22 on 2024 and 2025 (trained on 2018 to 2023). It also works on 2026, with new car rules. |
+| Lap-time model | **Works.** 11.5% lower error than "the next lap equals the last lap" on 2026 races. |
+| Race simulator | **Does not beat the starting grid.** In 2026, the grid order is a very strong forecast of the result. |
+| Battery use from lap times | **Not visible.** The 2026 cars change their battery use inside a lap. Lap times are too coarse to show it. |
 
-## Results (development races, 2026 rounds 4 to 12)
-| Spec | Test | Result |
-|---|---|---|
-| [01](specs/01-energy-limits-and-data.md) | Energy limits from the FIA regulations. Data checks of the Jolpica dump. | Pass (one check is not correct, see the spec) |
-| [02](specs/02-lap-baselines.md) | Lap-time baselines. The best is the previous lap: 1.05 s mean error. | Done |
-| [03](specs/03-lap-model.md) | Lap model against the previous lap | **Pass:** 11.5% lower error, p < 0.0001 |
-| [04](specs/04-energy-regime.md) | Hidden energy regime in lap times | **Fail:** no regime. The second state is an outlier state. |
-| [05](specs/05-race-simulator.md) | Simulator version A against the grid | **Fail:** Spearman 0.72 against 0.79 |
-| [06](specs/06-race-simulator-b.md) | Simulator version B (qualifying pace) against the grid | **Fail:** Spearman 0.74 against 0.79 |
-| [07](specs/07-undercut.md) | Undercut model: does the car that pits first come out ahead? | **Pass:** log loss 0.62 against 0.70 (2022 to 2025), 0.56 against 0.69 (2026) |
-| [08](specs/08-undercut-b.md) | Undercut with tyre compounds, and a model that uses only data known when the driver pits | **Mixed:** compounds add nothing (fail). Decision-time model: p = 0.054 on 2022 to 2025 (fail, the bar is 0.05), pass on 2026. |
-| [10](specs/10-undercut-open-events.md) | Open undercut events (no response condition), against the model of arXiv 2607.06495 | **Fail:** our two-stage model is equal to the simple published model (p = 0.56). Both have a Brier skill of 0.22 on 2024 to 2025. |
-| [09](specs/09-undercut-replication.md) | The decision-time undercut model on 136 new duels (2018 to 2021) | **Pass:** log loss 0.63 against 0.69, p = 0.016 |
+Each experiment has a written plan with pass/fail rules before the run, in [`specs/`](specs/).
+Failed tests stay in the repository. The 2026 races from 1 September are a locked test set: the code refuses to load them.
 
-The strategy agent is removed (charter amendment A3): no simulator is better than the grid, and published agents already exist.
-The undercut model (spec 07) tests one strategy decision without the simulator.
+## Architecture
+```mermaid
+flowchart LR
+  J[Jolpica-F1 dump<br/>laps, pit stops, results] --> D[pitwall.dump<br/>Race objects]
+  T[TracingInsights<br/>tyre life per lap] --> Y[pitwall.tyres]
+  D --> L[laps + features]
+  L --> M[lap-time model<br/>LightGBM]
+  L --> S[race simulator<br/>Monte Carlo]
+  L --> U[undercut duels]
+  Y --> U
+  U --> R[logistic model]
+  R --> E[export JSON] --> W[site/<br/>browser maths]
+```
+
+## Engineering
+- **One-command rebuild.** `make reproduce` downloads the public data (the dump has a pinned SHA-256), runs every experiment,
+  and compares every number with the committed results. `make docker-reproduce` does the same in a clean container.
+  The last Docker run rebuilt all 11 result files with no difference.
+- **The browser and Python agree.** A Node test checks that the JavaScript model gives the scikit-learn probabilities (difference < 1e-5).
+- **Checks on each push:** ruff (lint), mypy (types), pytest, Node tests. CI runs only on push, never on a schedule.
+- **No raw data in the repository.** The site shows only model numbers.
 
 ## Quick start
 ```bash
-make install
-make check   # lint and tests
+make install        # Python 3.10+, creates .venv
+make check          # lint, types, tests
+make reproduce      # download the data and rebuild all results (about 30 minutes)
 ```
 
-## Data
-- The Jolpica-F1 database dump (lap times, pit stops, results, qualifying). We check its SHA-256.
-- TracingInsights open data (tyre compound, tyre life and stint for each lap; MIT and Apache-2.0). We do not download holdout races.
-Do not commit raw data. The site shows statistics only.
+## Layout
+| Path | Content |
+|---|---|
+| `src/pitwall/` | Data loaders, lap features, models, simulator, undercut duels |
+| `scripts/` | One script per experiment, plus the data download and the site export |
+| `specs/` | The plan and the result of each experiment |
+| `results/` | The result of each experiment (JSON, with the git commit) |
+| `site/` | The web page (HTML, CSS, JavaScript, no framework) |
+
+## Data and credits
+- [Jolpica-F1](https://github.com/jolpica/jolpica-f1) database dump (non-commercial use).
+- [TracingInsights](https://github.com/TracingInsights) open data, MIT and Apache-2.0.
+- Related work: a July 2026 preprint with a similar undercut model, [arXiv 2607.06495](https://arxiv.org/abs/2607.06495).
+  [Spec 10](specs/10-undercut-open-events.md) compares the two models directly.
+- Fonts: Literata and Instrument Sans (SIL Open Font License), in `site/assets/licenses/`.
