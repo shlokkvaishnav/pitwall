@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Undercut calculator</title>
+<meta name="description" content="Probability that an F1 undercut works, from the gap, the tyre ages and the laps left. The model runs in your browser.">
+<style>
+  :root { --bg:#fbfaf7; --fg:#1d1d1b; --muted:#6b6a66; --line:#e4e1da; --accent:#b4332b; --card:#ffffff; --soft:#e9b7b2; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#141513; --fg:#ecebe6; --muted:#9d9b94; --line:#2c2d2a; --accent:#ef7a6f; --card:#1b1c1a; --soft:#6b3631; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width:760px; margin:0 auto; padding:40px 16px 80px; }
+  a { color:var(--accent); }
+  h1 { font-size:1.8rem; letter-spacing:-0.02em; margin:8px 0 6px; }
+  .lede { color:var(--muted); margin:0 0 28px; }
+  .card { border:1px solid var(--line); background:var(--card); border-radius:12px; padding:18px; }
+  .grid2 { display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
+  @media (max-width: 640px) { .grid2 { grid-template-columns: 1fr; } }
+  label { display:block; font-size:0.92rem; margin:12px 0 2px; }
+  label span { float:right; color:var(--muted); font-variant-numeric: tabular-nums; }
+  input[type=range] { width:100%; accent-color: var(--accent); }
+  .big { font-size:3.2rem; font-weight:650; color:var(--accent); line-height:1.1; font-variant-numeric: tabular-nums; }
+  .muted { color:var(--muted); font-size:0.9rem; }
+  h2 { font-size:1.02rem; margin:28px 0 8px; }
+  svg { width:100%; height:auto; display:block; }
+  svg .grid { stroke:var(--line); }
+  svg .diag { stroke:var(--muted); stroke-dasharray:4 4; }
+  svg .tick { fill:var(--muted); font-size:10px; }
+  svg .line { fill:none; stroke:var(--accent); stroke-width:2.2; }
+  svg .dot { fill:var(--accent); }
+  svg .dot.soft { fill:var(--soft); stroke:var(--accent); }
+  footer { margin-top:44px; color:var(--muted); font-size:0.85rem; }
+</style>
+</head>
+<body>
+<main>
+  <a href="./">← pitwall</a>
+  <h1>Undercut calculator</h1>
+  <p class="lede">Car A is behind car B. A pits first. What is the probability that A is ahead when B has pitted too? The model runs in your browser.</p>
+
+  <div class="grid2">
+    <div class="card">
+      <label for="gap">Gap from A to B before the stop <span id="gapV"></span></label>
+      <input id="gap" type="range" min="0.1" max="3" step="0.1" value="1.2">
+      <label for="ageA">Tyre age of A <span id="ageAV"></span></label>
+      <input id="ageA" type="range" min="1" max="40" step="1" value="18">
+      <label for="ageB">Tyre age of B <span id="ageBV"></span></label>
+      <input id="ageB" type="range" min="1" max="40" step="1" value="20">
+      <label for="left">Laps left in the race <span id="leftV"></span></label>
+      <input id="left" type="range" min="3" max="60" step="1" value="30">
+    </div>
+    <div class="card">
+      <div class="muted">Probability that the undercut works</div>
+      <div class="big" id="prob">…</div>
+      <p class="muted" id="err" hidden>The model file did not load.</p>
+      <svg id="curve" viewBox="0 0 320 160" role="img" aria-label="Probability against the gap, for the selected tyre ages and laps"></svg>
+      <div class="muted">Probability against the gap. The dot is your selection.</div>
+    </div>
+  </div>
+
+  <h2>How good is it?</h2>
+  <div class="grid2">
+    <div class="card">
+      <p>We trained on 2018 to 2023 and tested on <b id="nTest">…</b> events of 2024 and 2025.
+      Brier skill score against the base rate: <b id="bss">…</b> (0 = no skill, 1 = perfect).</p>
+      <p class="muted">The deployed model uses all <span id="nTrain">…</span> events that are not in the locked holdout. See <a href="https://github.com/shlokkvaishnav/pitwall/blob/main/specs/10-undercut-open-events.md">spec 10</a>.</p>
+    </div>
+    <div class="card">
+      <svg id="calib" viewBox="0 0 320 160" role="img" aria-label="Calibration: predicted probability against real frequency"></svg>
+      <div class="muted">Calibration on 2024 and 2025. Horizontal: predicted. Vertical: real. On the dashed line, the model is correct. Circle size: number of events.</div>
+    </div>
+  </div>
+
+  <h2>Limits</h2>
+  <ul class="muted">
+    <li>The model has no tyre compounds. In our tests, they added no information (spec 08).</li>
+    <li>It does not know when B will pit. It gives one probability at the time when A pits.</li>
+    <li>Safety-car periods are not in the data that it learned from.</li>
+  </ul>
+  <footer>Data: Jolpica-F1 and TracingInsights open data. This page shows model coefficients and statistics only. Model: logistic regression, the same maths as scikit-learn.</footer>
+</main>
+<script type="module" src="undercut.js"></script>
+</body>
+</html>
