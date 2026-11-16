@@ -1,11 +1,12 @@
 """Download the TracingInsights race lap files for 2022 to 2025 and the 2026 development races (no holdout races).
 
-Usage: PYTHONPATH=src .venv/bin/python scripts/fetch_tyres.py
+Usage: PYTHONPATH=src .venv/bin/python scripts/fetch_tyres.py [--seasons 2018 2019 ...]
 Writes data/raw/tracinginsights/<year>/<round>.json and data/raw/tracinginsights/manifest.json (SHA-256 of each file).
 """
 
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 import time
@@ -22,9 +23,13 @@ OUT = ROOT / "data" / "raw" / "tracinginsights"
 
 
 def main() -> None:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--seasons", type=int, nargs="*", default=[*PRETRAIN_SEASONS, 2026])
+    args = ap.parse_args()
     dump = Dump(ROOT / "data" / "raw" / "jolpica-dump" / "csv")
-    manifest = {}
-    for year in (*PRETRAIN_SEASONS, 2026):
+    mpath = OUT / "manifest.json"
+    manifest = json.loads(mpath.read_text()) if mpath.exists() else {}
+    for year in args.seasons:
         for _, r in dump.schedule(year).iterrows():
             if split_of(r["date"]) == "holdout":
                 continue  # the holdout lock: we do not download these races
@@ -40,7 +45,7 @@ def main() -> None:
                 "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
             }
             print(year, int(r["round"]), r["name"], flush=True)
-    (OUT / "manifest.json").write_text(json.dumps(manifest, indent=2))
+    mpath.write_text(json.dumps(manifest, indent=2))
     print(len(manifest), "files")
 
 

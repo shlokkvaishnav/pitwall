@@ -10,8 +10,9 @@ def test_split_by_date():
     assert split_of(date(2026, 3, 8)) == "development"
     assert split_of(date(2026, 8, 31)) == "development"
     assert split_of(date(2026, 9, 1)) == "holdout"
+    assert split_of(date(2021, 12, 12)) == "early"
     with pytest.raises(ValueError):
-        split_of(date(2021, 12, 12))
+        split_of(date(2017, 11, 26))
 
 
 def test_holdout_is_locked():
