@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>pitwall</title>
-<meta name="description" content="Finds the hidden battery state of 2026 F1 cars from public timing data, then tests a race simulator and a pit-strategy agent.">
+<meta name="description" content="Tests a lap model, an energy regime and a race simulator for 2026 F1 against real races. Pre-registered rules.">
 <style>
   :root { --bg:#fbfaf7; --fg:#1d1d1b; --muted:#6b6a66; --line:#e4e1da; --accent:#b4332b; --card:#ffffff; }
   @media (prefers-color-scheme: dark) {
@@ -29,21 +29,27 @@
 <main>
   <h1>pitwall</h1>
   <p class="lede">This project finds the hidden battery state and tyre wear of 2026 F1 cars from public timing data. Then it uses them in a race simulator and a pit-strategy agent.</p>
-  <div class="status"><b>Status:</b> M0 is done. The charter, the holdout lock and the energy store are ready. There are no results yet.</div>
+  <div class="status"><b>Status:</b> 6 specs are done. The lap model passes. The energy regime and two simulator versions fail. The strategy agent is blocked.</div>
   <h2>How it works</h2>
   <ol>
-    <li>A state-space model estimates the battery charge and the tyre wear of each car.</li>
-    <li>A race simulator uses these states. We compare it with real races first.</li>
+    <li>A gradient-boosting model predicts the next lap time of each car.</li>
+    <li>A hidden Markov model looks for "push" and "harvest" laps in the errors of the lap model.</li>
+    <li>A Monte Carlo race simulator gives a probability for each finishing position.</li>
     <li>A strategy agent learns pit decisions in the simulator, only if the simulator passes its test.</li>
   </ol>
-  <h2>Tests</h2>
+  <h2>Results (2026 rounds 4 to 12)</h2>
   <table>
-    <tr><th>Holdout</th><td>The 2026 races on or after 1 September 2026. They are locked until the final spec.</td></tr>
-    <tr><th>Lap time</th><td>The error must be at least 5% lower than the best baseline (Diebold-Mariano p &lt; 0.05).</td></tr>
-    <tr><th>Straights</th><td>The error of the speed loss at the end of long straights must be at least 10% lower.</td></tr>
-    <tr><th>Simulator</th><td>The finishing order must be better than the grid order.</td></tr>
+    <tr><th>Lap model</th><td><b>Pass.</b> Mean error 1.03 s against 1.16 s for the previous lap (11.5% lower, p &lt; 0.0001).</td></tr>
+    <tr><th>Energy regime</th><td><b>Fail.</b> The hidden Markov model is worse than no correction. Its second state is an outlier state, not an energy mode.</td></tr>
+    <tr><th>Simulator A</th><td><b>Fail.</b> Spearman 0.72 against 0.79 for the grid order. Podium Brier 0.085 against 0.070.</td></tr>
+    <tr><th>Simulator B</th><td><b>Fail.</b> With qualifying pace: Spearman 0.74, Brier 0.079. Better than A, but worse than the grid.</td></tr>
   </table>
-  <footer>This site shows statistics only. Data: FastF1 and Jolpica-F1. FastF1 data is not official F1 data.</footer>
+  <h2>Method</h2>
+  <table>
+    <tr><th>Specs</th><td>We write a spec with pass/fail rules before each run. We keep failed results.</td></tr>
+    <tr><th>Holdout</th><td>The 2026 races on or after 1 September 2026. The code locks them until the final spec.</td></tr>
+  </table>
+  <footer>This site shows statistics only. Data: the Jolpica-F1 database dump.</footer>
 </main>
 </body>
 </html>

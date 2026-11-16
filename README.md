@@ -1,7 +1,7 @@
 # pitwall
 
-pitwall finds the hidden battery state and tyre wear of 2026 F1 cars from public timing data.
-Then it uses these states in a race simulator and a pit-strategy agent.
+pitwall tries to find the hidden battery state and tyre wear of 2026 F1 cars from public timing data.
+Then it tests a race simulator and a pit-strategy agent against real races.
 
 ## Why
 The 2026 F1 cars get approximately half of their power from the battery.
@@ -9,30 +9,30 @@ Energy use changes lap times and overtakes. But public data does not show the ba
 Also, the tyre models from earlier years may not work on the 2026 cars.
 
 ## How it works
-1. **State model.** For each car, a state-space model estimates the battery charge and the tyre wear.
-   The energy limits of the regulations are hard constraints.
-2. **Race simulator.** A lap-by-lap Monte Carlo simulator uses the state model.
-   We compare the simulator with real races before we use it.
-3. **Strategy agent.** A reinforcement-learning agent learns pit decisions in the simulator.
-   We train it only if the simulator passes its test.
+1. **Lap model.** A gradient-boosting model predicts the next lap time of each car. It learns on 2022 to 2025 and on earlier 2026 races.
+2. **Energy regime.** A hidden Markov model looks for "push" and "harvest" laps in the lap-time residuals.
+3. **Race simulator.** A lap-by-lap Monte Carlo simulator gives a probability for each finishing position.
+4. **Strategy agent.** A reinforcement-learning agent learns pit decisions in the simulator.
+   We train it only if the simulator passes its test on the holdout.
 
 ## Method
 - We write a spec before each experiment. Each spec has pass/fail rules with numbers.
 - The 2026 races on or after 1 September 2026 are a locked holdout. The code enforces the lock.
-- The battery state is not in the data. Thus, we test it through lap times and speed on straights.
 - We keep failed results, and we report them.
 
 Read the charter: [specs/00-charter.md](specs/00-charter.md).
 
-## Milestones
-| Milestone | Content | Status |
+## Results (development races, 2026 rounds 4 to 12)
+| Spec | Test | Result |
 |---|---|---|
-| M0 | Charter, holdout lock, energy store with hard limits, CI, site | Done |
-| M1 | FastF1 data layer. Energy limits from the FIA regulations, with dates. | Next |
-| M2 | Baselines and the tyre model (pre-train 2022 to 2025, adapt on 2026) | |
-| M3 | Battery and tyre state-space model | |
-| M4 | Race simulator and its check against real races | |
-| M5 | Strategy agent, final holdout run and report | |
+| [01](specs/01-energy-limits-and-data.md) | Energy limits from the FIA regulations. Data checks of the Jolpica dump. | Pass (one check is not correct, see the spec) |
+| [02](specs/02-lap-baselines.md) | Lap-time baselines. The best is the previous lap: 1.05 s mean error. | Done |
+| [03](specs/03-lap-model.md) | Lap model against the previous lap | **Pass:** 11.5% lower error, p < 0.0001 |
+| [04](specs/04-energy-regime.md) | Hidden energy regime in lap times | **Fail:** no regime. The second state is an outlier state. |
+| [05](specs/05-race-simulator.md) | Simulator version A against the grid | **Fail:** Spearman 0.72 against 0.79 |
+| [06](specs/06-race-simulator-b.md) | Simulator version B (qualifying pace) against the grid | **Fail:** Spearman 0.74 against 0.79 |
+
+The strategy agent is blocked, because no simulator is better than the grid.
 
 ## Quick start
 ```bash
@@ -41,5 +41,5 @@ make check   # lint and tests
 ```
 
 ## Data
-FastF1 and Jolpica-F1. FastF1 data is not official F1 data. We use it for research only.
+The Jolpica-F1 database dump (lap times, pit stops, results, qualifying). We check its SHA-256.
 Do not commit raw data. The site shows statistics only.
