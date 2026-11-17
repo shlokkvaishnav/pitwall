@@ -1,13 +1,12 @@
 [project]
 name = "pitwall"
 version = "0.1.0"
-description = "An F1 strategy tool that predicts whether an undercut will work. It learned from 1,190 real pit battles (2018 to 2026) and runs in the browser."
+description = "F1 race-strategy models built from public lap data. It forecasts lap times, estimates whether an undercut will work, and simulates races, all tested on locked 2026 races."
 requires-python = ">=3.10"
 dependencies = ["numpy", "pandas", "scipy"]
 
 [project.optional-dependencies]
 model = ["lightgbm", "scikit-learn"]
-ml = ["torch"]
 dev = ["pytest", "ruff", "hypothesis", "mypy", "pandas-stubs"]
 
 [build-system]

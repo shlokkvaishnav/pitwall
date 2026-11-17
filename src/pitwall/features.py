@@ -1,4 +1,4 @@
-"""Causal features for the next-lap-time model (specs/03-lap-model.md, section 2)."""
+"""Causal features for the next-lap-time model (docs/specs/03-lap-model.md, section 2)."""
 
 from __future__ import annotations
 

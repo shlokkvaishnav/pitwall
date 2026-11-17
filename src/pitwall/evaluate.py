@@ -1,4 +1,4 @@
-"""Forecast comparison with a block bootstrap by race (specs/03-lap-model.md, rule S2)."""
+"""Forecast comparison with a block bootstrap by race (docs/specs/03-lap-model.md, rule S2)."""
 
 from __future__ import annotations
 

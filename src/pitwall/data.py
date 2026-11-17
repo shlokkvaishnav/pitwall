@@ -1,4 +1,4 @@
-"""Jolpica-F1 data layer (see specs/01-energy-limits-and-data.md, amendment A1)."""
+"""Jolpica-F1 data layer (see docs/specs/01-energy-limits-and-data.md, amendment A1)."""
 
 from __future__ import annotations
 

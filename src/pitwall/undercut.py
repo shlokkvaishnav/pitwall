@@ -1,4 +1,4 @@
-"""Undercut duels (specs/07-undercut.md): a driver pits first to pass the car directly ahead."""
+"""Undercut duels (docs/specs/07-undercut.md): a driver pits first to pass the car directly ahead."""
 
 from __future__ import annotations
 

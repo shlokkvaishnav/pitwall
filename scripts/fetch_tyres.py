@@ -1,4 +1,4 @@
-"""Download the TracingInsights race lap files for 2022 to 2025 and the 2026 development races (no holdout races).
+"""Download the TracingInsights race lap files (2018 to 2026). Holdout races only with --holdout (spec 11).
 
 Usage: PYTHONPATH=src .venv/bin/python scripts/fetch_tyres.py [--seasons 2018 2019 ...]
 Writes data/raw/tracinginsights/<year>/<round>.json and data/raw/tracinginsights/manifest.json (SHA-256 of each file).

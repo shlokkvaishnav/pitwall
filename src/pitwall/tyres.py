@@ -1,4 +1,4 @@
-"""Tyre compounds per lap from the TracingInsights open data (specs/08-undercut-b.md).
+"""Tyre compounds per lap from the TracingInsights open data (docs/specs/08-undercut-b.md).
 
 Source: github.com/TracingInsights/<year>, file "<Grand Prix name>/Race/session_laptimes.json"
 (MIT for 2022 to 2024, Apache-2.0 for 2025 and 2026). The race lap times in these files come from Ergast/Jolpica.
