@@ -38,20 +38,20 @@ def score(pos, drivers, res, p_grid):
     }
 
 
-def main() -> None:
-    dump = Dump(ROOT / "data" / "raw" / "jolpica-dump" / "csv")
+def history(dump: Dump, rounds_2026: list[int], allow_holdout: bool = False):
+    """Race stats and qualifying/form rows for 2022 to 2025 and the given 2026 rounds."""
     races, stats, rows = {}, {}, []
     for season in (*PRETRAIN_SEASONS, 2026):
         sched = dump.schedule(season)
-        rounds = development_rounds(dump) if season == 2026 else [int(r) for r in sched["round"]]
+        rounds = rounds_2026 if season == 2026 else [int(r) for r in sched["round"]]
         earlier = []
         for rnd in rounds:
             cid = int(sched.loc[sched["round"] == rnd, "circuit_id"].iloc[0])
-            race = dump.race(season, rnd)
+            race = dump.race(season, rnd, allow_holdout=allow_holdout)
             st = race_stats(race, cid)
             races[(season, rnd)], stats[(season, rnd)] = race, st
             drivers = list(st.pace)
-            q = qualifying_gap(dump.qualifying(season, rnd), drivers)
+            q = qualifying_gap(dump.qualifying(season, rnd, allow_holdout=allow_holdout), drivers)
             f = form(earlier, drivers)
             for d, qi, fi in zip(drivers, q, f):
                 rows.append(
@@ -66,53 +66,61 @@ def main() -> None:
                     }
                 )
             earlier.append(st.pace)
-    rows = pd.DataFrame(rows)
-    print("history ready:", len(stats), "races,", len(rows), "driver rows", flush=True)
+    return races, stats, pd.DataFrame(rows)
 
+
+def evaluate(dump: Dump, races, stats, rows, k: int, allow_holdout: bool = False):
+    """Simulate 2026 round k from the races before it. Returns the race record and (p, y) per variant."""
+    hist_keys = [key for key in stats if key[0] < 2026 or key[1] < k]
+    history_ = [stats[key] for key in hist_keys]
+    in_hist = rows["season"].lt(2026) | rows["round"].lt(k)
+    pf = fit(rows[in_hist])
+    race = races[(2026, k)]
+    res = race.results.copy()
+    base = inputs_from_history(history_, stats[(2026, k)].circuit_id, res[["driver", "grid"]], int(res["laps"].max()))
+    q = qualifying_gap(dump.qualifying(2026, k, allow_holdout=allow_holdout), base.drivers)
+    f = base.pace  # the version A pace is the season form
+    inputs = {
+        "B": replace(base, pace=pf.predict(q, f), pace_shock_s=pf.sigma_r),
+        "ablation_a_no_shock": replace(base, pace=pf.predict(q, f)),
+        "ablation_b_form_with_shock": replace(base, pace_shock_s=pf.sigma_r),
+    }
+    hist = pd.concat([races[key].results for key in hist_keys], ignore_index=True)
+    hist["podium"] = hist["classified"] & (hist["position"] <= 3)
+    freq = hist[hist["grid"] > 0].groupby("grid")["podium"].mean()
+    y = res.set_index("driver").reindex(base.drivers)
+    p_grid = np.array([freq.get(g, 0.0) if g > 0 else 0.0 for g in y["grid"]])
+    actual = (y["classified"] & (y["position"] <= 3)).astype(float).to_numpy()
+    cls = res[res["classified"]].set_index("driver")
+    grid_rank = pd.Series(np.arange(1, len(base.drivers) + 1), index=base.drivers)
+    rec = {
+        "round": k,
+        "name": race.name,
+        "beta_q": pf.beta_q,
+        "beta_f": pf.beta_f,
+        "sigma_r": pf.sigma_r,
+        "fit_rows": pf.n,
+        "spearman_grid": float(spearmanr(grid_rank[cls.index], cls["position"]).statistic),
+        "brier_grid": float(np.mean((p_grid - actual) ** 2)),
+    }
+    py = {}
+    for v, inp in inputs.items():
+        s = score(simulate(inp, runs=2000, seed=0), inp.drivers, res, p_grid)
+        rec[f"spearman_{v}"], rec[f"brier_{v}"] = s["spearman"], s["brier"]
+        py[v] = (s["p"].tolist(), s["y"].tolist())
+    return rec, py
+
+
+def main() -> None:
+    dump = Dump(ROOT / "data" / "raw" / "jolpica-dump" / "csv")
+    races, stats, rows = history(dump, development_rounds(dump))
+    print("history ready:", len(stats), "races,", len(rows), "driver rows", flush=True)
     per_race, pooled = [], {v: ([], []) for v in VARIANTS}
     for k in [r for r in development_rounds(dump) if r >= 4]:
-        hist_keys = [key for key in stats if key[0] < 2026 or key[1] < k]
-        history = [stats[key] for key in hist_keys]
-        in_hist = rows["season"].lt(2026) | rows["round"].lt(k)
-        pf = fit(rows[in_hist])
-
-        race = races[(2026, k)]
-        res = race.results.copy()
-        base = inputs_from_history(
-            history, stats[(2026, k)].circuit_id, res[["driver", "grid"]], int(res["laps"].max())
-        )
-        q = qualifying_gap(dump.qualifying(2026, k), base.drivers)
-        f = base.pace  # the version A pace is the season form
-        inputs = {
-            "B": replace(base, pace=pf.predict(q, f), pace_shock_s=pf.sigma_r),
-            "ablation_a_no_shock": replace(base, pace=pf.predict(q, f)),
-            "ablation_b_form_with_shock": replace(base, pace_shock_s=pf.sigma_r),
-        }
-
-        hist = pd.concat([races[key].results for key in hist_keys], ignore_index=True)
-        hist["podium"] = hist["classified"] & (hist["position"] <= 3)
-        freq = hist[hist["grid"] > 0].groupby("grid")["podium"].mean()
-        y = res.set_index("driver").reindex(base.drivers)
-        p_grid = np.array([freq.get(g, 0.0) if g > 0 else 0.0 for g in y["grid"]])
-        actual = (y["classified"] & (y["position"] <= 3)).astype(float).to_numpy()
-        cls = res[res["classified"]].set_index("driver")
-        grid_rank = pd.Series(np.arange(1, len(base.drivers) + 1), index=base.drivers)
-
-        rec = {
-            "round": k,
-            "name": race.name,
-            "beta_q": pf.beta_q,
-            "beta_f": pf.beta_f,
-            "sigma_r": pf.sigma_r,
-            "fit_rows": pf.n,
-            "spearman_grid": float(spearmanr(grid_rank[cls.index], cls["position"]).statistic),
-            "brier_grid": float(np.mean((p_grid - actual) ** 2)),
-        }
-        for v, inp in inputs.items():
-            s = score(simulate(inp, runs=2000, seed=0), inp.drivers, res, p_grid)
-            rec[f"spearman_{v}"], rec[f"brier_{v}"] = s["spearman"], s["brier"]
-            pooled[v][0].extend(s["p"].tolist())
-            pooled[v][1].extend(s["y"].tolist())
+        rec, py = evaluate(dump, races, stats, rows, k)
+        for v in VARIANTS:
+            pooled[v][0].extend(py[v][0])
+            pooled[v][1].extend(py[v][1])
         per_race.append(rec)
         print(json.dumps(rec), flush=True)
 
