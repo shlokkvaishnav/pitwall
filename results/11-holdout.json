@@ -1,0 +1,272 @@
+{
+  "spec": "11-holdout",
+  "commit": "75c2066390536c54ad928df404e64c56da77aeb0",
+  "rounds": [
+    13,
+    14,
+    15,
+    16,
+    17,
+    18
+  ],
+  "rules": {
+    "U1_bss": -0.08606717689954446,
+    "U1_pass": false,
+    "U2_p": 0.6384,
+    "U2_pass": false,
+    "R1_ratio": 0.8299716781093731,
+    "R1_pass": true,
+    "R2": "not tested (charter amendment A1)",
+    "R3_pass": true,
+    "R4_pass": false,
+    "R5": "not tested (charter amendment A3)"
+  },
+  "undercut": {
+    "train_events": 1190,
+    "test_events": 20,
+    "test_base_rate": 0.35,
+    "train_base_rate": 0.42100840336134454,
+    "brier": 0.2525564434394116,
+    "brier_base_rate": 0.23254219334792742,
+    "bss": -0.08606717689954446,
+    "logloss": 0.6904274882754724,
+    "logloss_base_rate": 0.6579896245669945,
+    "dm": {
+      "mean_diff": 0.032437863708478024,
+      "p_value": 0.6384,
+      "n": 20,
+      "n_groups": 4
+    },
+    "calibration": [
+      {
+        "lo": 0.0,
+        "hi": 0.2,
+        "n": 2,
+        "mean_p": 0.06819572037133993,
+        "freq": 0.0
+      },
+      {
+        "lo": 0.2,
+        "hi": 0.4,
+        "n": 10,
+        "mean_p": 0.3029726082885186,
+        "freq": 0.3
+      },
+      {
+        "lo": 0.4,
+        "hi": 0.6000000000000001,
+        "n": 3,
+        "mean_p": 0.4884483795253294,
+        "freq": 1.0
+      },
+      {
+        "lo": 0.6000000000000001,
+        "hi": 0.8,
+        "n": 5,
+        "mean_p": 0.6958107725402951,
+        "freq": 0.2
+      },
+      {
+        "lo": 0.8,
+        "hi": 1.0,
+        "n": 0,
+        "mean_p": null,
+        "freq": null
+      }
+    ],
+    "per_race": {
+      "2026-14": {
+        "events": 3,
+        "freq": 0.0,
+        "mean_p": 0.3611632079848448
+      },
+      "2026-16": {
+        "events": 8,
+        "freq": 0.5,
+        "mean_p": 0.4509108017785625
+      },
+      "2026-17": {
+        "events": 4,
+        "freq": 0.0,
+        "mean_p": 0.29627853679148125
+      },
+      "2026-18": {
+        "events": 5,
+        "freq": 0.6,
+        "mean_p": 0.44692526791127396
+      }
+    },
+    "same_as_site": true
+  },
+  "lap_time": {
+    "laps": 5354,
+    "pooled_mae_s": {
+      "gbm_pretrain": 0.778948882412466,
+      "gbm_2026": 0.8688421008519459,
+      "previous_lap": 0.9385246544639522,
+      "linear_stint": 1.3356836685106497,
+      "local_trend": 1.0584495987929576
+    },
+    "best_baseline": "previous_lap",
+    "dm_vs_best": {
+      "mean_diff": -0.15957577205148626,
+      "p_value": 0.0002,
+      "n": 5354,
+      "n_groups": 6
+    },
+    "races": [
+      {
+        "round": 13,
+        "gbm_pretrain": 0.5303439533604973,
+        "gbm_2026": 0.5307910494179713,
+        "previous_lap": 0.5917063583815029,
+        "linear_stint": 0.6118591753720983,
+        "local_trend": 0.5800458236802984
+      },
+      {
+        "round": 14,
+        "gbm_pretrain": 0.5772738016002185,
+        "gbm_2026": 0.6735369531419775,
+        "previous_lap": 0.6079628099173552,
+        "linear_stint": 0.7864264263640913,
+        "local_trend": 0.7023162451670361
+      },
+      {
+        "round": 15,
+        "gbm_pretrain": 0.46451353392097605,
+        "gbm_2026": 0.568665335777751,
+        "previous_lap": 0.49416331994645246,
+        "linear_stint": 0.6375851268651903,
+        "local_trend": 0.5650572814160291
+      },
+      {
+        "round": 16,
+        "gbm_pretrain": 0.9359727936298804,
+        "gbm_2026": 1.2626958475668164,
+        "previous_lap": 1.2756734693877552,
+        "linear_stint": 2.121575751993606,
+        "local_trend": 1.7181346102879622
+      },
+      {
+        "round": 17,
+        "gbm_pretrain": 1.1876797145106548,
+        "gbm_2026": 1.2053731633920948,
+        "previous_lap": 1.4076960072595281,
+        "linear_stint": 1.9690912863922223,
+        "local_trend": 1.5921753735341249
+      },
+      {
+        "round": 18,
+        "gbm_pretrain": 0.8671924596051641,
+        "gbm_2026": 0.9344208887002375,
+        "previous_lap": 1.145024340770791,
+        "linear_stint": 1.784093043152711,
+        "local_trend": 1.1460872166556026
+      }
+    ]
+  },
+  "simulator": {
+    "spearman_B": 0.8411690992186348,
+    "spearman_grid": 0.7622008452503808,
+    "brier_B": 0.07106889015151516,
+    "brier_grid": 0.05829616724304243,
+    "races": [
+      {
+        "round": 13,
+        "name": "Italian Grand Prix",
+        "beta_q": 0.19276529430387612,
+        "beta_f": 0.5891264971454481,
+        "sigma_r": 0.6142955470576236,
+        "fit_rows": 1987,
+        "spearman_grid": 0.6298245614035087,
+        "brier_grid": 0.12212637266796879,
+        "spearman_B": 0.9666666666666668,
+        "brier_B": 0.07313747727272726,
+        "spearman_ablation_a_no_shock": 0.9578947368421052,
+        "brier_ablation_a_no_shock": 0.07250547727272727,
+        "spearman_ablation_b_form_with_shock": 0.9350877192982456,
+        "brier_ablation_b_form_with_shock": 0.0701949090909091
+      },
+      {
+        "round": 14,
+        "name": "Spanish Grand Prix",
+        "beta_q": 0.1934299386149926,
+        "beta_f": 0.5889733830985624,
+        "sigma_r": 0.6123144123414048,
+        "fit_rows": 2008,
+        "spearman_grid": 0.9752321981424149,
+        "brier_grid": 0.028902133809414032,
+        "spearman_B": 0.9463364293085655,
+        "brier_B": 0.07450097727272727,
+        "spearman_ablation_a_no_shock": 0.9401444788441692,
+        "brier_ablation_a_no_shock": 0.07048377272727273,
+        "spearman_ablation_b_form_with_shock": 0.87203302373581,
+        "brier_ablation_b_form_with_shock": 0.0752376818181818
+      },
+      {
+        "round": 15,
+        "name": "Azerbaijan Grand Prix",
+        "beta_q": 0.19925828020983444,
+        "beta_f": 0.596217150610287,
+        "sigma_r": 0.6178538820992245,
+        "fit_rows": 2029,
+        "spearman_grid": 0.6676470588235294,
+        "brier_grid": 0.10039237302955963,
+        "spearman_B": 0.7588235294117647,
+        "brier_B": 0.0900195681818182,
+        "spearman_ablation_a_no_shock": 0.7470588235294118,
+        "brier_ablation_a_no_shock": 0.09431552272727273,
+        "spearman_ablation_b_form_with_shock": 0.7235294117647059,
+        "brier_ablation_b_form_with_shock": 0.11088002272727274
+      },
+      {
+        "round": 16,
+        "name": "Bahrain Grand Prix in Malaysia",
+        "beta_q": 0.19984027843474936,
+        "beta_f": 0.597843527433069,
+        "sigma_r": 0.6166615578141047,
+        "fit_rows": 2050,
+        "spearman_grid": 0.6075187969924812,
+        "brier_grid": 0.028864233465957376,
+        "spearman_B": 0.5278195488721804,
+        "brier_B": 0.07122031818181819,
+        "spearman_ablation_a_no_shock": 0.556390977443609,
+        "brier_ablation_a_no_shock": 0.06453381818181819,
+        "spearman_ablation_b_form_with_shock": 0.4857142857142857,
+        "brier_ablation_b_form_with_shock": 0.0731184090909091
+      },
+      {
+        "round": 17,
+        "name": "Singapore Grand Prix",
+        "beta_q": 0.20160458713328777,
+        "beta_f": 0.5932363063459307,
+        "sigma_r": 0.6161197250244766,
+        "fit_rows": 2071,
+        "spearman_grid": 0.780701754385965,
+        "brier_grid": 0.035066182289941114,
+        "spearman_B": 0.8947368421052632,
+        "brier_B": 0.05837956818181819,
+        "spearman_ablation_a_no_shock": 0.8947368421052632,
+        "brier_ablation_a_no_shock": 0.04065786363636364,
+        "spearman_ablation_b_form_with_shock": 0.9105263157894736,
+        "brier_ablation_b_form_with_shock": 0.05386281818181819
+      },
+      {
+        "round": 18,
+        "name": "United States Grand Prix",
+        "beta_q": 0.20069391130831973,
+        "beta_f": 0.5946165533817703,
+        "sigma_r": 0.6143272401597204,
+        "fit_rows": 2092,
+        "spearman_grid": 0.9122807017543859,
+        "brier_grid": 0.034425708195413636,
+        "spearman_B": 0.9526315789473684,
+        "brier_B": 0.059155431818181795,
+        "spearman_ablation_a_no_shock": 0.9543859649122807,
+        "brier_ablation_a_no_shock": 0.03639170454545455,
+        "spearman_ablation_b_form_with_shock": 0.9473684210526316,
+        "brier_ablation_b_form_with_shock": 0.05037672727272728
+      }
+    ]
+  }
+}
