@@ -36,3 +36,25 @@ Six races is a small sample, and a bootstrap over 6 race blocks is coarse. We re
    It does not count.
 2. One run on rounds 13 to 18. Output: `results/11-holdout.json` with the git commit.
 3. We keep and report the result, whatever it is. No second run on the holdout.
+
+## Result (2026-11-17, commit 75c2066) — the one holdout run
+The undercut model in the run is the model on the site (`same_as_site: true`).
+
+| Rule | Result | Numbers |
+|---|---|---|
+| U1 Undercut skill | **Fail** | Brier skill −0.09. Log loss 0.690 against 0.658 for the base rate. |
+| U2 Undercut significance | **Fail** | p = 0.64 (20 events in 4 races). |
+| R1 Lap time | **Pass** | MAE 0.779 s against 0.939 s for `previous_lap` (ratio 0.83), p = 0.0002, 5,354 laps. Better than the baseline in all 6 races. |
+| R2 Straights | Not tested | |
+| R3 Tyre transfer | **Pass** | `gbm_pretrain` 0.779 s against `gbm_2026` 0.869 s. |
+| R4 Simulator | **Fail** | Spearman 0.84 against 0.76 for the grid (better), but podium Brier 0.071 against 0.058 (worse). |
+| R5 Strategy | Not tested | |
+
+**Interpretation.**
+- **Undercut: no evidence on the holdout, and too little data to say much.** Only 20 open events in the 6 races
+  (the development years have about 130 per season). The success rate was 35% against 42% in training, and the model
+  was over-confident in the 0.6–0.8 bin (5 events, 1 success). With 20 events, this test cannot tell a useful model
+  from a useless one. The earlier evidence (spec 09: 136 events, p = 0.016; spec 10: 2024–2025) stays as it is,
+  but the model did not show skill on the newest races.
+- **Lap time: the clearest result of the project.** 17% lower error than the best baseline, on races no model saw.
+- **Simulator:** it orders the field better than the grid, but its podium probabilities are worse. It stays a fidelity check.

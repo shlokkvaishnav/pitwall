@@ -35,10 +35,10 @@ const state = () => ({
 const chance = (s) => predict(P, s.gap, s.ageA, s.ageB, s.left);
 
 function verdict(p) {
-  if (p >= 0.65) return ["Pit now", css("--accent")];
-  if (p >= 0.5) return ["Lean pit", css("--accent")];
+  if (p >= 0.65) return ["Likely works", css("--accent")];
+  if (p >= 0.5) return ["Leans your way", css("--accent")];
   if (p >= 0.35) return ["Coin flip", css("--muted")];
-  return ["Stay out", css("--cool")];
+  return ["Unlikely", css("--cool")];
 }
 
 function drawGauge(p) {

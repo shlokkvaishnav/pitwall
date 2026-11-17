@@ -15,15 +15,17 @@ pitwall gives the probability that you come out ahead when the rival pits too.
 - **A web page with no server.** The model is exported to JSON. The page computes the probability, a map and a sensitivity chart in JavaScript.
 
 ## What works and what does not
-| Part | Result |
-|---|---|
-| Undercut model | **Works.** Brier skill 0.22 on 2024 and 2025 (trained on 2018 to 2023). It also works on 2026, with new car rules. |
-| Lap-time model | **Works.** 11.5% lower error than "the next lap equals the last lap" on 2026 races. |
-| Race simulator | **Does not beat the starting grid.** In 2026, the grid order is a very strong forecast of the result. |
-| Battery use from lap times | **Not visible.** The 2026 cars change their battery use inside a lap. Lap times are too coarse to show it. |
+The 2026 races from 1 September were locked until the end. The final models ran on them once (6 races, [spec 11](specs/11-holdout.md)).
 
-Each experiment has a written plan with pass/fail rules before the run, in [`specs/`](specs/).
-Failed tests stay in the repository. The 2026 races from 1 September are a locked test set: the code refuses to load them.
+| Part | Development (2018 to Aug 2026) | Locked races (Sep to Oct 2026) |
+|---|---|---|
+| Lap-time model | 11.5% lower error than "next lap = last lap" | **Holds up.** 17% lower error, better in all 6 races (5,354 laps). |
+| Undercut model | Brier skill 0.22 on 2024 and 2025 | **Not confirmed.** Only 20 undercut attempts in these races, and the model did no better than the base rate. Too few to judge. |
+| Race simulator | Does not beat the starting grid | Orders the field better than the grid, but its podium odds are worse. |
+| Battery use from lap times | Not visible: lap times are too coarse | Not tested |
+
+Each experiment has a written plan with pass/fail rules before the run, in [`specs/`](specs/). Failed tests stay in.
+The undercut probability is learned from attempts that teams chose to make, so it is not advice on whether to pit.
 
 ## Architecture
 ```mermaid
