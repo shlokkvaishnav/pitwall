@@ -1,7 +1,7 @@
 [project]
 name = "pitwall"
 version = "0.1.0"
-description = "Will the undercut work? An F1 pit-strategy model from public timing data that runs in the browser."
+description = "F1 pit-strategy model. It predicts if an undercut will work: the chance that a car that pits first comes out ahead of its rival. Also a lap-time model and a race simulator."
 requires-python = ">=3.10"
 dependencies = ["numpy", "pandas", "scipy"]
 
