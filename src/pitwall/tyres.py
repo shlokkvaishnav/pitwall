@@ -18,8 +18,12 @@ HARDNESS = {"SOFT": 1, "MEDIUM": 2, "HARD": 3}  # INTERMEDIATE, WET and UNKNOWN 
 COLUMNS = ("drv", "lap", "time", "compound", "life", "stint")
 
 
+# Jolpica race names that TracingInsights stores under another folder name
+FOLDER_ALIASES = {"Bahrain Grand Prix in Malaysia": "Bahrain Grand Prix"}
+
+
 def url(year: int, gp: str) -> str:
-    return RAW_URL.format(year=year, gp=quote(gp))
+    return RAW_URL.format(year=year, gp=quote(FOLDER_ALIASES.get(gp, gp)))
 
 
 def _none(v):

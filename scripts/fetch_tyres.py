@@ -25,14 +25,15 @@ OUT = ROOT / "data" / "raw" / "tracinginsights"
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--seasons", type=int, nargs="*", default=[*PRETRAIN_SEASONS, 2026])
+    ap.add_argument("--holdout", type=int, nargs="*", default=[], help="spec 11 only: 2026 holdout rounds to download")
     args = ap.parse_args()
     dump = Dump(ROOT / "data" / "raw" / "jolpica-dump" / "csv")
     mpath = OUT / "manifest.json"
     manifest = json.loads(mpath.read_text()) if mpath.exists() else {}
     for year in args.seasons:
         for _, r in dump.schedule(year).iterrows():
-            if split_of(r["date"]) == "holdout":
-                continue  # the holdout lock: we do not download these races
+            if split_of(r["date"]) == "holdout" and not (year == 2026 and int(r["round"]) in args.holdout):
+                continue  # the holdout lock: only spec 11 downloads these races
             path = OUT / str(year) / f"{int(r['round']):02d}.json"
             if not path.exists():
                 path.parent.mkdir(parents=True, exist_ok=True)

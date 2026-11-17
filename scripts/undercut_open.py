@@ -41,13 +41,17 @@ def logistic(**kw):
     return make_pipeline(StandardScaler(), LogisticRegression(C=1.0, max_iter=2000, **kw))
 
 
-def load(seasons) -> pd.DataFrame:
+def load(seasons, rounds_2026: list[int] | None = None, allow_holdout: bool = False) -> pd.DataFrame:
+    """Open events with tyre life. 2026 uses the development rounds unless rounds_2026 is given (spec 11)."""
     dump = Dump(ROOT / "data" / "raw" / "jolpica-dump" / "csv")
     parts = []
     for s in seasons:
-        rounds = development_rounds(dump) if s == 2026 else [int(r) for r in dump.schedule(s)["round"]]
+        if s == 2026:
+            rounds = development_rounds(dump) if rounds_2026 is None else rounds_2026
+        else:
+            rounds = [int(r) for r in dump.schedule(s)["round"]]
         for r in rounds:
-            race = dump.race(s, r)
+            race = dump.race(s, r, allow_holdout=allow_holdout)
             d = open_duels(race)
             if d.empty:
                 continue

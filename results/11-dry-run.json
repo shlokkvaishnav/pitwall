@@ -1,0 +1,281 @@
+{
+  "spec": "11-holdout (dry run, development rounds, does not count)",
+  "commit": "5ff980c0d281efbd306af964179987e68bdb55a2",
+  "rounds": [
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+  ],
+  "rules": {
+    "U1_bss": 0.23154009581912072,
+    "U1_pass": true,
+    "U2_p": 0.0,
+    "U2_pass": true,
+    "R1_ratio": 0.8781755747651052,
+    "R1_pass": true,
+    "R2": "not tested (charter amendment A1)",
+    "R3_pass": true,
+    "R4_pass": false,
+    "R5": "not tested (charter amendment A3)"
+  },
+  "undercut": {
+    "train_events": 1141,
+    "test_events": 49,
+    "test_base_rate": 0.40816326530612246,
+    "train_base_rate": 0.4215600350569676,
+    "brier": 0.18577171423765823,
+    "brier_base_rate": 0.2417454876005235,
+    "bss": 0.23154009581912072,
+    "logloss": 0.5488668204259752,
+    "logloss_base_rate": 0.6765521739904657,
+    "dm": {
+      "mean_diff": -0.12768535356449046,
+      "p_value": 0.0,
+      "n": 49,
+      "n_groups": 6
+    },
+    "calibration": [
+      {
+        "lo": 0.0,
+        "hi": 0.2,
+        "n": 11,
+        "mean_p": 0.13370630366020675,
+        "freq": 0.09090909090909091
+      },
+      {
+        "lo": 0.2,
+        "hi": 0.4,
+        "n": 11,
+        "mean_p": 0.307404635721386,
+        "freq": 0.36363636363636365
+      },
+      {
+        "lo": 0.4,
+        "hi": 0.6000000000000001,
+        "n": 13,
+        "mean_p": 0.487111834570362,
+        "freq": 0.46153846153846156
+      },
+      {
+        "lo": 0.6000000000000001,
+        "hi": 0.8,
+        "n": 13,
+        "mean_p": 0.6781181532979291,
+        "freq": 0.6153846153846154
+      },
+      {
+        "lo": 0.8,
+        "hi": 1.0,
+        "n": 1,
+        "mean_p": 0.8134086394400476,
+        "freq": 1.0
+      }
+    ],
+    "per_race": {
+      "2026-10": {
+        "events": 4,
+        "freq": 0.0,
+        "mean_p": 0.334600401979931
+      },
+      "2026-11": {
+        "events": 8,
+        "freq": 0.625,
+        "mean_p": 0.5159808371924262
+      },
+      "2026-12": {
+        "events": 14,
+        "freq": 0.21428571428571427,
+        "mean_p": 0.4094018145582354
+      },
+      "2026-7": {
+        "events": 12,
+        "freq": 0.5833333333333334,
+        "mean_p": 0.3964676804555478
+      },
+      "2026-8": {
+        "events": 6,
+        "freq": 0.5,
+        "mean_p": 0.4583373837514559
+      },
+      "2026-9": {
+        "events": 5,
+        "freq": 0.4,
+        "mean_p": 0.42162172753512284
+      }
+    }
+  },
+  "lap_time": {
+    "laps": 6043,
+    "pooled_mae_s": {
+      "gbm_pretrain": 1.0726623276894698,
+      "gbm_2026": 2.100182215952506,
+      "previous_lap": 1.22146682111534,
+      "linear_stint": 1.8042718872046268,
+      "local_trend": 1.2923370993713021
+    },
+    "best_baseline": "previous_lap",
+    "dm_vs_best": {
+      "mean_diff": -0.14880449342587032,
+      "p_value": 0.0,
+      "n": 6043,
+      "n_groups": 6
+    },
+    "races": [
+      {
+        "round": 7,
+        "gbm_pretrain": 1.1380045663842286,
+        "gbm_2026": 1.4188413283108063,
+        "previous_lap": 1.3674248756218905,
+        "linear_stint": 1.7274208121752836,
+        "local_trend": 1.3638153008609448
+      },
+      {
+        "round": 8,
+        "gbm_pretrain": 0.9489333614585084,
+        "gbm_2026": 0.9184091235167492,
+        "previous_lap": 1.0590985306828005,
+        "linear_stint": 1.5754889913615175,
+        "local_trend": 1.1602054031143945
+      },
+      {
+        "round": 9,
+        "gbm_pretrain": 1.4682450079920986,
+        "gbm_2026": 1.5000646572749279,
+        "previous_lap": 1.6732081871345028,
+        "linear_stint": 1.9800052775889532,
+        "local_trend": 1.6967303685512742
+      },
+      {
+        "round": 10,
+        "gbm_pretrain": 0.9920006770033782,
+        "gbm_2026": 9.64957104341755,
+        "previous_lap": 1.02422641509434,
+        "linear_stint": 1.3469897615901234,
+        "local_trend": 0.9752550956231726
+      },
+      {
+        "round": 11,
+        "gbm_pretrain": 0.7323855071100448,
+        "gbm_2026": 0.6950279189012317,
+        "previous_lap": 0.8019263999999999,
+        "linear_stint": 1.0251328188802462,
+        "local_trend": 0.8355160537172477
+      },
+      {
+        "round": 12,
+        "gbm_pretrain": 1.2752236666308132,
+        "gbm_2026": 1.2906822544880017,
+        "previous_lap": 1.5114921803127872,
+        "linear_stint": 3.1664396076004286,
+        "local_trend": 1.7751157033945806
+      }
+    ]
+  },
+  "simulator": {
+    "spearman_B": 0.7593321539141972,
+    "spearman_grid": 0.7910401002506265,
+    "brier_B": 0.07547122348484848,
+    "brier_grid": 0.057192760180580664,
+    "races": [
+      {
+        "round": 7,
+        "name": "Barcelona Grand Prix",
+        "beta_q": 0.17834864582508578,
+        "beta_f": 0.5635376728863383,
+        "sigma_r": 0.6142176644959292,
+        "fit_rows": 1862,
+        "spearman_grid": 0.6446078431372549,
+        "brier_grid": 0.03659567970361371,
+        "spearman_B": 0.47794117647058826,
+        "brier_B": 0.08346143181818182,
+        "spearman_ablation_a_no_shock": 0.482843137254902,
+        "brier_ablation_a_no_shock": 0.0857960909090909,
+        "spearman_ablation_b_form_with_shock": 0.40441176470588236,
+        "brier_ablation_b_form_with_shock": 0.09282240909090911
+      },
+      {
+        "round": 8,
+        "name": "Austrian Grand Prix",
+        "beta_q": 0.18012832519277364,
+        "beta_f": 0.5735794942199238,
+        "sigma_r": 0.6154337749176544,
+        "fit_rows": 1883,
+        "spearman_grid": 0.9215686274509803,
+        "brier_grid": 0.08177377834892553,
+        "spearman_B": 0.894736842105263,
+        "brier_B": 0.07236797727272727,
+        "spearman_ablation_a_no_shock": 0.8844169246646028,
+        "brier_ablation_a_no_shock": 0.0719109090909091,
+        "spearman_ablation_b_form_with_shock": 0.8534571723426212,
+        "brier_ablation_b_form_with_shock": 0.07017545454545457
+      },
+      {
+        "round": 9,
+        "name": "British Grand Prix",
+        "beta_q": 0.18127451454573415,
+        "beta_f": 0.5769311376080632,
+        "sigma_r": 0.6134769370902959,
+        "fit_rows": 1903,
+        "spearman_grid": 0.6015037593984961,
+        "brier_grid": 0.06651010611162127,
+        "spearman_B": 0.5593984962406015,
+        "brier_B": 0.07728063636363637,
+        "spearman_ablation_a_no_shock": 0.5714285714285714,
+        "brier_ablation_a_no_shock": 0.07074627272727273,
+        "spearman_ablation_b_form_with_shock": 0.5639097744360902,
+        "brier_ablation_b_form_with_shock": 0.07570231818181818
+      },
+      {
+        "round": 10,
+        "name": "Belgian Grand Prix",
+        "beta_q": 0.18393809276911705,
+        "beta_f": 0.5808376395672822,
+        "sigma_r": 0.6125804040388202,
+        "fit_rows": 1925,
+        "spearman_grid": 0.8105263157894737,
+        "brier_grid": 0.035496613968327526,
+        "spearman_B": 0.9701754385964911,
+        "brier_B": 0.06500454545454547,
+        "spearman_ablation_a_no_shock": 0.9736842105263157,
+        "brier_ablation_a_no_shock": 0.05278297727272727,
+        "spearman_ablation_b_form_with_shock": 0.9456140350877192,
+        "brier_ablation_b_form_with_shock": 0.06187370454545454
+      },
+      {
+        "round": 11,
+        "name": "Hungarian Grand Prix",
+        "beta_q": 0.18897218034063626,
+        "beta_f": 0.5881277289885449,
+        "sigma_r": 0.6149033795789288,
+        "fit_rows": 1945,
+        "spearman_grid": 0.9175438596491228,
+        "brier_grid": 0.0936275335539995,
+        "spearman_B": 0.8473684210526315,
+        "brier_B": 0.07829515909090906,
+        "spearman_ablation_a_no_shock": 0.8491228070175438,
+        "brier_ablation_a_no_shock": 0.08782531818181817,
+        "spearman_ablation_b_form_with_shock": 0.819298245614035,
+        "brier_ablation_b_form_with_shock": 0.07897529545454546
+      },
+      {
+        "round": 12,
+        "name": "Dutch Grand Prix",
+        "beta_q": 0.19181901585951502,
+        "beta_f": 0.5883759162563826,
+        "sigma_r": 0.6153914025500682,
+        "fit_rows": 1967,
+        "spearman_grid": 0.8504901960784315,
+        "brier_grid": 0.029152849396996413,
+        "spearman_B": 0.806372549019608,
+        "brier_B": 0.07641759090909092,
+        "spearman_ablation_a_no_shock": 0.8308823529411766,
+        "brier_ablation_a_no_shock": 0.06962186363636363,
+        "spearman_ablation_b_form_with_shock": 0.7916666666666667,
+        "brier_ablation_b_form_with_shock": 0.07621288636363638
+      }
+    ]
+  }
+}
