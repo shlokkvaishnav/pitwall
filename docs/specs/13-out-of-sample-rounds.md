@@ -79,5 +79,12 @@ simulations where both pass.
 4. If needed, the pooled undercut test of section 4, once, in 2027. Output: `results/13-undercut-pooled.json`.
 5. We keep and report every result, whatever it is.
 
+## Amendment 1 (2026-11-21, before any data of rounds 19 to 23 exists)
+- **Headline for the undercut on rounds 19 to 23:** whatever the number of events, we report the Brier skill score
+  against the training base rate with a **95%** race-block bootstrap interval (10,000 samples, seed 0) as the undercut
+  result, labelled descriptive. It replaces the 90% interval of section 4. The 80-event rule for U1 and U2 is unchanged.
+- **Rounds 13 to 18 as training data (section 3):** no model setting, feature, threshold or calibration rule was chosen
+  by looking at these races. They enter only as training rows and calibration residuals, as they would live.
+
 ## Result
 Not run yet.

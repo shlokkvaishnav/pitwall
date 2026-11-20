@@ -162,7 +162,12 @@ const fmt = (v) => `${v.toFixed(3)} s`;
 
 function lapRows() {
   const [lap, actual, fc, lo, hi, stint] = [0, 1, 2, 3, 4, 5];
-  return LAP.data.drivers[LAP.driver].laps.map((r) => ({ lap: r[lap], y: r[actual], f: r[fc], lo: r[lo], hi: r[hi], stint: r[stint] }));
+  const rows = LAP.data.drivers[LAP.driver].laps.map((r) => ({ lap: r[lap], y: r[actual], f: r[fc], lo: r[lo], hi: r[hi], stint: r[stint] }));
+  // A lap 15% slower than the driver's median is not a racing lap: here, the laps around the red-flag restart,
+  // which the neutral-lap detector misses (spec 12, section 5). The forecast after it is thrown off too.
+  const ys = rows.map((r) => r.y).sort((a, b) => a - b), med = ys[Math.floor(ys.length / 2)];
+  rows.forEach((r, i) => { r.slow = r.y > 1.15 * med; r.afterSlow = i > 0 && rows[i - 1].slow; });
+  return rows;
 }
 
 function lapDomain(rows) {
@@ -214,7 +219,11 @@ function drawLaps() {
     const px = x(r.lap);
     if (r.y > y1 || r.y < y0) {
       const e = r.y > y1 ? T + 2 : H - B - 2, s = r.y > y1 ? 1 : -1;
-      el("path", { d: `M${px - 5},${e + 8 * s}L${px + 5},${e + 8 * s}L${px},${e}Z`, fill: css("--cool") }, svg);
+      el("path", { d: `M${px - 5},${e + 8 * s}L${px + 5},${e + 8 * s}L${px},${e}Z`, fill: css(r.slow ? "--muted" : "--cool") }, svg);
+      if (r.slow) {
+        const right = px > W - R - 110;
+        text(svg, right ? px - 8 : px + 8, e + 9 * s + 3, `slow lap, ${Math.round(r.y)} s`, { class: "lbl", "text-anchor": right ? "end" : "start" });
+      }
     } else if (inside) el("circle", { cx: px, cy: y(r.y), r: 3.2, fill: css("--ink") }, svg);
     else el("circle", { cx: px, cy: y(r.y), r: 3.4, fill: css("--card"), stroke: css("--cool"), "stroke-width": 2 }, svg);
   }
@@ -223,7 +232,8 @@ function drawLaps() {
     const r = all.find((q) => q.lap === LAP.hover);
     if (r && rows.includes(r)) {
       el("line", { x1: x(r.lap), x2: x(r.lap), y1: T, y2: H - B, class: "guide" }, svg);
-      $("lapTip").textContent = `Lap ${r.lap}: real ${fmt(r.y)}, forecast ${fmt(r.f)}, range ${r.lo.toFixed(1)} to ${r.hi.toFixed(1)} s.`;
+      const note = r.slow ? " Not a racing lap (red-flag restart)." : r.afterSlow ? " The forecast used the slow lap before it as if it were a racing lap." : "";
+      $("lapTip").textContent = `Lap ${r.lap}: real ${fmt(r.y)}, forecast ${fmt(r.f)}, range ${r.lo.toFixed(1)} to ${r.hi.toFixed(1)} s.${note}`;
     }
   }
   svg.onpointermove = (ev) => {
