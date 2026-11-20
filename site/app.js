@@ -23,7 +23,7 @@ function hexToRgb(h) {
 }
 function mix(a, b, t) { return `rgb(${a.map((v, i) => Math.round(v + (b[i] - v) * t)).join(",")})`; }
 function ramp(p) {
-  // blue (stay out) -> paper -> red (pit now), centred on 50%
+  // blue (the undercut usually failed) -> paper -> red (it usually worked), centred on 50%
   const cool = hexToRgb(css("--cool")), mid = hexToRgb(css("--chip")), hot = hexToRgb(css("--accent"));
   return p < 0.5 ? mix(cool, mid, p / 0.5) : mix(mid, hot, (p - 0.5) / 0.5);
 }
