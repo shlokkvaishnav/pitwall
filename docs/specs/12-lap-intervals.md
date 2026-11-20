@@ -81,5 +81,6 @@ tyre age above 20 laps, 75.9% and 91.7%, 1,990 laps.
 - **The 2026 cars need 2026 calibration.** Residuals from 2025 give intervals that are too narrow (71% for 80%).
 - **Laps in traffic are less predictable.** With the car ahead closer than 1 s, the 80% interval covers 73%.
   The interval has one width for all laps; it does not adapt to traffic.
-- **The neutral-lap detector misses some partial safety-car laps.** Then a 130 s lap counts as the last clean lap,
-  and the next forecast is far off. This is the spec 03 behaviour; the replay on the site shows it.
+- **The neutral-lap detector misses laps where only part of the field is slow.** In the Dutch race, the leaders did
+  the restart lap after the red flag in about 140 s, but the field median stayed under the threshold. That lap then
+  counts as the last clean lap, and the next forecast is far off. This is the spec 03 behaviour; the replay on the site shows it.
