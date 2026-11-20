@@ -17,7 +17,7 @@ fix-pth:
 
 PY = PYTHONPATH=src $(if $(wildcard .venv/bin/python),.venv/bin/python,python)
 SCRIPTS = lap_baselines lap_model race_sim race_sim_b undercut undercut_b undercut_replication \
-          undercut_open export_undercut_model holdout
+          undercut_open export_undercut_model holdout lap_intervals undercut_power
 
 # Download the public data (Jolpica dump with a pinned SHA-256, TracingInsights tyre files).
 data:

@@ -23,7 +23,7 @@ function hexToRgb(h) {
 }
 function mix(a, b, t) { return `rgb(${a.map((v, i) => Math.round(v + (b[i] - v) * t)).join(",")})`; }
 function ramp(p) {
-  // blue (stay out) -> paper -> red (pit now), centred on 50%
+  // blue (the undercut usually failed) -> paper -> red (it usually worked), centred on 50%
   const cool = hexToRgb(css("--cool")), mid = hexToRgb(css("--chip")), hot = hexToRgb(css("--accent"));
   return p < 0.5 ? mix(cool, mid, p / 0.5) : mix(mid, hot, (p - 0.5) / 0.5);
 }
@@ -156,11 +156,125 @@ function update() {
   drawGauge(chance(s)); drawStrip(s); drawCurve(s); drawMap(s); drawBars(s);
 }
 
+// Next-lap forecast replay (docs/specs/12-lap-intervals.md, section 5): real lap, forecast and its 80% range.
+const LAP = { data: null, driver: 0, shown: Infinity, timer: null, hover: null };
+const fmt = (v) => `${v.toFixed(3)} s`;
+
+function lapRows() {
+  const [lap, actual, fc, lo, hi, stint] = [0, 1, 2, 3, 4, 5];
+  const rows = LAP.data.drivers[LAP.driver].laps.map((r) => ({ lap: r[lap], y: r[actual], f: r[fc], lo: r[lo], hi: r[hi], stint: r[stint] }));
+  // A lap 15% slower than the driver's median is not a racing lap: here, the laps around the red-flag restart,
+  // which the neutral-lap detector misses (spec 12, section 5). The forecast after it is thrown off too.
+  const ys = rows.map((r) => r.y).sort((a, b) => a - b), med = ys[Math.floor(ys.length / 2)];
+  rows.forEach((r, i) => { r.slow = r.y > 1.15 * med; r.afterSlow = i > 0 && rows[i - 1].slow; });
+  return rows;
+}
+
+function lapDomain(rows) {
+  // The axis fits the normal racing laps. Laps far outside it (traffic, a slow restart) are drawn at the edge.
+  const ys = rows.map((r) => r.y).sort((a, b) => a - b), med = ys[Math.floor(ys.length / 2)];
+  const core = rows.flatMap((r) => [r.y, r.lo, r.hi]).filter((v) => v > med - 5 && v < med + 6);
+  return [Math.floor((Math.min(...core) - 0.3) * 2) / 2, Math.ceil((Math.max(...core) + 0.3) * 2) / 2];
+}
+
+function drawLaps() {
+  const svg = $("laps"); svg.replaceChildren();
+  if (!LAP.data) return;
+  const all = lapRows(), rows = all.filter((r, i) => i < LAP.shown);
+  const W = width(svg), H = Math.round(Math.min(340, Math.max(250, W * 0.5))), L = 52, R = 12, T = 14, B = 34;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  const [y0, y1] = lapDomain(all), x0 = all[0].lap - 1, x1 = all[all.length - 1].lap + 1;
+  const x = (v) => L + ((v - x0) / (x1 - x0)) * (W - L - R), y = (v) => T + (1 - (v - y0) / (y1 - y0)) * (H - T - B);
+  const step = y1 - y0 > 6 ? 2 : y1 - y0 > 3 ? 1 : 0.5;
+  for (let v = Math.ceil(y0 / step) * step; v <= y1 + 1e-9; v += step) {
+    el("line", { x1: L, x2: W - R, y1: y(v), y2: y(v), class: "axis" }, svg);
+    text(svg, L - 8, y(v) + 4, `${v.toFixed(step < 1 ? 1 : 0)} s`, { class: "tick", "text-anchor": "end" });
+  }
+  const xstep = W < 520 ? 20 : 10;
+  for (let v = Math.ceil(x0 / xstep) * xstep; v <= x1; v += xstep) text(svg, x(v), H - B + 18, `${v}`, { class: "tick", "text-anchor": "middle" });
+  text(svg, L + (W - L - R) / 2, H - 3, "lap", { class: "tick", "text-anchor": "middle" });
+  // pit stops: a faint line where the stint changes
+  all.forEach((r, i) => { if (i && r.stint !== all[i - 1].stint) {
+    const px = x((r.lap + all[i - 1].lap) / 2);
+    el("line", { x1: px, x2: px, y1: T, y2: H - B, stroke: css("--rule"), "stroke-width": 1.5 }, svg);
+    text(svg, px + 4, T + 9, "PIT", { class: "lbl" });
+  } });
+  const clip = el("clipPath", { id: "lapClip" }, el("defs", {}, svg));
+  el("rect", { x: L, y: T, width: W - L - R, height: H - T - B }, clip);
+  const g = el("g", { "clip-path": "url(#lapClip)" }, svg);
+  // the band and the forecast line, broken where laps are missing
+  const runs = [];
+  rows.forEach((r, i) => (i && r.lap === rows[i - 1].lap + 1 ? runs[runs.length - 1].push(r) : runs.push([r])));
+  for (const run of runs) {
+    const top = run.map((r) => `${x(r.lap - (run.length === 1 ? 0.35 : 0)).toFixed(1)},${y(r.hi).toFixed(1)}`);
+    const bot = run.map((r) => `${x(r.lap + (run.length === 1 ? 0.35 : 0)).toFixed(1)},${y(r.lo).toFixed(1)}`).reverse();
+    if (run.length === 1) { top.push(`${x(run[0].lap + 0.35).toFixed(1)},${y(run[0].hi).toFixed(1)}`); bot.push(`${x(run[0].lap - 0.35).toFixed(1)},${y(run[0].lo).toFixed(1)}`); }
+    el("path", { d: `M${top.join("L")}L${bot.join("L")}Z`, fill: css("--accent-soft") }, g);
+    el("path", { d: "M" + run.map((r) => `${x(r.lap).toFixed(1)},${y(r.f).toFixed(1)}`).join("L"), fill: "none", stroke: css("--accent"), "stroke-width": 2, "stroke-linejoin": "round" }, g);
+  }
+  // the real laps; misses are hollow, laps off the axis are triangles at the edge
+  let hits = 0;
+  for (const r of rows) {
+    const inside = r.y >= r.lo && r.y <= r.hi; hits += inside;
+    const px = x(r.lap);
+    if (r.y > y1 || r.y < y0) {
+      const e = r.y > y1 ? T + 2 : H - B - 2, s = r.y > y1 ? 1 : -1;
+      el("path", { d: `M${px - 5},${e + 8 * s}L${px + 5},${e + 8 * s}L${px},${e}Z`, fill: css(r.slow ? "--muted" : "--cool") }, svg);
+      if (r.slow) {
+        const right = px > W - R - 110;
+        text(svg, right ? px - 8 : px + 8, e + 9 * s + 3, `slow lap, ${Math.round(r.y)} s`, { class: "lbl", "text-anchor": right ? "end" : "start" });
+      }
+    } else if (inside) el("circle", { cx: px, cy: y(r.y), r: 3.2, fill: css("--ink") }, svg);
+    else el("circle", { cx: px, cy: y(r.y), r: 3.4, fill: css("--card"), stroke: css("--cool"), "stroke-width": 2 }, svg);
+  }
+  $("lapHits").innerHTML = `${hits} <span>of ${rows.length} laps in the range</span>`;
+  if (LAP.hover != null) {
+    const r = all.find((q) => q.lap === LAP.hover);
+    if (r && rows.includes(r)) {
+      el("line", { x1: x(r.lap), x2: x(r.lap), y1: T, y2: H - B, class: "guide" }, svg);
+      const note = r.slow ? " Not a racing lap (red-flag restart)." : r.afterSlow ? " The forecast used the slow lap before it as if it were a racing lap." : "";
+      $("lapTip").textContent = `Lap ${r.lap}: real ${fmt(r.y)}, forecast ${fmt(r.f)}, range ${r.lo.toFixed(1)} to ${r.hi.toFixed(1)} s.${note}`;
+    }
+  }
+  svg.onpointermove = (ev) => {
+    const b = svg.getBoundingClientRect(), vx = ((ev.clientX - b.left) / b.width) * W;
+    const lap = Math.round(x0 + ((vx - L) / (W - L - R)) * (x1 - x0));
+    const near = all.reduce((a, q) => (Math.abs(q.lap - lap) < Math.abs(a.lap - lap) ? q : a));
+    if (near.lap !== LAP.hover) { LAP.hover = near.lap; drawLaps(); }
+  };
+}
+
+function lapDrivers() {
+  const box = $("lapDrivers"); box.replaceChildren();
+  LAP.data.drivers.forEach((d, i) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.textContent = `P${d.position} ${d.code}`; b.setAttribute("aria-pressed", String(i === LAP.driver));
+    b.onclick = () => { LAP.driver = i; LAP.hover = null; stopReplay(); lapDrivers(); drawLaps(); };
+    box.appendChild(b);
+  });
+}
+
+function stopReplay() { clearInterval(LAP.timer); LAP.timer = null; LAP.shown = Infinity; $("lapPlay").textContent = "Replay"; }
+function replay() {
+  if (LAP.timer) { stopReplay(); drawLaps(); return; }
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) { drawLaps(); return; }
+  LAP.shown = 0; LAP.hover = null; $("lapPlay").textContent = "Stop";
+  const n = lapRows().length;
+  LAP.timer = setInterval(() => { LAP.shown += 1; drawLaps(); if (LAP.shown >= n) stopReplay(); }, 70);
+}
+
+fetch("data/lap-replay.json").then((r) => r.json()).then((d) => {
+  LAP.data = d;
+  $("lapRace").textContent = d.race;
+  $("lapPlay").addEventListener("click", replay);
+  lapDrivers(); drawLaps();
+});
+
 fetch("data/undercut-model.json").then((r) => r.json()).then((m) => {
   P = m.params;
   $("nEvents").textContent = m.trained_on.events.toLocaleString("en");
   for (const id of ["gap", "ageA", "ageB", "left"]) $(id).addEventListener("input", update);
-  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", update);
-  let t; addEventListener("resize", () => { clearTimeout(t); t = setTimeout(update, 120); });
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { update(); drawLaps(); });
+  let t; addEventListener("resize", () => { clearTimeout(t); t = setTimeout(() => { update(); drawLaps(); }, 120); });
   update();
 });

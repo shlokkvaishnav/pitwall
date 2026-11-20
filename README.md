@@ -1,15 +1,17 @@
 # pitwall
 
 Formula 1 race-strategy models built only from public lap data: a lap-time forecaster, an undercut probability tool,
-and a race simulator. Every model was tested on 2026 races that stayed locked until the end.
+and a race simulator. Each of the three models was tested on 2026 races that stayed locked until the end.
 
-**Live:** <https://shlokkvaishnav.github.io/pitwall/>: the undercut tool runs in your browser.
+**Live:** <https://shlokkvaishnav.github.io/pitwall/>: the undercut tool runs in your browser, next to a lap-by-lap replay
+of the lap-time forecast on a 2026 race that was not in its training data.
 
 [![The pitwall site](docs/site.png)](https://shlokkvaishnav.github.io/pitwall/)
 
 ## What it does
 - **Lap-time model.** LightGBM predicts each car's next lap time from its recent laps, tyre age, gaps to the cars around it
   and track evolution. It learns a correction to "next lap = last lap", and it is pre-trained on 2022 to 2025 before the new 2026 cars.
+  Each forecast comes with a range (split conformal intervals, calibrated on the earlier 2026 races).
 - **Undercut tool.** You are close behind a rival and pit first for fresh tyres. A logistic regression gives the chance that you
   come out ahead, from three numbers a strategist knows at that moment: the gap, the tyre-age difference and the laps left.
   It learned from 1,190 real pit duels (2018 to 2026). The site shows the probability, a map over gap and tyre age, and what moves it.
@@ -22,7 +24,8 @@ The 2026 races from 1 September were locked in code until the end. The final mod
 | Part | Development (2018 to Aug 2026) | Locked races (Sep to Oct 2026) |
 |---|---|---|
 | Lap-time model | 11.5% lower error than "next lap = last lap" | **Holds up.** 17% lower error (0.78 s vs 0.94 s), better in all 6 races, 5,354 laps. |
-| Undercut tool | Brier skill 0.22 on 2024 and 2025 | **Not confirmed.** Only 20 undercut attempts in these races, and the model did no better than the base rate. Too few to judge. |
+| Lap-time ranges | The 80% range holds 78.3% of laps. The 95% range holds 92.8%: slightly too narrow, so [spec 12](docs/specs/12-lap-intervals.md) fails. | Not tested. Added after the locked test; [spec 13](docs/specs/13-out-of-sample-rounds.md) tests it on rounds 19 to 23. |
+| Undercut tool | Brier skill 0.22 on 2024 and 2025 | **Not confirmed.** Only 20 undercut attempts in these races, and the model did no better than the base rate. Too few to judge: if the model is as good as on 2024 and 2025, about 80 are needed for 80% power. |
 | Race simulator | Does not beat the starting grid | Orders the field better than the grid, but its podium odds are worse. |
 | Battery use from lap times | Not visible: lap times are too coarse | Not tested. Code archived (tag `energy-experiment`). |
 
@@ -46,7 +49,7 @@ flowchart LR
 ## Engineering
 - **One-command rebuild.** `make reproduce` downloads the public data (the dump has a pinned SHA-256), runs every experiment,
   and compares every number with the committed results. `make docker-reproduce` does the same in a clean container.
-  The last Docker run rebuilt all 11 result files with no difference.
+  The last Docker run (before specs 12 and 13) rebuilt all 11 result files of that time with no difference.
 - **The browser and Python agree.** A Node test checks that the JavaScript model gives the scikit-learn probabilities (difference < 1e-5).
 - **Checks on each push:** ruff (lint), mypy (types), pytest, Node tests. CI runs only on push, never on a schedule.
 - **No raw data in the repository.** The site shows only model numbers.
