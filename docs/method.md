@@ -31,11 +31,18 @@ This page is the one place to read how pitwall was tested. The detailed plans li
 | [09](specs/09-undercut-replication.md) | Does the decision-time model hold on 2018 to 2021? | **Yes.** 136 unseen duels, p = 0.016. |
 | [10](specs/10-undercut-open-events.md) | Is it better than a published model ([arXiv 2607.06495](https://arxiv.org/abs/2607.06495))? | **No.** Equal to the simpler published-style model (Brier skill 0.22 on 2024 and 2025). The site uses the simpler model. |
 | [11](specs/11-holdout.md) | Final test on 6 locked 2026 races | Lap-time model **passes** (0.779 s vs 0.939 s, better in all 6 races). Undercut model **fails** (20 events, no skill). Simulator **fails**. |
+| [12](specs/12-lap-intervals.md) | Do conformal ranges around the lap-time forecast hold their coverage? (development rounds 4 to 12) | 80% range: 78.3% of 9,034 laps (pass). 95% range: 92.8% (**fails**, the band was 93% to 97%). Ranges calibrated on 2025 are too narrow (71.1% for 80%). |
+| [13](specs/13-out-of-sample-rounds.md) | Registered test on 2026 rounds 19 to 23 (lap time, ranges, undercut) | Not run yet (needs the December dump). Power analysis: 80 undercut events give 82% power at the 2024–25 skill; 20 events give 54%. |
 
 ## Known limitations
 - **Selection bias in the undercut model.** It learns from undercuts that teams chose to try. It gives the chance that an
   attempted undercut works, not the effect of pitting versus staying out. The site shows odds, not advice.
 - **Small samples.** The final test has 6 races and only 20 undercut attempts. A bootstrap over 6 race blocks is coarse.
+  The spec 13 power analysis shows that a model as good as on 2024 and 2025 passes a 20-event test only 54% of the time.
+- **The lap-time range has one width.** It does not get wider in traffic: with the car ahead closer than 1 s, the 80% range
+  holds 73.2% of laps (spec 12). The 95% range is slightly too narrow.
+- **Missed neutral laps.** Jolpica has no flag data. When only part of the field is slow (the restart after a red flag),
+  the detector can miss the lap, and the next forecast is far off. The site replay shows one such lap.
 - **Future information in specs 07 and 08.** Their models used `wait_laps` (how long the rival waited to respond), which is
   not known when the car pits. Spec 08 added a decision-time model to fix this, and spec 10 removed the feature entirely.
   The deployed model uses only gap, tyre-age difference and laps remaining.
@@ -44,4 +51,4 @@ This page is the one place to read how pitwall was tested. The detailed plans li
 - **One unexplained outlier.** In spec 03, `gbm_2026` (trained on 2026 races only) had a 9.6 s mean error on round 10 (Belgium).
   `gbm_pretrain` did not. We did not find the cause. It is one reason the pre-trained model is the one we use.
 - **Calibration at the extremes.** On 2024 and 2025, the 0.8 to 1.0 probability bin has only 6 events.
-- **Dump date.** The pinned dump ends at the United States GP (round 18). Rounds 19 onward are not tested.
+- **Dump date.** The pinned dump ends at the United States GP (round 18). Rounds 19 onward are not tested yet ([spec 13](specs/13-out-of-sample-rounds.md)).

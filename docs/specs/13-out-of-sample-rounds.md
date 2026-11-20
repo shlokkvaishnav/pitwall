@@ -10,7 +10,7 @@ the lap-time model, its intervals (spec 12) and the undercut model. Nothing is t
 
 ## 2. Data
 - A new Jolpica dump with rounds 19 to 23, pinned by its SHA-256 in `scripts/fetch_dump.py` in the run commit.
-- Check before the run: for every race from 2018 to 2026 round 18, the number of laps and pit stops for each race in the new dump
+- Check before the run: for every race from 2018 to 2026 round 18, the number of laps and pit stops in the new dump
   equals the pinned 2026-11-01 dump. We report every difference. Development and spec 11 results are not recomputed.
 - TracingInsights tyre files for rounds 19 to 23 (`fetch_tyres.py --holdout 19 20 21 22 23`).
 - The loaders open rounds 19 to 23 with `allow_holdout=True`, in the spec 13 script only.
