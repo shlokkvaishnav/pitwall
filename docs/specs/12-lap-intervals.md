@@ -52,3 +52,34 @@ the `rolling` 80% interval. The file `site/data/lap-replay.json` has only these 
 ## 6. Output
 `results/12-lap-intervals.json`: the calibration offsets for each race, the coverage and width for each race and
 interval, the rule results and the git commit SHA. The script is `scripts/lap_intervals.py`.
+
+## Result (2026-11-21, commit 3251764)
+C1 and C3 pass. C2 fails by 0.2 points. **The spec fails.**
+
+| Rule | Result | Numbers |
+|---|---|---|
+| C1 80% coverage | **Pass** | 78.3% of 9,034 laps (pass band 77% to 83%). Mean width 1.54 s. |
+| C2 95% coverage | **Fail** | 92.8% (pass band 93% to 97%). Mean width 4.87 s. |
+| C3 Per race | **Pass** | The 80% interval covers at least 70% of the laps in 8 of 9 races. Canada (round 5) is the exception: 64.2%. |
+
+The point forecast on these laps is the same as in spec 03 (MAE 1.027 s).
+
+| Calibration | 80% coverage | 95% coverage | Mean width 80% / 95% |
+|---|---|---|---|
+| `rolling` (2026 rounds before k) | 78.3% | 92.8% | 1.54 s / 4.87 s |
+| `static_2025` (no rule) | 71.1% | 88.2% | 1.10 s / 2.81 s |
+
+By group (`rolling`, no rule): car ahead closer than 1 s, 73.2% (80%) and 94.3% (95%), 1,568 laps;
+tyre age above 20 laps, 75.9% and 91.7%, 1,990 laps.
+
+**Interpretation.**
+- **The 80% interval works on development data.** It is close to its target pooled and in 8 of 9 races.
+  It is asymmetric (about −0.7 s to +0.9 s from the forecast), as expected for lap times.
+- **The 95% interval is a little too narrow.** The early 2026 races have fewer large errors than the later ones:
+  the upper 95% offset grows from +2.2 s (calibrated on rounds 1 to 3) to +3.2 s (rounds 1 to 11).
+  We do not change the method to make C2 pass. A new method needs a new spec on new data.
+- **The 2026 cars need 2026 calibration.** Residuals from 2025 give intervals that are too narrow (71% for 80%).
+- **Laps in traffic are less predictable.** With the car ahead closer than 1 s, the 80% interval covers 73%.
+  The interval has one width for all laps; it does not adapt to traffic.
+- **The neutral-lap detector misses some partial safety-car laps.** Then a 130 s lap counts as the last clean lap,
+  and the next forecast is far off. This is the spec 03 behaviour; the replay on the site shows it.
