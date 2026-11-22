@@ -1,0 +1,106 @@
+{
+  "spec": "20-simulator-c",
+  "section": "4 development",
+  "commit": "e550ace976a10832d71b5c702711608a5a26fd7c",
+  "runs": 2000,
+  "means": {
+    "spearman_C": 0.7538568643831802,
+    "brier_C": 0.07802222979797979,
+    "spearman_B": 0.7440324667878848,
+    "brier_B": 0.07850741666666666,
+    "spearman_grid": 0.7846470752043507,
+    "brier_grid": 0.0699669064444887
+  },
+  "races": [
+    {
+      "round": 4,
+      "name": "Miami Grand Prix",
+      "spearman_C": 0.8885448916408669,
+      "brier_C": 0.07006261363636362,
+      "spearman_B": 0.8844169246646028,
+      "brier_B": 0.07101981818181818,
+      "spearman_grid": 0.8802889576883385,
+      "brier_grid": 0.09623890852410168
+    },
+    {
+      "round": 5,
+      "name": "Canadian Grand Prix",
+      "spearman_C": 0.7441176470588236,
+      "brier_C": 0.08645095454545454,
+      "spearman_B": 0.7823529411764706,
+      "brier_B": 0.08808193181818182,
+      "spearman_grid": 0.7852941176470588,
+      "brier_grid": 0.11602466460396905
+    },
+    {
+      "round": 6,
+      "name": "Monaco Grand Prix",
+      "spearman_C": 0.5764705882352941,
+      "brier_C": 0.0923665,
+      "spearman_B": 0.4735294117647058,
+      "brier_B": 0.09463765909090908,
+      "spearman_grid": 0.65,
+      "brier_grid": 0.07428202378884363
+    },
+    {
+      "round": 7,
+      "name": "Barcelona Grand Prix",
+      "spearman_C": 0.4558823529411765,
+      "brier_C": 0.08512925,
+      "spearman_B": 0.47794117647058826,
+      "brier_B": 0.08346143181818182,
+      "spearman_grid": 0.6446078431372549,
+      "brier_grid": 0.03659567970361371
+    },
+    {
+      "round": 8,
+      "name": "Austrian Grand Prix",
+      "spearman_C": 0.9009287925696594,
+      "brier_C": 0.07551918181818183,
+      "spearman_B": 0.894736842105263,
+      "brier_B": 0.07236797727272727,
+      "spearman_grid": 0.9215686274509803,
+      "brier_grid": 0.08177377834892553
+    },
+    {
+      "round": 9,
+      "name": "British Grand Prix",
+      "spearman_C": 0.544360902255639,
+      "brier_C": 0.07512693181818181,
+      "spearman_B": 0.5593984962406015,
+      "brier_B": 0.07728063636363637,
+      "spearman_grid": 0.6015037593984961,
+      "brier_grid": 0.06651010611162127
+    },
+    {
+      "round": 10,
+      "name": "Belgian Grand Prix",
+      "spearman_C": 0.980701754385965,
+      "brier_C": 0.06437115909090908,
+      "spearman_B": 0.9701754385964911,
+      "brier_B": 0.06500454545454547,
+      "spearman_grid": 0.8105263157894737,
+      "brier_grid": 0.035496613968327526
+    },
+    {
+      "round": 11,
+      "name": "Hungarian Grand Prix",
+      "spearman_C": 0.8701754385964912,
+      "brier_C": 0.07739850000000001,
+      "spearman_B": 0.8473684210526315,
+      "brier_B": 0.07829515909090906,
+      "spearman_grid": 0.9175438596491228,
+      "brier_grid": 0.0936275335539995
+    },
+    {
+      "round": 12,
+      "name": "Dutch Grand Prix",
+      "spearman_C": 0.823529411764706,
+      "brier_C": 0.07577497727272725,
+      "spearman_B": 0.806372549019608,
+      "brier_B": 0.07641759090909092,
+      "spearman_grid": 0.8504901960784315,
+      "brier_grid": 0.029152849396996413
+    }
+  ]
+}

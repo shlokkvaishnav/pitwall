@@ -34,3 +34,17 @@ The spec 11 rule R4 (B against the grid) failed on C2's measure; C2 is the main 
 
 ## 5. Output
 `scripts/race_sim_c.py`, `results/20-simulator-c-dev.json`, later `results/20-simulator-c-test.json`.
+
+## Development result (2026-11-22, commit e550ace; 2026 rounds 4 to 12, 2,000 runs per race)
+Raw numbers: `results/20-simulator-c-dev.json`.
+
+| | Mean Spearman | Mean podium Brier |
+|---|---|---|
+| grid | **0.785** | **0.070** |
+| simulator B | 0.744 | 0.0785 |
+| simulator C | 0.754 | 0.0780 |
+
+The new layers change almost nothing: C is within 0.01 of B on both measures, and both are still worse than the grid on
+podium chances. The safety-car and overtaking layers are better on their own (specs 15 and 16), but they are not what
+limits the simulator. The likely limit is the pace input (one number per driver from qualifying and form), which
+decides most finishing orders. This is a development result; the test on rounds 19 to 23 runs as registered.
