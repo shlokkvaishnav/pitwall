@@ -45,3 +45,18 @@ is a power limit, not evidence against the model. Race-level Brier of "at least 
 ## 6. Output
 `src/pitwall/hazard.py`, `scripts/sc_hazard.py`, `results/15-sc-hazard-dev.json` (section 4) and later
 `results/15-sc-hazard-test.json` (section 5). Results appended below.
+
+## Development result (section 4, 2026-11-22, commit 99a98ef)
+Leave-one-season-out over the 80 development races: 4,491 at-risk laps, 95 events (47 SC, 44 VSC, 4 red flag);
+16 events start on lap 1 and 7 on laps 2 to 3. Raw numbers: `results/15-sc-hazard-dev.json`.
+
+| Model | Per-lap log loss | Brier, "at least one period in the race" |
+|---|---|---|
+| M0 global | 0.1030 | 0.233 |
+| M1 circuit mean (the simulator's rule) | 0.1140 | 0.266 |
+| **M2 hazard** | **0.0969** | **0.225** |
+
+The simulator's rule is worse than one constant rate: circuit means from 2 to 3 races are noise. M2's fit on all 80
+races: lap 1 has about 15 times the hazard of a later lap (coefficient 2.68), laps 2 to 3 about 3.6 times (1.27), and
+the circuit prior is worth about 290 at-risk laps (about 5 races), so circuits are shrunk strongly to the mean.
+The test (section 5) runs once after 6 December 2026.

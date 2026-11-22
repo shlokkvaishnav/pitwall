@@ -34,6 +34,7 @@ This page is the one place to read how pitwall was tested. The detailed plans li
 | [12](specs/12-lap-intervals.md) | Do conformal ranges around the lap-time forecast hold their coverage? (development rounds 4 to 12) | 80% range: 78.3% of 9,034 laps (pass). 95% range: 92.8% (**fails**, the band was 93% to 97%). Ranges calibrated on 2025 are too narrow (71.1% for 80%). |
 | [13](specs/13-out-of-sample-rounds.md) | Registered test on 2026 rounds 19 to 23 (lap time, ranges, undercut) | Not run yet (needs the December dump). Power analysis: 80 undercut events give 82% power at the 2024–25 skill; 20 events give 54%. |
 | [14](specs/14-official-flag-laps.md) | Does the lap-time neutral detector agree with official race control (OpenF1, 80 races 2023 to 2026)? | **Partly.** It finds 96% of safety-car laps and all red-flag laps, but only 40% of VSC laps (recall 0.72, precision 0.81). New specs use the official laps from 2023. Exploratory: without the official laps, lap-time error on rounds 4 to 12 falls from 1.03 s to 0.78 s. |
+| [15](specs/15-sc-hazard.md) | When does a safety car or VSC come out? Per-lap hazard model against the simulator's circuit-mean rule | Development (leave one season out, 80 races): log loss 0.097 against 0.114 for the simulator's rule and 0.103 for one constant rate. Lap 1 is about 15 times riskier. Locked test on 2026 rounds 13 to 23 after 6 December. |
 
 ## Known limitations
 - **Selection bias in the undercut model.** It learns from undercuts that teams chose to try. It gives the chance that an
