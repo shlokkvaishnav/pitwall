@@ -27,7 +27,7 @@ races. Everything here is **inside the simulator**: a better agent here is not s
 | `history` | The same rule as the other cars. |
 | `fixed1` | One stop on lap s; s chosen by grid search over all laps on 200 training seeds. |
 | `fixed2` | Two stops (s1, s2), grid search in steps of 3 laps on 200 training seeds. |
-| `ppo` | PPO (stable-baselines3 2.4.1, default settings, 300,000 steps, seed 0) on training seeds. |
+| `ppo` | PPO (stable-baselines3 2.9.2, default settings, 300,000 steps, seed 0) on training seeds. |
 
 ## 4. Races and evaluation
 2026 rounds 4, 8 and 12 (fixed now). For each, the simulator is built from earlier races only. Evaluation on 1,000 seeds

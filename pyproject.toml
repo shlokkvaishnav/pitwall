@@ -9,7 +9,7 @@ dependencies = ["numpy", "pandas", "scipy"]
 model = ["lightgbm", "scikit-learn"]
 deep = ["torch==2.15.0"]
 radio = ["faster-whisper==1.1.1", "av==13.1.0"]
-rl = ["stable-baselines3==2.4.1", "gymnasium==1.0.0"]
+rl = ["stable-baselines3==2.9.2", "gymnasium==1.0.0"]
 dev = ["pytest", "ruff", "hypothesis", "mypy", "pandas-stubs"]
 
 [build-system]
