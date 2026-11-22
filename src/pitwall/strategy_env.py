@@ -28,8 +28,9 @@ class World:
 class Race:
     """One simulated race. Call `step(pit)` once per lap for the ego car; others follow their plans."""
 
-    def __init__(self, world: World, seed: int):
+    def __init__(self, world: World, seed: int, retirements: bool = False):
         self.w, self.rng = world, np.random.default_rng(seed)
+        self.retirements = retirements  # spec 20 only; spec 18 runs without them
         inp, d = world.inp, len(world.inp.drivers)
         self.n, self.d = inp.laps, d
         self.cum = np.arange(d) * START_GAP_S + self.rng.normal(0, 2 * inp.noise_s, d)
@@ -37,6 +38,8 @@ class Race:
         self.stops = np.zeros(d, int)
         self.lap = 1
         self.sc_left = 0
+        self.alive = np.ones(d, bool)
+        self.laps_done = np.ones(d, int)
         n_stops = self.rng.choice(inp.stop_counts, d) if len(inp.stop_counts) else np.ones(d, int)
         self.plans = [
             sorted(
@@ -65,6 +68,13 @@ class Race:
             dtype=np.float32,
         )  # fmt: skip
 
+    def finish_positions(self) -> np.ndarray:
+        """Finishing position of every car (1 = winner): laps done first, then race time."""
+        key = -self.laps_done * 1e6 + self.cum
+        pos = np.empty(self.d, int)
+        pos[np.argsort(key)] = np.arange(1, self.d + 1)
+        return pos
+
     def done(self) -> bool:
         return self.lap >= self.n
 
@@ -91,15 +101,19 @@ class Race:
         t = base + self.pace + inp.wear_s_per_lap * self.age + rng.normal(0, inp.noise_s, self.d)
         loss = inp.pit_loss_s * (SC_PIT_FACTOR if sc else 1.0)
         t = t + np.where(pit, loss, 0.0)
-        order = np.argsort(self.cum)
+        order = np.argsort(np.where(self.alive, self.cum, np.inf))[: int(self.alive.sum())]  # running cars only
         new = self.cum + t
         if sc:
             leader = self.cum[order[0]] + base * SC_PACE
             # the field closes up behind the leader, in the order of the last lap, plus any pit loss
-            new_sorted = leader + np.arange(self.d) * SC_GAP_S + np.where(pit[order], loss, 0.0)
-            new[order] = new_sorted
+            new[order] = leader + np.arange(len(order)) * SC_GAP_S + np.where(pit[order], loss, 0.0)
         else:
             self._passes(order, new, t)
+        if self.retirements:
+            out = self.alive & (rng.random(self.d) < inp.dnf_hazard)
+            self.alive &= ~out
+            new = np.where(self.alive, new, self.cum)
+            self.laps_done = np.where(self.alive, lap, self.laps_done)
         self.cum = new
         self.age = np.where(pit, 1.0, self.age + 1.0)
         self.stops += pit
@@ -109,7 +123,7 @@ class Race:
     def _passes(self, order: np.ndarray, new: np.ndarray, t: np.ndarray) -> None:
         """For each car within 3 s of the car ahead (last lap's order), draw a pass with the spec 16 gbm."""
         pairs = []
-        for k in range(1, self.d):
+        for k in range(1, len(order)):
             a, b = order[k - 1], order[k]
             if self.cum[b] - self.cum[a] <= MAX_GAP_S and new[b] < new[a] + STUCK_GAP_S:
                 pairs.append((a, b))

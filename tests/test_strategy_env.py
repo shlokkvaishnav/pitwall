@@ -42,3 +42,16 @@ def test_neutral_period_bunches_the_field():
     gaps = np.diff(np.sort(r.cum))
     assert r.sc_left >= 0 and np.all(gaps < 1.0)
     assert r.obs().shape == (7,)
+
+
+def test_retirements_freeze_a_car_and_it_finishes_behind_the_runners():
+    w = _world()
+    w.inp.dnf_hazard = 0.05
+    r = Race(w, seed=1, retirements=True)
+    while not r.done():
+        r.step(False)
+    pos = r.finish_positions()
+    assert sorted(pos) == list(range(1, 9))
+    out = ~r.alive
+    if out.any() and r.alive.any():
+        assert pos[out].min() > pos[r.alive].max()
