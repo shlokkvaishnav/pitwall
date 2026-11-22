@@ -8,6 +8,7 @@
 ## Next
 - Spec 15 registered and developed (hazard M2 log loss 0.097 vs 0.114 simulator rule, LOSO). After 6 Dec:
   `scripts/sc_hazard.py --test` once (2026 rounds 13-23). Then a spec to put M2 into the race simulator.
+- After 6 Dec: `scripts/overtaking.py --test` once (spec 16, gbm 0.154 vs sim rule 0.249 on dev).
 - December: new Jolpica dump with rounds 19-23, then run spec 13 as registered (section 6).
 - Undercut confirmatory test needs 80 pooled events (2027).
 
