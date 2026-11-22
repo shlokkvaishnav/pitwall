@@ -100,7 +100,7 @@ class Models:
             "base": np.full(len(d), self.base),
             "sim_rule": self.sim.predict_proba((d[["pace_delta"]] - SIM_MARGIN_S).to_numpy())[:, 1],
             "logit": self.logit.predict_proba(d[FEATURES].to_numpy())[:, 1],
-            "gbm": self.gbm.predict_proba(d[FEATURES])[:, 1],
+            "gbm": np.asarray(self.gbm.predict_proba(d[FEATURES]))[:, 1],
         }
 
 
