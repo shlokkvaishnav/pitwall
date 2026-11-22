@@ -27,6 +27,10 @@
   .hits { font: 600 .9rem/1 var(--sans); font-variant-numeric: tabular-nums; }
   .hits span { color: var(--muted); font-weight: 400; }
   #laps .guide { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 2 3; }
+  #strategy .panel + .panel { margin-top: 1rem; }
+  .ph { font: 600 1rem/1.3 var(--sans); margin: 0 0 .8rem; display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem .6rem; }
+  .ph-num { font: 600 1.6rem/1 var(--serif); color: var(--accent); font-variant-numeric: tabular-nums; }
+  .ph-sub { font-weight: 400; font-size: .85rem; color: var(--muted); }
 </style>
 </head>
 <body>
@@ -111,11 +115,32 @@
     </div>
   </section>
 
+  <section id="strategy">
+    <h2>One race, layer by layer</h2>
+    <p class="cap">The same race, through the models that feed the race simulator. Each was fitted only on earlier races.</p>
+    <div class="panel">
+      <h3 class="ph">Will a safety car come out? <span class="ph-num" id="anyNeutral">–</span> <span class="ph-sub">chance of at least one</span></h3>
+      <svg id="hazard" role="img" aria-label="Chance a safety car or VSC starts on each lap, with the laps where one really did"></svg>
+      <div class="tip" id="hzTip">Bars: chance a safety car or VSC starts on that lap. Dashed: when one really did. Touch or hover to read a lap.</div>
+    </div>
+    <div class="panel">
+      <h3 class="ph">How hard is it to pass here?</h3>
+      <svg id="passing" role="img" aria-label="Chance of a pass on one lap at each circuit, for the same duel"></svg>
+      <div class="tip">The same duel at every circuit: 0.8 s behind and 0.5 s a lap faster. Chance of passing on that lap.</div>
+    </div>
+    <div class="panel">
+      <h3 class="ph">When does one stop pay off? <span class="ph-sub"><span id="egoName">–</span>, starting 5th</span></h3>
+      <svg id="window" role="img" aria-label="Average simulated finish for each lap of a single pit stop"></svg>
+      <div class="tip" id="winTip"></div>
+    </div>
+  </section>
+
   <footer>
     <p>Learned from <span id="nEvents">1,190</span> real pit duels, 2018 – 2026, public timing data only (Jolpica-F1, TracingInsights). Runs in your browser. It gives the chance that an attempted undercut works, not advice on whether to pit.</p>
     <p><a href="https://github.com/shlokkvaishnav/pitwall">github.com/shlokkvaishnav/pitwall</a></p>
   </footer>
 </div>
 <script type="module" src="app.js"></script>
+<script type="module" src="strategy.js"></script>
 </body>
 </html>
