@@ -14,6 +14,7 @@ of the lap-time forecast and one race seen through every layer.
 | Pace | How fast will each car go next lap, and how sure are we? | LightGBM on recent laps, tyre age, gaps and track evolution, pre-trained on 2022 to 2025; conformal ranges; a causal transformer over each car's laps as a challenger |
 | Race events | When does a safety car or VSC come out? | Official race-control laps (OpenF1); a per-lap hazard with lap-1 and circuit terms, circuits shrunk to the mean |
 | Racing | When can a car pass, and when does an undercut work? | LightGBM on pairs of cars one lap at a time; a logistic undercut model from 1,190 real pit duels (2018 to 2026) |
+| Signals | Does team radio tell you a stop is coming? | Whisper transcripts of the clips OpenF1 publishes, tagged by keyword rules, added to a logistic pit-next-lap model |
 | Strategy | Put together, how does the race finish? | Monte Carlo simulators: B (pace, tyres, stops) and C (B plus the hazard, passing and teams pitting under a safety car) |
 
 ## Scorecard
@@ -33,6 +34,7 @@ Development numbers are walk-forward on earlier races. "Locked" means races kept
 | Strategy | Simulator B | Does not beat the starting grid. | Orders the field better than the grid, but its podium odds are worse. |
 | Strategy | Simulator C ([spec 20](docs/specs/20-simulator-c.md)) | Almost the same as B (podium Brier 0.0780 vs 0.0785) and still worse than the grid (0.070). The new layers are better on their own but do not move the whole: the pace input limits it. | Rounds 19 to 23. |
 | Strategy | RL pit agent ([spec 18](docs/specs/18-rl-strategy.md)) | Inside simulator C, on rounds 4, 8, 12: 1.8 places better than the field's own pit rule, but worse than the best fixed one-stop plan in 2 of 3 races, so the rule fails. It learns to stop on lap 2, which exploits the simulator's weak pace input. | — (simulator only) |
+| Signals | Team radio ([spec 19](docs/specs/19-team-radio.md)) | 6,163 published clips, transcribed with Whisper and tagged by topic (box, tyres, pace, issue). Adding recent box and tyre mentions to a pit-next-lap model does not help (log loss 0.13398 vs 0.13397), so the rule fails. Clear box calls are rare in the clips OpenF1 publishes. | — (development only) |
 | — | Battery use from lap times | Not visible: lap times are too coarse. Code archived (tag `energy-experiment`). | — |
 
 The undercut probability is learned from attempts that teams chose to make, so it is not advice on whether to pit.
