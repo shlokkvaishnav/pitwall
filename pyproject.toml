@@ -7,6 +7,7 @@ dependencies = ["numpy", "pandas", "scipy"]
 
 [project.optional-dependencies]
 model = ["lightgbm", "scikit-learn"]
+deep = ["torch==2.15.0"]
 dev = ["pytest", "ruff", "hypothesis", "mypy", "pandas-stubs"]
 
 [build-system]
