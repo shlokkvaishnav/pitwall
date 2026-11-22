@@ -28,17 +28,22 @@ def _periods(msgs: list[Mapping], last_lap: int) -> dict[str, list[tuple[int, in
         text = (m.get("message") or "").upper()
         cat = m.get("category")
         if cat == "SafetyCar":
-            if text.startswith("VIRTUAL SAFETY CAR DEPLOYED"):
+            if text.startswith(("VIRTUAL SAFETY CAR DEPLOYED", "VSC DEPLOYED")):
                 if open_at["vsc"] is None:
                     open_at["vsc"] = lap
-            elif text.startswith("VIRTUAL SAFETY CAR ENDING"):
+            elif text.startswith(("VIRTUAL SAFETY CAR ENDING", "VSC ENDING")):
                 close("vsc", lap)
             elif text.startswith("SAFETY CAR DEPLOYED"):
                 if open_at["sc"] is None:
                     open_at["sc"] = lap
             elif text.startswith("SAFETY CAR IN THIS LAP"):
                 close("sc", lap)
-        elif cat == "Flag" and m.get("flag") == "RED" and m.get("scope") in (None, "Track"):
+        elif (cat == "Flag" and m.get("flag") == "RED" and m.get("scope") in (None, "Track")) or (
+            cat == "SessionStatus" and text.startswith("SESSION ABORTED")
+        ):
+            # a red flag ends any SC or VSC period (no "IN THIS LAP" or "ENDING" message follows it)
+            close("sc", lap)
+            close("vsc", lap)
             if open_at["red"] is None:
                 open_at["red"] = lap
         elif cat == "SessionStatus" and text.startswith("SESSION STARTED"):

@@ -37,3 +37,16 @@ def test_messages_without_lap_and_sector_yellows_are_ignored():
     ]
     assert sorted(neutral_laps(msgs, 10)) == [1]
     assert sector_yellows(msgs) == 1
+
+
+def test_short_vsc_text_and_red_flag_closes_safety_car():
+    msgs = [
+        m(2, "SafetyCar", "VSC DEPLOYED", t="a"),
+        m(3, "SafetyCar", "VSC ENDING", t="b"),
+        m(7, "SafetyCar", "SAFETY CAR DEPLOYED", t="c"),
+        m(8, "SessionStatus", "SESSION ABORTED", t="d"),
+        m(9, "SessionStatus", "SESSION STARTED", t="e"),
+    ]
+    laps = neutral_laps(msgs, 50)
+    assert laps[2] == {"vsc"} and laps[3] == {"vsc"}
+    assert laps[7] == {"sc"} and laps[8] == {"sc", "red"} and laps[9] == {"red"} and 10 not in laps

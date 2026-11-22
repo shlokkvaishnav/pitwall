@@ -47,3 +47,14 @@ not use them.
 - `scripts/flag_laps.py` (fetch + measure), `results/flag_laps.json` (with the git commit).
 - `src/pitwall/flags.py`: parse messages to official neutral laps; unit tests on hand-written message lists.
 - Outcome appended below, with the decision.
+
+## Note (2026-11-22, after the first run and before the decision was recorded)
+The first run (kept as `results/flag_laps_first_parse.json`) showed three parsing faults, found by reading the messages
+of the races with the most and the fewest official laps:
+1. From 2025 the messages say `VSC DEPLOYED` / `VSC ENDING`, not `VIRTUAL SAFETY CAR ...`. Now read as VSC.
+2. A red flag during a safety car is followed by no `SAFETY CAR IN THIS LAP`, so the period ran to the last lap
+   (2023 São Paulo: 70 of 71 laps). A red flag now closes an open SC or VSC period at its lap.
+3. Some red flags have only `SESSION ABORTED` and no track `RED` flag message (2026 Dutch GP). `SESSION ABORTED` now
+   also starts a red-flag period. This widens section 3, so it is a change of definition, made after the first numbers
+   were seen; both runs are reported.
+Items 1 and 2 make the code do what section 3 says. The decision rule (section 5) is unchanged.
