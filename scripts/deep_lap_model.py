@@ -11,6 +11,7 @@ import subprocess
 import time
 from pathlib import Path
 
+import lightgbm  # noqa: F401  (load LightGBM's OpenMP before torch's; the other order crashes on macOS)
 import numpy as np
 import pandas as pd
 import torch

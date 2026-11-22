@@ -103,6 +103,23 @@ class Models:
             "gbm": np.asarray(self.gbm.predict_proba(d[FEATURES]))[:, 1],
         }
 
+    def gbm_fast(
+        self, circuit_id: int, gap: np.ndarray, pace_delta: np.ndarray, tyre_age_diff: np.ndarray, race_frac: float
+    ) -> np.ndarray:
+        """`gbm` probabilities from arrays (same model as `predict`, without building a DataFrame)."""
+        n = len(gap)
+        x = np.column_stack(
+            [
+                gap,
+                (gap <= DRS_GAP_S).astype(float),
+                pace_delta,
+                tyre_age_diff,
+                np.full(n, self.rates.get(int(circuit_id), self.base)),
+                np.full(n, race_frac),
+            ]
+        )
+        return np.asarray(self.gbm.booster_.predict(x))
+
 
 def log_loss(y: np.ndarray, p: np.ndarray) -> float:
     p = np.clip(p, 1e-6, 1 - 1e-6)
