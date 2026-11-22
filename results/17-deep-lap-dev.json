@@ -1,0 +1,60 @@
+{
+  "spec": "17-deep-lap-model",
+  "section": "3 development comparison",
+  "commit": "a5ebf63c86cbeca234f6795f887cf5c773879b88",
+  "laps": 9034,
+  "mae_gbm_s": 1.0274768866954898,
+  "mae_seq_s": 0.9252898927024981,
+  "diff_seq_minus_gbm_s": -0.10218699399299169,
+  "diff_95ci": [
+    -0.1505719989683751,
+    -0.05006049799967885
+  ],
+  "races": [
+    {
+      "round": 4,
+      "err_gbm": 0.521,
+      "err_seq": 0.5302
+    },
+    {
+      "round": 5,
+      "err_gbm": 1.4741,
+      "err_seq": 1.2767
+    },
+    {
+      "round": 6,
+      "err_gbm": 0.7444,
+      "err_seq": 0.7825
+    },
+    {
+      "round": 7,
+      "err_gbm": 1.138,
+      "err_seq": 0.9979
+    },
+    {
+      "round": 8,
+      "err_gbm": 0.9489,
+      "err_seq": 0.8593
+    },
+    {
+      "round": 9,
+      "err_gbm": 1.4682,
+      "err_seq": 1.2951
+    },
+    {
+      "round": 10,
+      "err_gbm": 0.992,
+      "err_seq": 0.8514
+    },
+    {
+      "round": 11,
+      "err_gbm": 0.7324,
+      "err_seq": 0.6542
+    },
+    {
+      "round": 12,
+      "err_gbm": 1.2752,
+      "err_seq": 1.108
+    }
+  ]
+}
