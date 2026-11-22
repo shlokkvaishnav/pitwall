@@ -1,34 +1,38 @@
 # pitwall
 
-Formula 1 race-strategy models built only from public lap data: a lap-time forecaster, an undercut probability tool,
-and a race simulator. Each of the three models was tested on 2026 races that stayed locked until the end.
+**How far can public lap data take you towards a team's race-strategy model, and where does it break?** pitwall builds
+that model one layer at a time, from public lap data only, and tests each layer on races it has not seen.
 
 **Live:** <https://shlokkvaishnav.github.io/pitwall/>: the undercut tool runs in your browser, next to a lap-by-lap replay
-of the lap-time forecast on a 2026 race that was not in its training data.
+of the lap-time forecast and one race seen through every layer.
 
 [![The pitwall site](docs/site.png)](https://shlokkvaishnav.github.io/pitwall/)
 
-## What it does
-- **Lap-time model.** LightGBM predicts each car's next lap time from its recent laps, tyre age, gaps to the cars around it
-  and track evolution. It learns a correction to "next lap = last lap", and it is pre-trained on 2022 to 2025 before the new 2026 cars.
-  Each forecast comes with a range (split conformal intervals, calibrated on the earlier 2026 races).
-- **Undercut tool.** You are close behind a rival and pit first for fresh tyres. A logistic regression gives the chance that you
-  come out ahead, from three numbers a strategist knows at that moment: the gap, the tyre-age difference and the laps left.
-  It learned from 1,190 real pit duels (2018 to 2026). The site shows the probability, a map over gap and tyre age, and what moves it.
-- **Race simulator.** A Monte Carlo model plays each race 2,000 times and gives finishing-position probabilities.
-
-## What works and what does not
-The 2026 races from 1 September were locked in code until the end. The final models ran on them once
-(6 races, [spec 11](docs/specs/11-holdout.md)).
-
-| Part | Development (2018 to Aug 2026) | Locked races (Sep to Oct 2026) |
+## The layers
+| Layer | Question | Model |
 |---|---|---|
-| Lap-time model | 11.5% lower error than "next lap = last lap" | **Holds up.** 17% lower error (0.78 s vs 0.94 s), better in all 6 races, 5,354 laps. |
-| Lap-time ranges | The 80% range holds 78.3% of laps. The 95% range holds 92.8%: slightly too narrow, so [spec 12](docs/specs/12-lap-intervals.md) fails. | Not tested. Added after the locked test; [spec 13](docs/specs/13-out-of-sample-rounds.md) tests it on rounds 19 to 23. |
-| Undercut tool | Brier skill 0.22 on 2024 and 2025 | **Not confirmed.** Only 20 undercut attempts in these races, and the model did no better than the base rate. Too few to judge: if the model is as good as on 2024 and 2025, about 80 are needed for 80% power. |
-| Race simulator | Does not beat the starting grid | Orders the field better than the grid, but its podium odds are worse. |
-| Safety-car and VSC laps | Detected from lap times. Against official race control (80 races, [spec 14](docs/specs/14-official-flag-laps.md)) it finds 96% of safety-car laps but only 40% of VSC laps. Official laps cut the lap-time error on rounds 4 to 12 from 1.03 s to 0.78 s (exploratory). | Spec 13 keeps the detector, as registered. |
-| Battery use from lap times | Not visible: lap times are too coarse | Not tested. Code archived (tag `energy-experiment`). |
+| Pace | How fast will each car go next lap, and how sure are we? | LightGBM on recent laps, tyre age, gaps and track evolution, pre-trained on 2022 to 2025; conformal ranges; a causal transformer over each car's laps as a challenger |
+| Race events | When does a safety car or VSC come out? | Official race-control laps (OpenF1); a per-lap hazard with lap-1 and circuit terms, circuits shrunk to the mean |
+| Racing | When can a car pass, and when does an undercut work? | LightGBM on pairs of cars one lap at a time; a logistic undercut model from 1,190 real pit duels (2018 to 2026) |
+| Strategy | Put together, how does the race finish? | Monte Carlo simulators: B (pace, tyres, stops) and C (B plus the hazard, passing and teams pitting under a safety car) |
+
+## Scorecard
+Development numbers are walk-forward on earlier races. "Locked" means races kept out of everything until one final run:
+2026 rounds 13 to 18 were used up by [spec 11](docs/specs/11-holdout.md); rounds 19 to 23 are the next test
+([spec 13](docs/specs/13-out-of-sample-rounds.md)), run once after the season ends on 6 December 2026.
+
+| Layer | Part | Development | Locked races |
+|---|---|---|---|
+| Pace | Lap-time model | 11.5% lower error than "next lap = last lap" | **Holds up** (rounds 13 to 18): 17% lower error (0.78 s vs 0.94 s), better in all 6 races, 5,354 laps. |
+| Pace | Lap-time ranges | The 80% range holds 78.3% of laps; the 95% range holds 92.8%, slightly too narrow, so [spec 12](docs/specs/12-lap-intervals.md) fails. | Rounds 19 to 23. |
+| Pace | Transformer lap model ([spec 17](docs/specs/17-deep-lap-model.md)) | On 2026 rounds 4 to 12: mean error 0.93 s against 1.03 s for the LightGBM model (95% interval of the gap −0.15 to −0.05 s), better in 7 of 9 races. | Rounds 19 to 23. |
+| Race events | Neutral laps from lap times | Against official race control (80 races, [spec 14](docs/specs/14-official-flag-laps.md)) it finds 96% of safety-car laps but only 40% of VSC laps. Official laps cut the lap-time error on rounds 4 to 12 from 1.03 s to 0.78 s (exploratory). | — |
+| Race events | Safety-car hazard ([spec 15](docs/specs/15-sc-hazard.md)) | Per-lap log loss 0.0969, against 0.1030 for one constant rate and 0.1140 for the old simulator's circuit average. | Rounds 19 to 23. |
+| Racing | Overtaking model ([spec 16](docs/specs/16-overtaking.md)) | Log loss 0.154 on 2026 rounds 1 to 12, against 0.249 for the simulator's pace-only rule and 0.257 for the base rate. | Rounds 19 to 23. |
+| Racing | Undercut tool | Brier skill 0.22 on 2024 and 2025. | **Not confirmed** (rounds 13 to 18): only 20 attempts, no better than the base rate. Too few to judge: about 80 are needed for 80% power. |
+| Strategy | Simulator B | Does not beat the starting grid. | Orders the field better than the grid, but its podium odds are worse. |
+| Strategy | Simulator C ([spec 20](docs/specs/20-simulator-c.md)) | Almost the same as B (podium Brier 0.0780 vs 0.0785) and still worse than the grid (0.070). The new layers are better on their own but do not move the whole: the pace input limits it. | Rounds 19 to 23. |
+| — | Battery use from lap times | Not visible: lap times are too coarse. Code archived (tag `energy-experiment`). | — |
 
 The undercut probability is learned from attempts that teams chose to make, so it is not advice on whether to pit.
 **How it was tested, every experiment, and the known limitations: [docs/method.md](docs/method.md).**
