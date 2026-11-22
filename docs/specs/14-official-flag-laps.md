@@ -58,3 +58,31 @@ of the races with the most and the fewest official laps:
    also starts a red-flag period. This widens section 3, so it is a change of definition, made after the first numbers
    were seen; both runs are reported.
 Items 1 and 2 make the code do what section 3 says. The decision rule (section 5) is unchanged.
+
+## Result (2026-11-22, commit d97a0e0)
+80 races scored (2023 to 2026 round 12). Two races are not in OpenF1's race list (Las Vegas 2024 and 2025) and are left
+out. Raw numbers: `results/flag_laps.json` (first parse: `results/flag_laps_first_parse.json`).
+
+| | Official laps | Detector also marks | Recall |
+|---|---|---|---|
+| Safety car | 213 | 205 | 0.96 |
+| Virtual safety car | 154 | 61 | 0.40 |
+| Red flag | 18 | 18 | 1.00 |
+| **All (pooled, lap 1 excluded)** | **360** | **260** | **0.72** (95% CI 0.61 to 0.84) |
+
+Precision of the detector: 0.81 (95% CI 0.69 to 0.91); 60 of its 320 laps are not officially neutral.
+With the first parse the numbers were recall 0.51 and precision 0.79; the decision is the same either way.
+
+**Decision (section 5): use the official laps where OpenF1 has them** (recall 0.72 < 0.90). The detector sees full
+safety cars and red flags, but it misses most VSC laps: a VSC that starts or ends during a lap slows only part of it.
+
+Exploratory (section 4, 2026 rounds 4 to 12, already used to develop spec 12): removing the 277 officially neutral
+test laps (3%) from scoring and calibration gives
+
+| | Laps | MAE | 80% coverage | 95% coverage | 95% width |
+|---|---|---|---|---|---|
+| Detector only (= spec 12) | 9,034 | 1.03 s | 78.3% | 92.8% | 4.87 s |
+| Official laps also removed | 8,757 | 0.78 s | 79.1% | 93.5% | 3.90 s |
+
+This is not a test of the 95% interval: these races were seen. Spec 13 still runs with the detector, as registered.
+New specs can pass `official_neutral` to `pitwall.laps.lap_table`.

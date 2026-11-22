@@ -33,6 +33,7 @@ This page is the one place to read how pitwall was tested. The detailed plans li
 | [11](specs/11-holdout.md) | Final test on 6 locked 2026 races | Lap-time model **passes** (0.779 s vs 0.939 s, better in all 6 races). Undercut model **fails** (20 events, no skill). Simulator **fails**. |
 | [12](specs/12-lap-intervals.md) | Do conformal ranges around the lap-time forecast hold their coverage? (development rounds 4 to 12) | 80% range: 78.3% of 9,034 laps (pass). 95% range: 92.8% (**fails**, the band was 93% to 97%). Ranges calibrated on 2025 are too narrow (71.1% for 80%). |
 | [13](specs/13-out-of-sample-rounds.md) | Registered test on 2026 rounds 19 to 23 (lap time, ranges, undercut) | Not run yet (needs the December dump). Power analysis: 80 undercut events give 82% power at the 2024–25 skill; 20 events give 54%. |
+| [14](specs/14-official-flag-laps.md) | Does the lap-time neutral detector agree with official race control (OpenF1, 80 races 2023 to 2026)? | **Partly.** It finds 96% of safety-car laps and all red-flag laps, but only 40% of VSC laps (recall 0.72, precision 0.81). New specs use the official laps from 2023. Exploratory: without the official laps, lap-time error on rounds 4 to 12 falls from 1.03 s to 0.78 s. |
 
 ## Known limitations
 - **Selection bias in the undercut model.** It learns from undercuts that teams chose to try. It gives the chance that an
@@ -41,8 +42,10 @@ This page is the one place to read how pitwall was tested. The detailed plans li
   The spec 13 power analysis shows that a model as good as on 2024 and 2025 passes a 20-event test only 54% of the time.
 - **The lap-time range has one width.** It does not get wider in traffic: with the car ahead closer than 1 s, the 80% range
   holds 73.2% of laps (spec 12). The 95% range is slightly too narrow.
-- **Missed neutral laps.** Jolpica has no flag data. When only part of the field is slow (the restart after a red flag),
-  the detector can miss the lap, and the next forecast is far off. The site replay shows one such lap.
+- **Missed neutral laps.** Jolpica has no flag data. When only part of the field is slow (the restart after a red flag,
+  a VSC that covers part of a lap), the detector can miss the lap, and the next forecast is far off. The site replay shows
+  one such lap. Spec 14 measured it against official race control: 28% of neutral laps are missed, mostly VSC laps.
+  From 2023 the official laps are available (OpenF1); before 2023 only the detector.
 - **Future information in specs 07 and 08.** Their models used `wait_laps` (how long the rival waited to respond), which is
   not known when the car pits. Spec 08 added a decision-time model to fix this, and spec 10 removed the feature entirely.
   The deployed model uses only gap, tyre-age difference and laps remaining.

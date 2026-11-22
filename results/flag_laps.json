@@ -1863,5 +1863,29 @@
       "red_laps": 2,
       "red_detected": 2
     }
-  ]
+  ],
+  "coverage": {
+    "detector_only": {
+      "laps": 9034,
+      "coverage_80": 0.7827097631171132,
+      "mean_width_80_s": 1.5368561921198258,
+      "coverage_95": 0.9282709763117113,
+      "mean_width_95_s": 4.871955203560551,
+      "mae_s": 1.0274768866954898
+    },
+    "official_removed": {
+      "laps": 8757,
+      "coverage_80": 0.7905675459632294,
+      "mean_width_80_s": 1.4490199235261243,
+      "coverage_95": 0.9354801872787484,
+      "mean_width_95_s": 3.8956055253897204,
+      "mae_s": 0.781542649464193
+    },
+    "test_laps_removed": 277,
+    "levels": [
+      "80",
+      "95"
+    ],
+    "note": "exploratory: these 2026 races were used to develop spec 12"
+  }
 }
