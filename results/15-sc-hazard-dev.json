@@ -1,0 +1,40 @@
+{
+  "spec": "15-sc-hazard",
+  "section": "4 development, leave-one-season-out",
+  "commit": "99a98efde3e459e992799444819bed9160efb0dc",
+  "loso": {
+    "at_risk_laps": 4491,
+    "events": 95,
+    "races": 80,
+    "M0": {
+      "log_loss": 0.10302001311128069,
+      "race_any_brier": 0.23261995796946358
+    },
+    "M1": {
+      "log_loss": 0.11396213614478615,
+      "race_any_brier": 0.2658201449420073
+    },
+    "M2": {
+      "log_loss": 0.09690471406195876,
+      "race_any_brier": 0.22480479430745365
+    }
+  },
+  "events": {
+    "by_kind": {
+      "sc": 47,
+      "vsc": 44,
+      "red": 4
+    },
+    "lap1_events": 16,
+    "lap2_3_events": 7
+  },
+  "full_fit": {
+    "w_intercept_lap1_lap2_3": [
+      -4.064923254253339,
+      2.6800336553090403,
+      1.2743154951195454
+    ],
+    "prior_strength": 291.9402736645125,
+    "global_rate": 0.02115341794700512
+  }
+}

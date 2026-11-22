@@ -1,13 +1,13 @@
 # State (2026-11-22)
 
 ## Branches
-- main: spec 14 (official flag laps from OpenF1) merged. The detector finds 96% of SC laps, 40% of VSC laps
+- main (spec 15 merged): spec 14 (official flag laps from OpenF1) merged. The detector finds 96% of SC laps, 40% of VSC laps
   (recall 0.72, precision 0.81, 80 races 2023 to 2026 r12). Decision: new specs use official laps from 2023
   (`lap_table(race, official_neutral=...)`, `pitwall.flags`). Spec 13 keeps the detector, as registered.
 
 ## Next
-- Spec 15: safety-car hazard model (chance of SC/VSC in the next N laps by circuit and lap) from the official
-  laps, fed into the race simulator. Register it before fitting; gate on locked 2027 races.
+- Spec 15 registered and developed (hazard M2 log loss 0.097 vs 0.114 simulator rule, LOSO). After 6 Dec:
+  `scripts/sc_hazard.py --test` once (2026 rounds 13-23). Then a spec to put M2 into the race simulator.
 - December: new Jolpica dump with rounds 19-23, then run spec 13 as registered (section 6).
 - Undercut confirmatory test needs 80 pooled events (2027).
 
