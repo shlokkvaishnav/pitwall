@@ -43,3 +43,18 @@ simulator uses), lap L ≤ 2, either car has no time on lap L, or either car ret
 ## 6. Output
 `src/pitwall/overtake.py`, `scripts/overtaking.py` (`--test` for section 5), `results/16-overtaking-dev.json`,
 later `results/16-overtaking-test.json`. Results appended below.
+
+## Development check (section 5, 2026-11-22, commit 53c4209)
+Training: 79,723 pair-laps from 2018 to 2025, pass rate 5.6%. Scored on 2026 rounds 1 to 12: 4,982 pair-laps,
+352 passes. Raw numbers: `results/16-overtaking-dev.json`.
+
+| Model | Log loss |
+|---|---|
+| base | 0.257 |
+| sim_rule (the simulator's rule, smooth) | 0.249 |
+| logit | 0.177 |
+| **gbm** | **0.154** |
+
+The gap to the car ahead carries most of the signal, then the pace difference; tyre-age difference and the circuit's
+pass rate add some. The simulator's pace-only rule is barely better than the base rate. The test (rounds 19 to 23)
+runs once after 6 December.

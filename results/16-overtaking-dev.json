@@ -1,0 +1,41 @@
+{
+  "spec": "16-overtaking",
+  "section": "5 development check: train 2018-2025, score 2026 rounds 1-12",
+  "commit": "53c4209106da92c77d002dc8f5e0533bd8521cde",
+  "train": {
+    "pair_laps": 79723,
+    "pass_rate": 0.05624474743800409
+  },
+  "dev": {
+    "pair_laps": 4982,
+    "passes": 352,
+    "base": {
+      "log_loss": 0.2571445913149795
+    },
+    "sim_rule": {
+      "log_loss": 0.24934412304021292
+    },
+    "logit": {
+      "log_loss": 0.17736994680860943
+    },
+    "gbm": {
+      "log_loss": 0.15394575313588146
+    }
+  },
+  "logit_coef": {
+    "gap": -3.9098,
+    "drs": -0.495,
+    "pace_delta": 0.352,
+    "tyre_age_diff": 0.0924,
+    "circuit_rate": 34.3259,
+    "race_frac": -0.1901
+  },
+  "gbm_gain": {
+    "gap": 98449.7,
+    "drs": 26.4,
+    "pace_delta": 43080.6,
+    "tyre_age_diff": 9478.9,
+    "circuit_rate": 10536.3,
+    "race_frac": 1965.7
+  }
+}
