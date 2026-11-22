@@ -8,6 +8,7 @@ dependencies = ["numpy", "pandas", "scipy"]
 [project.optional-dependencies]
 model = ["lightgbm", "scikit-learn"]
 deep = ["torch==2.15.0"]
+radio = ["faster-whisper==1.1.1"]
 dev = ["pytest", "ruff", "hypothesis", "mypy", "pandas-stubs"]
 
 [build-system]
