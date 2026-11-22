@@ -1,18 +1,24 @@
 # State (2026-11-22)
 
+The project question: how far can public lap data take you towards a team's race-strategy model, and where does it
+break? README is organised by layer (pace, race events, racing, strategy) with a scorecard.
+
 ## Branches
-- main (spec 15 merged): spec 14 (official flag laps from OpenF1) merged. The detector finds 96% of SC laps, 40% of VSC laps
-  (recall 0.72, precision 0.81, 80 races 2023 to 2026 r12). Decision: new specs use official laps from 2023
-  (`lap_table(race, official_neutral=...)`, `pitwall.flags`). Spec 13 keeps the detector, as registered.
+- main: specs 14, 15, 16 merged and pushed.
+- research/simulator-c (NOT merged, not pushed; owner must ask; contains research/deep-lap-model): specs 17 (deep lap
+  model, dev recorded: 0.93 s vs 1.03 s), 18 (RL strategy, running), 19 (team radio, waiting for OpenF1), 20
+  (simulator C, dev recorded), TreeEnsemble, README layer rewrite, site section "One race, layer by layer"
+  (`scripts/export_strategy.py` -> `site/data/race-strategy.json`; checked at 1280 and 390, light and dark).
 
 ## Next
-- Spec 15 registered and developed (hazard M2 log loss 0.097 vs 0.114 simulator rule, LOSO). After 6 Dec:
-  `scripts/sc_hazard.py --test` once (2026 rounds 13-23). Then a spec to put M2 into the race simulator.
-- After 6 Dec: `scripts/overtaking.py --test` once (spec 16, gbm 0.154 vs sim rule 0.249 on dev).
-- December: new Jolpica dump with rounds 19-23, then run spec 13 as registered (section 6).
-- Undercut confirmatory test needs 80 pooled events (2027).
+- Spec 18 RL: `scripts/rl_strategy.py` (torch on one thread; an OpenMP deadlock otherwise). Record when it ends; then
+  add the agent's pit laps to the site's pit-window chart.
+- Spec 19 radio: transcription restarts itself when OpenF1 stops returning 401 (live sessions); then run
+  `scripts/radio.py` analysis and record.
+- After 2026-12-06: spec 13 and the `--test` runs of specs 15, 16, 17, 20 on rounds 19 to 23, once.
+- Merge research/simulator-c to main and push when the owner says so; refresh `docs/site.png`.
 
 ## Open items
-- FastF1 live-timing archive now needs an F1 account: no official flags before 2023 without a login.
-- OpenF1 has no Las Vegas 2024/2025 race session; no CORS header, so no live browser polling.
-- OpenF1 raw JSON cached in data/raw/openf1/ (not committed).
+- Simulator C's pace input limits it (spec 20 dev): the pit-window chart favours very early stops.
+- macOS: LightGBM and torch in one process deadlock unless all LightGBM fits run first and torch uses one thread.
+- Rounds 13 to 18 are spent: never fit, calibrate or choose on them.
