@@ -13,6 +13,7 @@ import csv
 import json
 import subprocess
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
@@ -64,7 +65,13 @@ def transcribe() -> None:
             w.writerow(COLS)
         for r in races():
             key = r["session_key"]
-            clips = get(f"{API}/team_radio?session_key={key}", RAW / f"team_radio_{key}.json")
+            try:
+                clips = get(f"{API}/team_radio?session_key={key}", RAW / f"team_radio_{key}.json")
+            except urllib.error.HTTPError as e:
+                if e.code != 404:  # OpenF1 answers 404 "No results found" when a race has no radio (2026 round 1)
+                    raise
+                print(r["round"], r.get("name", ""), "no team radio in OpenF1", flush=True)
+                continue
             laps = get(f"{API}/laps?session_key={key}", RAW / f"laps_{key}.json")
             drivers = get(f"{API}/drivers?session_key={key}", RAW / f"drivers_{key}.json")
             acr = {d["driver_number"]: d["name_acronym"] for d in drivers}
