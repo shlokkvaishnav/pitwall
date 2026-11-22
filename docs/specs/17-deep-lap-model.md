@@ -43,5 +43,5 @@ Raw numbers: `results/17-deep-lap-dev.json`. 9,034 laps, walk-forward.
 | gbm_pretrain | 1.027 s |
 | seq | **0.925 s** |
 
-The transformer is 0.10 s better (95% interval of the difference −0.15 to −0.05 s). It wins on 8 of 9 races; it loses
+The transformer is 0.10 s better (95% interval of the difference −0.15 to −0.05 s). It wins on 7 of 9 races; it loses
 on rounds 4 and 6. This is a development result; the rules are decided on rounds 19 to 23.
