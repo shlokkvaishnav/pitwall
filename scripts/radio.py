@@ -107,8 +107,8 @@ def units(dump: Dump, radio: pd.DataFrame) -> pd.DataFrame:
                     flags[k].add((c["acronym"], int(c["lap"]) + d))
         f = f[f["clean"] & f["lap"].between(3, last - 2)].copy()
         f["pit_next"] = [int((d, lap) in pit_next) for d, lap in zip(f["driver"], f["lap"])]
-        for k in flags:
-            f[f"radio_{k}"] = [float((c, lap) in flags[k]) for c, lap in zip(f["code"], f["lap"])]
+        for k, marked in flags.items():
+            f[f"radio_{k}"] = [float((c, lap) in marked) for c, lap in zip(f["code"], f["lap"])]
         f["season"], f["round"] = r["season"], r["round"]
         out.append(f)
     return pd.concat(out, ignore_index=True)
