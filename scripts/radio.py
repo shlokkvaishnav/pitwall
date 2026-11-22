@@ -13,6 +13,7 @@ import csv
 import json
 import subprocess
 import time
+import urllib.parse
 import urllib.request
 from pathlib import Path
 
@@ -41,7 +42,8 @@ def download(url: str, path: Path) -> None:
     if path.exists():
         return
     path.parent.mkdir(parents=True, exist_ok=True)
-    req = urllib.request.Request(url, headers={"User-Agent": "pitwall-research"})
+    safe = urllib.parse.quote(url, safe=":/?=&%")  # some file names have accents (São Paulo)
+    req = urllib.request.Request(safe, headers={"User-Agent": "pitwall-research"})
     with urllib.request.urlopen(req, timeout=60) as r:
         path.write_bytes(r.read())
     time.sleep(0.5)
