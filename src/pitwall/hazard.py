@@ -107,4 +107,5 @@ def log_loss(y: np.ndarray, p: np.ndarray) -> float:
 def any_event_prob(t: pd.DataFrame, p: np.ndarray) -> pd.Series:
     """Chance of at least one period in each race, from per-lap hazards (at-risk laps treated as independent)."""
     q = pd.Series(np.log1p(-np.clip(p, EPS, 1 - EPS)), index=t.index)
-    return 1 - np.exp(q.groupby([t["season"], t["round"]]).sum())
+    s = q.groupby([t["season"], t["round"]]).sum()
+    return pd.Series(1 - np.exp(s.to_numpy()), index=s.index)
