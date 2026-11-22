@@ -3,6 +3,7 @@ import pandas as pd
 import pytest
 
 torch = pytest.importorskip("torch")
+torch.set_num_threads(1)  # no second OpenMP pool next to LightGBM's in the same test process
 
 from pitwall.features import FEATURES
 from pitwall.seqmodel import SeqModel, fit_predict_seq

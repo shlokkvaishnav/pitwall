@@ -10,6 +10,7 @@ from sklearn.linear_model import LogisticRegression
 
 from .data import Race
 from .laps import clean_mask, lap_table
+from .trees import TreeEnsemble
 
 MAX_GAP_S = 3.0
 DRS_GAP_S = 1.0
@@ -86,6 +87,7 @@ class Models:
         import lightgbm as lgb
 
         self.rates, self.base = circuit_rates(train)
+        self._trees: TreeEnsemble | None = None
         tr = add_circuit_rate(train, self.rates, self.base)
         y = tr["passed"].to_numpy()
         self.sim = LogisticRegression(C=1e6).fit((tr[["pace_delta"]] - SIM_MARGIN_S).to_numpy(), y)
@@ -118,7 +120,9 @@ class Models:
                 np.full(n, race_frac),
             ]
         )
-        return np.asarray(self.gbm.booster_.predict(x))
+        if self._trees is None:  # numpy evaluation: no LightGBM (OpenMP) call during a simulation
+            self._trees = TreeEnsemble(self.gbm.booster_.dump_model())
+        return self._trees.proba(x)
 
 
 def log_loss(y: np.ndarray, p: np.ndarray) -> float:

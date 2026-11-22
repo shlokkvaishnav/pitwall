@@ -14,12 +14,10 @@ from dataclasses import replace
 from pathlib import Path
 
 import gymnasium as gym
-import lightgbm  # noqa: F401  (load LightGBM's OpenMP before torch's; the other order crashes on macOS)
 import numpy as np
 import pandas as pd
 from race_sim_b import history
 from sc_hazard import dev_rows
-from stable_baselines3 import PPO
 
 from pitwall.dump import Dump
 from pitwall.hazard import Models as HazardModels
@@ -56,6 +54,7 @@ def build_worlds(dump: Dump) -> dict[int, World]:
         lap_rows = race_rows({}, laps, season=2026, round=k, circuit_id=cid)
         h = np.concatenate([[0.0], hazard.predict(lap_rows)["M2"]])
         worlds[k] = World(inp, h, overtake, cid, ego=4)
+    overtake.gbm_fast(0, np.zeros(1), np.zeros(1), np.zeros(1), 0.0)  # build the numpy trees now
     return worlds
 
 
@@ -85,7 +84,9 @@ def mean_pos(world: World, seeds, policy) -> tuple[np.ndarray, list[list[int]]]:
 
 def main() -> None:
     dump = Dump(ROOT / "data" / "raw" / "jolpica-dump" / "csv")
-    worlds = build_worlds(dump)
+    worlds = build_worlds(dump)  # every LightGBM fit happens here, before torch is loaded
+    from stable_baselines3 import PPO  # torch: only after LightGBM is done (two OpenMP runtimes deadlock on macOS)
+
     report, paired = [], []
     for k, w in worlds.items():
         t0 = time.time()

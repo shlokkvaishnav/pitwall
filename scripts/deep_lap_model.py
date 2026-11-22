@@ -11,30 +11,34 @@ import subprocess
 import time
 from pathlib import Path
 
-import lightgbm  # noqa: F401  (load LightGBM's OpenMP before torch's; the other order crashes on macOS)
 import numpy as np
 import pandas as pd
-import torch
 
 from pitwall.dump import Dump
 from pitwall.lapmodel import development_rounds, fit_predict, pretrain_features, race_features
-from pitwall.seqmodel import fit_predict_seq
 
 ROOT = Path(__file__).resolve().parents[1]
 TEST_ROUNDS = list(range(4, 13))
 
 
 def main() -> None:
-    device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
     dump = Dump(ROOT / "data" / "raw" / "jolpica-dump" / "csv")
     pre = pretrain_features(dump)
     dev = {r: race_features(dump, 2026, r) for r in development_rounds(dump)}
-    rows = []
-    for k in TEST_ROUNDS:
-        t0 = time.time()
+    splits = {}
+    for k in TEST_ROUNDS:  # all LightGBM fits first: LightGBM and torch must not run in the same phase on macOS
         train = pd.concat([pre, *[dev[r] for r in dev if r < k]], ignore_index=True)
         test = dev[k].reset_index(drop=True)
         gbm, _ = fit_predict(train, test)
+        splits[k] = (train, test, gbm)
+    import torch
+
+    from pitwall.seqmodel import fit_predict_seq
+
+    device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+    rows = []
+    for k, (train, test, gbm) in splits.items():
+        t0 = time.time()
         seq = fit_predict_seq(train, test, device)
         y = test["time_s"].to_numpy()
         rows.append(pd.DataFrame({"round": k, "err_gbm": np.abs(y - gbm), "err_seq": np.abs(y - seq)}))

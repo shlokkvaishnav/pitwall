@@ -31,7 +31,9 @@ def lap_table(race: Race, official_neutral: set[int] | None = None) -> pd.DataFr
 
     field = laps.groupby("lap")["time_s"].median()
     green = float(np.nanmedian(field.to_numpy(dtype=float)))
-    neutral_laps = set(field.index[field > NEUTRAL_FACTOR * green]) if official_neutral is None else set(official_neutral)
+    neutral_laps = (
+        set(field.index[field > NEUTRAL_FACTOR * green]) if official_neutral is None else set(official_neutral)
+    )
     laps["neutral"] = laps["lap"].isin(neutral_laps)
     laps.loc[laps["lap"] == 1, "neutral"] = True  # standing start: not a normal racing lap
     total = int(laps["lap"].max())
