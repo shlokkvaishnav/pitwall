@@ -92,11 +92,18 @@ function drawWindow() {
     const flag = D.real_neutral.find((e) => Math.abs(e.lap - lap) <= 1);
     text(svg, right ? px - 5 : px + 5, T - 26 + row * 13, flag ? `STOP, ${(KIND[flag.kind] || flag.kind).toUpperCase()}` : "REAL STOP", { class: "lbl", "text-anchor": right ? "end" : "start", fill: css("--ink") });
   }
+  if (D.agent) { // where the RL agent made its first stop: bars rising from the axis, tallest = most often
+    const f = D.agent.first_stop, fmax = Math.max(...f), bw = Math.max(2, (W - L - R) / D.laps - 1.5);
+    f.forEach((p, lap) => { if (p > 0) el("rect", { x: x(lap) - bw / 2, y: H - B - 34 * (p / fmax), width: bw, height: 34 * (p / fmax), rx: 1, fill: css("--cool"), opacity: 0.85 }, svg); });
+    const top = f.indexOf(fmax);
+    text(svg, x(top) + bw, H - B - 38, W < 520 ? `RL AGENT: LAP ${top}` : `RL AGENT'S FIRST STOP: LAP ${top} IN ${pct(fmax)}`, { class: "lbl", fill: css("--cool") });
+  }
   el("path", { d: "M" + w.map((r) => `${x(r.lap).toFixed(1)},${y(r.mean).toFixed(1)}`).join("L"), fill: "none", stroke: css("--accent"), "stroke-width": 2.4, "stroke-linejoin": "round" }, svg);
   const best = w.reduce((a, r) => (r.mean < a.mean ? r : a));
   el("circle", { cx: x(best.lap), cy: y(best.mean), r: 5, fill: css("--accent") }, svg);
   lapAxis(svg, x, D.laps, W, H, B);
-  const show = (r) => { $("winTip").textContent = `Stop on lap ${r.lap}: average finish P${r.mean.toFixed(1)}, top 5 in ${pct(r.top5)} of ${D.runs} simulated races.`; };
+  const agent = D.agent ? ` The RL agent, free to stop when it likes, averages P${D.agent.mean.toFixed(1)}.` : "";
+  const show = (r) => { $("winTip").textContent = `Stop on lap ${r.lap}: average finish P${r.mean.toFixed(1)}, top 5 in ${pct(r.top5)} of ${D.runs} simulated races.${agent}`; };
   show(best);
   svg.onpointermove = (ev) => {
     const b = svg.getBoundingClientRect(), vx = ((ev.clientX - b.left) / b.width) * W;

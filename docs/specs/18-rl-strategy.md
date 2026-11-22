@@ -41,3 +41,21 @@ races. Everything here is **inside the simulator**: a better agent here is not s
 ## 5. Output
 `src/pitwall/strategy_env.py`, `scripts/rl_strategy.py`, `results/18-rl-strategy.json` (with the PPO's pit-lap
 distribution per race, for the site). Optional extra `rl`: stable-baselines3, gymnasium.
+
+## 6. Result (2026-11-22, commit ec1c1f5, `results/18-rl-strategy.json`)
+Mean finishing position over the 1,000 evaluation seeds (lower is better). Inside simulator C only.
+
+| Round | `history` | `fixed1` (lap) | `fixed2` (laps) | `ppo` |
+|---|---|---|---|---|
+| 4 | 5.05 | 2.91 (5) | 4.59 (5, 14) | **2.68** |
+| 8 | 6.76 | **6.09** (37) | 6.44 (14, 44) | 6.71 |
+| 12 | 6.57 | **3.16** (15) | 4.05 (8, 20) | 3.63 |
+
+- **S1 fails.** `ppo` beats the best one-stop plan in round 4 only; in rounds 8 and 12 it is worse.
+- **S2 passes.** Pooled, `ppo` minus `history` is −1.79 places (95% interval −1.94 to −1.64).
+- What the agent learned: in round 4 it makes its first stop on lap 2 in 100% of seeds (one stop in 93%); in round 12
+  on lap 2 in 93% (two stops in 95%); in round 8 it spreads its first stop over laps 4 to 32 and stops two or three
+  times (74% and 26%). A lap-2 stop is not a real strategy: simulator C gives
+  fresh tyres too little value against track position (spec 20: its pace input is weak), so the agent exploits the
+  simulator. The agent beats the field's own rule because the field's rule is not tuned to the simulator, not because it
+  found a better strategy for the real race.

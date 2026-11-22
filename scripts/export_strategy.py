@@ -1,19 +1,22 @@
 """Export the "race strategy" section of the site for one race: the 2026 Dutch Grand Prix (round 12).
 
-Usage: PYTHONPATH=src:scripts .venv/bin/python scripts/export_strategy.py
+Usage: PYTHONPATH=src:scripts .venv/bin/python scripts/export_strategy.py [--agent-only]
 Writes site/data/race-strategy.json. Same race as the next-lap forecast on the page (chosen before, not by result) and
 one of the three spec 18 development races. Models are the spec 18 world: nothing from 2026 informs the hazard or
 the overtaking model; pace inputs use races before round 12. Display only, not a result.
 
 - hazard: chance a safety car or VSC starts on each lap (spec 15 M2), with the laps where one really started;
 - overtaking: chance of a pass on one lap at each circuit for the same duel (0.8 s behind, 0.5 s a lap faster);
-- pit window: simulator C, the car starting 5th stops once on lap L, every other car on its plan; mean finish.
+- pit window: simulator C, the car starting 5th stops once on lap L, every other car on its plan; mean finish;
+- agent: where the spec 18 RL agent made its first stop in this race (results/18-rl-strategy.json). --agent-only
+  adds just this to an existing export.
 """
 
 from __future__ import annotations
 
 import json
 import subprocess
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -32,7 +35,28 @@ SEED0 = 50_000  # not used by spec 18 (training 0-9999, evaluation 10000-10999)
 DUEL = {"gap": 0.8, "pace_delta": -0.5, "tyre_age_diff": 0.0, "race_frac": 0.5}
 
 
+def agent() -> dict:
+    """Share of the spec 18 agent's evaluation races with its first stop on each lap, and its number of stops."""
+    rec = next(
+        r for r in json.loads((ROOT / "results" / "18-rl-strategy.json").read_text())["races"] if r["round"] == ROUND
+    )
+    first = np.array(rec["ppo_first_stop_laps"], float)
+    stops = np.array(rec["ppo_stops"], float)
+    return {
+        "first_stop": np.round(first / stops.sum(), 3).tolist(),
+        "stops": np.round(stops / stops.sum(), 3).tolist(),
+        "mean": rec["ppo_mean_pos"],
+    }
+
+
 def main() -> None:
+    out_path = ROOT / "site" / "data" / "race-strategy.json"
+    if "--agent-only" in sys.argv:
+        doc = json.loads(out_path.read_text())
+        doc["agent"] = agent()
+        out_path.write_text(json.dumps(doc, separators=(",", ":")))
+        print(doc["agent"]["stops"], doc["agent"]["mean"])
+        return
     dump = Dump(ROOT / "data" / "raw" / "jolpica-dump" / "csv")
     w = build_worlds(dump)[ROUND]
     races, _stats, _rows = history(dump, [ROUND])
@@ -84,10 +108,11 @@ def main() -> None:
             "real_stops": real_stops,
         },
         "window": window,
+        "agent": agent(),
         "runs": RUNS,
         "commit": sha.stdout.strip(),
     }
-    (ROOT / "site" / "data" / "race-strategy.json").write_text(json.dumps(out, separators=(",", ":")))
+    out_path.write_text(json.dumps(out, separators=(",", ":")))
     print({k: v for k, v in out.items() if k not in ("hazard", "window", "overtaking")})
 
 
