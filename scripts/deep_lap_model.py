@@ -35,6 +35,8 @@ def main() -> None:
 
     from pitwall.seqmodel import fit_predict_seq
 
+    torch.set_num_threads(1)  # a second OpenMP pool deadlocks on macOS; the training runs on the GPU
+
     device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
     rows = []
     for k, (train, test, gbm) in splits.items():

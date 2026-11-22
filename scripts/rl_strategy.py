@@ -85,7 +85,10 @@ def mean_pos(world: World, seeds, policy) -> tuple[np.ndarray, list[list[int]]]:
 def main() -> None:
     dump = Dump(ROOT / "data" / "raw" / "jolpica-dump" / "csv")
     worlds = build_worlds(dump)  # every LightGBM fit happens here, before torch is loaded
+    import torch
     from stable_baselines3 import PPO  # torch: only after LightGBM is done (two OpenMP runtimes deadlock on macOS)
+
+    torch.set_num_threads(1)  # a second OpenMP pool still deadlocks; the policy is a small MLP
 
     report, paired = [], []
     for k, w in worlds.items():
