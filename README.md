@@ -27,6 +27,7 @@ The 2026 races from 1 September were locked in code until the end. The final mod
 | Lap-time ranges | The 80% range holds 78.3% of laps. The 95% range holds 92.8%: slightly too narrow, so [spec 12](docs/specs/12-lap-intervals.md) fails. | Not tested. Added after the locked test; [spec 13](docs/specs/13-out-of-sample-rounds.md) tests it on rounds 19 to 23. |
 | Undercut tool | Brier skill 0.22 on 2024 and 2025 | **Not confirmed.** Only 20 undercut attempts in these races, and the model did no better than the base rate. Too few to judge: if the model is as good as on 2024 and 2025, about 80 are needed for 80% power. |
 | Race simulator | Does not beat the starting grid | Orders the field better than the grid, but its podium odds are worse. |
+| Safety-car and VSC laps | Detected from lap times. Against official race control (80 races, [spec 14](docs/specs/14-official-flag-laps.md)) it finds 96% of safety-car laps but only 40% of VSC laps. Official laps cut the lap-time error on rounds 4 to 12 from 1.03 s to 0.78 s (exploratory). | Spec 13 keeps the detector, as registered. |
 | Battery use from lap times | Not visible: lap times are too coarse | Not tested. Code archived (tag `energy-experiment`). |
 
 The undercut probability is learned from attempts that teams chose to make, so it is not advice on whether to pit.
@@ -74,6 +75,7 @@ make reproduce      # download the data and rebuild all results (about 30 minute
 ## Data and credits
 - [Jolpica-F1](https://github.com/jolpica/jolpica-f1) database dump (non-commercial use).
 - [TracingInsights](https://github.com/TracingInsights) open data, MIT and Apache-2.0.
+- [OpenF1](https://openf1.org) race control messages (2023 on), for the official safety-car, VSC and red-flag laps.
 - Related work: a July 2026 preprint with a similar undercut model, [arXiv 2607.06495](https://arxiv.org/abs/2607.06495).
   [Spec 10](docs/specs/10-undercut-open-events.md) compares the two models directly.
 - Fonts: Literata and Instrument Sans (SIL Open Font License), in `site/assets/licenses/`.

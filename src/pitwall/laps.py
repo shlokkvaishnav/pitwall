@@ -10,7 +10,7 @@ from .data import Race
 NEUTRAL_FACTOR = 1.15  # a lap is neutralised if the field median is this much slower than the green median
 
 
-def lap_table(race: Race) -> pd.DataFrame:
+def lap_table(race: Race, official_neutral: set[int] | None = None) -> pd.DataFrame:
     """One row per driver and lap, sorted by driver and lap.
 
     Columns: driver, lap, position, time_s, stint, tyre_age, in_lap, out_lap, neutral, race_lap_frac.
@@ -19,6 +19,7 @@ def lap_table(race: Race) -> pd.DataFrame:
     - in_lap: the driver pits at the end of this lap. out_lap: the first lap after a pit stop.
     - neutral: safety car, virtual safety car or red flag. Jolpica has no flag data, so we detect it
       from the field: the median lap time of the lap is more than NEUTRAL_FACTOR x the median of all laps.
+      If `official_neutral` is given (lap numbers from `pitwall.flags.neutral_laps`, spec 14), it is used instead.
     """
     laps = race.laps.sort_values(["driver", "lap"]).reset_index(drop=True).copy()
     pits = race.pitstops[["driver", "lap"]].drop_duplicates()
@@ -30,7 +31,7 @@ def lap_table(race: Race) -> pd.DataFrame:
 
     field = laps.groupby("lap")["time_s"].median()
     green = float(np.nanmedian(field.to_numpy(dtype=float)))
-    neutral_laps = set(field.index[field > NEUTRAL_FACTOR * green])
+    neutral_laps = set(field.index[field > NEUTRAL_FACTOR * green]) if official_neutral is None else set(official_neutral)
     laps["neutral"] = laps["lap"].isin(neutral_laps)
     laps.loc[laps["lap"] == 1, "neutral"] = True  # standing start: not a normal racing lap
     total = int(laps["lap"].max())

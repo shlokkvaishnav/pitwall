@@ -45,6 +45,12 @@ def test_neutral_lap_detection():
     assert not clean_mask(t)[t["lap"] == 10].any()
 
 
+def test_official_neutral_laps_replace_the_detector():
+    t = lap_table(_race(sc_lap=10), official_neutral={1, 20, 21})
+    assert t.loc[t["lap"].isin([1, 20, 21]), "neutral"].all()
+    assert not t.loc[t["lap"] == 10, "neutral"].any()  # slow lap, but not officially neutral
+
+
 def test_baselines_are_causal_and_linear_is_exact():
     t = lap_table(_race())
     lin = linear_stint(t)
