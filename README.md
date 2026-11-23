@@ -32,7 +32,7 @@ Development numbers are walk-forward on earlier races. "Locked" means races kept
 | Racing | Undercut tool | Brier skill 0.22 on 2024 and 2025. | **Not confirmed** (rounds 13 to 18): only 20 attempts, no better than the base rate. Too few to judge: about 80 are needed for 80% power. |
 | Strategy | Simulator B | Does not beat the starting grid. | Orders the field better than the grid, but its podium odds are worse. |
 | Strategy | Simulator C ([spec 20](docs/specs/20-simulator-c.md)) | Almost the same as B (podium Brier 0.0780 vs 0.0785) and still worse than the grid (0.070). The new layers are better on their own but do not move the whole: the pace input limits it. | Rounds 19 to 23. |
-| — | Battery use from lap times | Not visible: lap times are too coarse. Code archived (tag `energy-experiment`). | — |
+| — | Battery use from lap times | Not visible: lap times are too coarse. Code removed. | — |
 
 The undercut probability is learned from attempts that teams chose to make, so it is not advice on whether to pit.
 **How it was tested, every experiment, and the known limitations: [docs/method.md](docs/method.md).**

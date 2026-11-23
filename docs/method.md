@@ -23,7 +23,7 @@ This page is the one place to read how pitwall was tested. The detailed plans li
 | [01](specs/01-energy-limits-and-data.md) | Is the lap data complete enough? | Yes for laps and pit stops. Finishing order from laps matches the result 84% of the time (rule failed; known timing gaps). |
 | [02](specs/02-lap-baselines.md) | How good are simple lap-time forecasts? | "Next lap = last lap" is the best: 1.05 s mean error. |
 | [03](specs/03-lap-model.md) | Can LightGBM beat it? | **Yes.** 1.027 s vs 1.161 s on 2026 rounds 4 to 12 (p < 0.0001). Pre-training on 2022 to 2025 helps. |
-| [04](specs/04-energy-regime.md) | Do lap times show a hidden battery-use state? | **No.** A 2-state HMM finds an outlier state (traffic, incidents), not an energy regime. Code archived (tag `energy-experiment`). |
+| [04](specs/04-energy-regime.md) | Do lap times show a hidden battery-use state? | **No.** A 2-state HMM finds an outlier state (traffic, incidents), not an energy regime. Code removed. |
 | [05](specs/05-race-simulator.md) | Does a Monte Carlo simulator beat the grid order? | **No.** Spearman 0.724 vs 0.785. |
 | [06](specs/06-race-simulator-b.md) | Version B with qualifying pace and pace noise | **No.** Spearman 0.744 vs 0.785. |
 | [07](specs/07-undercut.md) | When does an undercut work? | Gap, tyre-age difference and race phase predict it (log loss 0.615 vs 0.696, p = 0.001). |
