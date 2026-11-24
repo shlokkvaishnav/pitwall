@@ -263,18 +263,25 @@ function replay() {
   LAP.timer = setInterval(() => { LAP.shown += 1; drawLaps(); if (LAP.shown >= n) stopReplay(); }, 70);
 }
 
-fetch("data/lap-replay.json").then((r) => r.json()).then((d) => {
+function loadFailed(id) {
+  const s = document.getElementById(id); if (!s) return;
+  const p = document.createElement("p"); p.className = "tip"; p.setAttribute("role", "alert");
+  p.textContent = "This chart could not load its data. Reload the page to try again.";
+  s.closest("section").querySelector(".panel").prepend(p);
+}
+
+fetch("data/lap-replay.json").then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); }).then((d) => {
   LAP.data = d;
   $("lapRace").textContent = d.race;
   $("lapPlay").addEventListener("click", replay);
   lapDrivers(); drawLaps();
-});
+}).catch(() => loadFailed("laps"));
 
-fetch("data/undercut-model.json").then((r) => r.json()).then((m) => {
+fetch("data/undercut-model.json").then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); }).then((m) => {
   P = m.params;
   $("nEvents").textContent = m.trained_on.events.toLocaleString("en");
   for (const id of ["gap", "ageA", "ageB", "left"]) $(id).addEventListener("input", update);
   matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { update(); drawLaps(); });
   let t; addEventListener("resize", () => { clearTimeout(t); t = setTimeout(() => { update(); drawLaps(); }, 120); });
   update();
-});
+}).catch(() => loadFailed("map"));

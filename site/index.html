@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>pitwall — Formula 1 race-strategy engine</title>
-<meta name="description" content="Pit first, come out ahead? An F1 undercut model that runs in your browser, and a next-lap-time forecast with its range.">
+<meta name="description" content="A Formula 1 race-strategy engine: lap-time, safety-car and overtaking models and a Monte Carlo simulation that evaluates pit-stop strategies. Runs in your browser.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%238c2346'/%3E%3Cpath d='M7 22h18M9 22l3-9h8l3 9' stroke='white' stroke-width='2.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="assets/style.css">
 <style>
@@ -31,6 +31,10 @@
   .ph { font: 600 1rem/1.3 var(--sans); margin: 0 0 .8rem; display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem .6rem; }
   .ph-num { font: 600 1.6rem/1 var(--serif); color: var(--accent); font-variant-numeric: tabular-nums; }
   .ph-sub { font-weight: 400; font-size: .85rem; color: var(--muted); }
+  .facts { list-style: none; margin: 1.4rem 0 0; padding: 0; display: grid; gap: .5rem 1.6rem; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); font-size: .9rem; color: var(--muted); max-width: 52rem; }
+  .facts b { color: var(--ink); font-weight: 600; }
+  .facts.plain { margin: 0; grid-template-columns: 1fr; font-size: .95rem; }
+  .h3 { font: 600 1.15rem/1.3 var(--serif); margin: 2.4rem 0 .6rem; }
 </style>
 </head>
 <body>
@@ -42,11 +46,92 @@
 
   <header class="hero">
     <div class="kicker">F1 strategy · 2018 – 2026</div>
-    <h1>Will the undercut work?</h1>
-    <p class="sub">You are close behind. You pit first, on fresh tyres. Do you come out ahead when your rival pits? Move the sliders.</p>
+    <h1>Formula 1 race-strategy engine</h1>
+    <p class="sub">Lap-time, safety-car and overtaking models, combined with a Monte Carlo simulation of the rest of the race to evaluate pit-stop strategies. Public lap data only, running in your browser.</p>
+    <ul class="facts">
+      <li><b>About 200x</b> faster batch simulator than the one-race-at-a-time one (three races, measured under other load)</li>
+      <li><b>About 0.5 s</b> median lap-by-lap update (one race, one car)</li>
+      <li><b>17% lower</b> lap-time error than "next lap = last lap", on six unseen 2026 races</li>
+    </ul>
   </header>
 
-  <section>
+  <section id="forecast">
+    <h2>Next-lap forecast</h2>
+    <p class="cap">A race the model had not seen: the <span id="lapRace">2026 Dutch Grand Prix</span>. Before each lap it gives a lap time and a range. Most laps should land in the range. Grey marks slow laps around the red-flag restart: the model does not know they were not racing laps, so the forecast after them is off.</p>
+    <div class="panel">
+      <div class="lap-head">
+        <div class="seg" id="lapDrivers" role="group" aria-label="Driver"></div>
+        <div style="display:flex; align-items:center; gap:1rem">
+          <div class="hits" id="lapHits" aria-live="polite"></div>
+          <button class="btn" id="lapPlay" type="button">Replay</button>
+        </div>
+      </div>
+      <svg id="laps" role="img" aria-label="Real lap times against the forecast and its range"></svg>
+      <div class="legend">
+        <span><i class="sw-band"></i>range (8 of 10 laps)</span>
+        <span><i class="sw-line"></i>forecast</span>
+        <span><i class="sw-dot"></i>real lap</span>
+        <span><i class="sw-miss"></i>outside the range</span>
+      </div>
+      <div class="tip" id="lapTip">Touch or hover the chart to read a lap. Pit-stop laps and most safety-car laps are left out, as in the model.</div>
+    </div>
+  </section>
+
+  <section id="strategy">
+    <h2>Strategy layers, one race</h2>
+    <p class="cap">The same race, through the models that feed the race simulator. Each was fitted only on earlier races.</p>
+    <div class="panel">
+      <h3 class="ph">Will a safety car come out? <span class="ph-num" id="anyNeutral">–</span> <span class="ph-sub">chance of at least one</span></h3>
+      <svg id="hazard" role="img" aria-label="Chance a safety car or VSC starts on each lap, with the laps where one really did"></svg>
+      <div class="tip" id="hzTip">Bars: chance a safety car or VSC starts on that lap. Dashed: when one really did. Touch or hover to read a lap.</div>
+    </div>
+    <div class="panel">
+      <h3 class="ph">How hard is it to pass here?</h3>
+      <svg id="passing" role="img" aria-label="Chance of a pass on one lap at each circuit, for the same duel"></svg>
+      <div class="tip">The same duel at every circuit: 0.8 s behind and 0.5 s a lap faster. Chance of passing on that lap.</div>
+    </div>
+    <div class="panel">
+      <h3 class="ph">When does one stop pay off (simulated)? <span class="ph-sub"><span id="egoName">–</span>, starting 5th</span></h3>
+      <svg id="window" role="img" aria-label="Average simulated finish for each lap of a single pit stop"></svg>
+      <div class="tip" id="winTip"></div>
+    </div>
+  </section>
+
+  <section id="live">
+    <h2>Lap by lap, as if live</h2>
+    <p class="cap">The same race fed to the strategy engine one lap at a time. After each lap it sees only the laps run so far, simulates the rest of the race again and updates its odds and its pit-stop window. One update took <b id="liveMs">–</b> on a laptop. Against real teams this pit window did worse than a fixed-lap rule (see below).</p>
+    <div class="panel">
+      <div class="ctl"><div class="ctl-head"><label for="liveLap">After lap</label><output id="liveLapV"></output></div>
+        <input id="liveLap" type="range" min="1" max="2" step="1" value="1"></div>
+      <div class="lap-head">
+        <h3 class="ph"><span id="liveCar">–</span> <span class="ph-num" id="livePos">–</span> <span class="ph-sub" id="liveUc"></span></h3>
+        <button class="btn" id="livePlay" type="button">Replay</button>
+      </div>
+      <svg id="liveWin" role="img" aria-label="The simulated best laps for the next stop after each lap, with the real stops"></svg>
+      <div class="legend">
+        <span><i class="sw-band"></i>simulated best laps for the next stop</span>
+        <span><i class="sw-dot"></i>real stop</span>
+      </div>
+      <h3 class="ph" style="margin-top:1.2rem">Podium chance now</h3>
+      <svg id="livePod" role="img" aria-label="Chance of a podium for the five cars the engine expects in front"></svg>
+      <div class="tip">Odds from the simulator, not advice. The engine knows nothing after the lap shown: no later lap times, flags or stops.</div>
+    </div>
+  </section>
+
+  <section id="results">
+    <h2>What did not work</h2>
+    <div class="panel">
+      <ul class="facts plain">
+        <li><b>The pit-window check lost to a fixed rule.</b> The engine's 7-lap pit window holds the top 5 finishers' real stop in 29% of 591 stops (2023 to 2025), below a fixed-lap rule (37%).</li>
+        <li><b>The simulated regret check is SIMULATED.</b> It is scored by the engine's own model, so it is not independent evidence: the engine's laps cost 2.3 s less simulated race time than the teams' real laps, and the same as the fixed-lap rule.</li>
+        <li><b>The full-race simulators were no better than the starting grid</b> at forecasting the finishing order.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="undercut">
+    <h2>One layer: will the undercut work?</h2>
+    <p class="cap">You are close behind and pit first, on fresh tyres. Do you come out ahead when your rival pits? Move the sliders. This layer was not confirmed on the locked 2026 races (20 attempts, no better than the base rate), so read it as an illustration, not advice.</p>
     <div class="grid g2">
       <div class="panel">
         <div class="ctl"><div class="ctl-head"><label for="gap">Gap to the car ahead</label><output id="gapV"></output></div>
@@ -79,85 +164,16 @@
         <div class="tip">The line: your chance at every gap, with the other sliders as they are.</div>
       </div>
     </div>
-  </section>
-
-  <section>
-    <h2>The undercut map</h2>
+    <h3 class="h3">The undercut map</h3>
     <p class="cap">Every gap against every tyre advantage, at <b id="mapLaps"></b> laps to go. Red: undercuts like this usually worked. Blue: they usually did not.</p>
     <div class="panel"><svg id="map" role="img" aria-label="Map of undercut chance by gap and tyre advantage"></svg></div>
-  </section>
-
-  <section>
-    <h2>What moves the odds</h2>
+    <h3 class="h3">What moves the odds</h3>
     <p class="cap">From your situation above: how much one change moves your chance.</p>
     <div class="panel"><svg id="bars" role="img" aria-label="Effect of single changes on the chance"></svg></div>
   </section>
 
-  <section id="forecast">
-    <h2>Next-lap forecast</h2>
-    <p class="cap">A race the model had not seen: the <span id="lapRace">2026 Dutch Grand Prix</span>. Before each lap it gives a lap time and a range. Most laps should land in the range. Grey marks slow laps around the red-flag restart: the model does not know they were not racing laps, so the forecast after them is off.</p>
-    <div class="panel">
-      <div class="lap-head">
-        <div class="seg" id="lapDrivers" role="group" aria-label="Driver"></div>
-        <div style="display:flex; align-items:center; gap:1rem">
-          <div class="hits" id="lapHits" aria-live="polite"></div>
-          <button class="btn" id="lapPlay" type="button">Replay</button>
-        </div>
-      </div>
-      <svg id="laps" role="img" aria-label="Real lap times against the forecast and its range"></svg>
-      <div class="legend">
-        <span><i class="sw-band"></i>range (8 of 10 laps)</span>
-        <span><i class="sw-line"></i>forecast</span>
-        <span><i class="sw-dot"></i>real lap</span>
-        <span><i class="sw-miss"></i>outside the range</span>
-      </div>
-      <div class="tip" id="lapTip">Touch or hover the chart to read a lap. Pit-stop laps and most safety-car laps are left out, as in the model.</div>
-    </div>
-  </section>
-
-  <section id="strategy">
-    <h2>One race, layer by layer</h2>
-    <p class="cap">The same race, through the models that feed the race simulator. Each was fitted only on earlier races.</p>
-    <div class="panel">
-      <h3 class="ph">Will a safety car come out? <span class="ph-num" id="anyNeutral">–</span> <span class="ph-sub">chance of at least one</span></h3>
-      <svg id="hazard" role="img" aria-label="Chance a safety car or VSC starts on each lap, with the laps where one really did"></svg>
-      <div class="tip" id="hzTip">Bars: chance a safety car or VSC starts on that lap. Dashed: when one really did. Touch or hover to read a lap.</div>
-    </div>
-    <div class="panel">
-      <h3 class="ph">How hard is it to pass here?</h3>
-      <svg id="passing" role="img" aria-label="Chance of a pass on one lap at each circuit, for the same duel"></svg>
-      <div class="tip">The same duel at every circuit: 0.8 s behind and 0.5 s a lap faster. Chance of passing on that lap.</div>
-    </div>
-    <div class="panel">
-      <h3 class="ph">When does one stop pay off? <span class="ph-sub"><span id="egoName">–</span>, starting 5th</span></h3>
-      <svg id="window" role="img" aria-label="Average simulated finish for each lap of a single pit stop"></svg>
-      <div class="tip" id="winTip"></div>
-    </div>
-  </section>
-
-  <section id="live">
-    <h2>Lap by lap, as if live</h2>
-    <p class="cap">The same race fed to the strategy engine one lap at a time. After each lap it sees only the laps run so far, simulates the rest of the race again and updates its odds. One update took <b id="liveMs">–</b> on a laptop.</p>
-    <div class="panel">
-      <div class="ctl"><div class="ctl-head"><label for="liveLap">After lap</label><output id="liveLapV"></output></div>
-        <input id="liveLap" type="range" min="1" max="2" step="1" value="1"></div>
-      <div class="lap-head">
-        <h3 class="ph"><span id="liveCar">–</span> <span class="ph-num" id="livePos">–</span> <span class="ph-sub" id="liveUc"></span></h3>
-        <button class="btn" id="livePlay" type="button">Replay</button>
-      </div>
-      <svg id="liveWin" role="img" aria-label="The simulated best laps for the next stop after each lap, with the real stops"></svg>
-      <div class="legend">
-        <span><i class="sw-band"></i>simulated best laps for the next stop</span>
-        <span><i class="sw-dot"></i>real stop</span>
-      </div>
-      <h3 class="ph" style="margin-top:1.2rem">Podium chance now</h3>
-      <svg id="livePod" role="img" aria-label="Chance of a podium for the five cars the engine expects in front"></svg>
-      <div class="tip">Odds from the simulator, not advice. The engine knows nothing after the lap shown: no later lap times, flags or stops.</div>
-    </div>
-  </section>
-
   <footer>
-    <p>Learned from <span id="nEvents">1,190</span> real pit duels, 2018 – 2026, public timing data only (Jolpica-F1, TracingInsights). Runs in your browser. It gives the chance that an attempted undercut works, not advice on whether to pit.</p>
+    <p>Learned from <span id="nEvents">1,190</span> real pit duels, 2018 – 2026, public timing data only (Jolpica-F1, TracingInsights). Runs in your browser. The undercut layer gives the chance that an attempted undercut works, not advice on whether to pit.</p>
     <p><a href="https://github.com/shlokkvaishnav/pitwall">github.com/shlokkvaishnav/pitwall</a></p>
   </footer>
 </div>

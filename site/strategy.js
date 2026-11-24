@@ -107,11 +107,18 @@ function drawWindow() {
 
 function drawAll() { if (D) { drawHazard(); drawPassing(); drawWindow(); } }
 
-fetch("data/race-strategy.json").then((r) => r.json()).then((d) => {
+function loadFailed(id) {
+  const s = document.getElementById(id); if (!s) return;
+  const p = document.createElement("p"); p.className = "tip"; p.setAttribute("role", "alert");
+  p.textContent = "This chart could not load its data. Reload the page to try again.";
+  s.closest("section").querySelector(".panel").prepend(p);
+}
+
+fetch("data/race-strategy.json").then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); }).then((d) => {
   D = d;
   $("anyNeutral").textContent = pct(d.any_neutral);
   $("egoName").textContent = d.ego.driver.charAt(0).toUpperCase() + d.ego.driver.slice(1);
   drawAll();
   matchMedia("(prefers-color-scheme: dark)").addEventListener("change", drawAll);
   let t; addEventListener("resize", () => { clearTimeout(t); t = setTimeout(drawAll, 120); });
-});
+}).catch(() => loadFailed("hazard"));

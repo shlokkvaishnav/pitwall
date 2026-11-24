@@ -72,7 +72,14 @@ function play() {
   }, 220);
 }
 
-fetch("data/live-replay.json").then((r) => r.json()).then((d) => {
+function loadFailed(id) {
+  const s = document.getElementById(id); if (!s) return;
+  const p = document.createElement("p"); p.className = "tip"; p.setAttribute("role", "alert");
+  p.textContent = "This chart could not load its data. Reload the page to try again.";
+  s.closest("section").querySelector(".panel").prepend(p);
+}
+
+fetch("data/live-replay.json").then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); }).then((d) => {
   D = d;
   const s = $("liveLap"); s.max = d.frames.length; s.value = 1;
   $("liveCar").textContent = `${name(d.car)}, started 5th`;
@@ -82,4 +89,4 @@ fetch("data/live-replay.json").then((r) => r.json()).then((d) => {
   draw();
   matchMedia("(prefers-color-scheme: dark)").addEventListener("change", draw);
   let t; addEventListener("resize", () => { clearTimeout(t); t = setTimeout(draw, 120); });
-});
+}).catch(() => loadFailed("liveWin"));
