@@ -10,6 +10,9 @@ import numpy as np
 from scipy.special import expit
 
 
+MEMO_CELLS = 400_000
+
+
 class TreeEnsemble:
     def __init__(self, dump: dict):
         self.trees = [self._flatten(t["tree_structure"]) for t in dump["tree_info"]]
@@ -88,6 +91,9 @@ class TreeEnsemble:
         ok = pos < len(self._keys)
         known[ok] = self._keys[pos[ok]] == u[ok]
         if not known.all():
+            if len(self._keys) > MEMO_CELLS:  # keep each update cheap: start a new memo (values do not change)
+                self._keys, self._vals = np.zeros(0, np.int64), np.zeros(0)
+                known[:] = False
             first = np.empty(len(u), int)
             first[inv[::-1]] = np.arange(len(ids))[::-1]  # one row of each cell
             i = idx[first[~known]]
