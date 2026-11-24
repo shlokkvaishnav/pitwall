@@ -1,0 +1,47 @@
+{
+  "commit": "d414c0d0179d5a94c254e660475d4086c9cffb53",
+  "machine": {
+    "platform": "macOS-27.2.1-arm64-arm-64bit",
+    "processor": "arm",
+    "numpy": "2.5.4"
+  },
+  "speedup_mean": 204.50571188888014,
+  "races": [
+    {
+      "round": 4,
+      "laps": 57,
+      "cars": 22,
+      "old_races_per_s": 4.136767326228645,
+      "new_races_per_s_first_call": 1143.5402722403624,
+      "new_races_per_s": 1491.9536600220426,
+      "new_ms_per_2000_races": 1340.5242090229876
+    },
+    {
+      "round": 8,
+      "laps": 71,
+      "cars": 22,
+      "old_races_per_s": 6.485123269823685,
+      "new_races_per_s_first_call": 1337.7115517780094,
+      "new_races_per_s": 1355.7801951669423,
+      "new_ms_per_2000_races": 1475.165374984499
+    },
+    {
+      "round": 12,
+      "laps": 72,
+      "cars": 22,
+      "old_races_per_s": 5.904595952166417,
+      "new_races_per_s_first_call": 474.9098779711522,
+      "new_races_per_s": 532.0270413764913,
+      "new_ms_per_2000_races": 3759.2074170242995
+    }
+  ],
+  "same_distribution": {
+    "round": 4,
+    "old_runs": 400,
+    "new_runs": 4000,
+    "max_abs_z_other_cars": 2.2382514310519306,
+    "z_ego_car": 0.06978289224258287,
+    "max_abs_diff_podium_chance": 0.034499999999999975,
+    "note": "In simulator C the ego car decides before the lap's safety-car draw (one lap later than the others); the fast simulator treats it like every other car."
+  }
+}
