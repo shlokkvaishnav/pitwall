@@ -10,3 +10,4 @@ __pycache__/
 # Raw data stays here. Do not commit it.
 /data/
 /runs/
+.mypy_cache/

@@ -1,10 +1,22 @@
 # pitwall
 
-**How far can public lap data take you towards a team's race-strategy model, and where does it break?** pitwall builds
-that model one layer at a time, from public lap data only, and tests each layer on races it has not seen.
+A Formula 1 strategy engine. It combines lap-time, safety-car and overtaking prediction models with Monte Carlo
+simulation to forecast race outcomes and to evaluate pit-stop strategies, using public lap data only.
 
-**Live:** <https://shlokkvaishnav.github.io/pitwall/>: the undercut tool runs in your browser, next to a lap-by-lap replay
-of the lap-time forecast and one race seen through every layer.
+**Problem.** A team's strategy model decides when to pit and how a race is likely to finish. pitwall asks how far public
+data can take you towards such a model, builds it one layer at a time, and tests each layer on races it has not seen,
+including the places where it fails.
+
+**Live demo:** <https://shlokkvaishnav.github.io/pitwall/>. The site runs in your browser: a lap-by-lap replay of the
+lap-time forecast, one race seen through every layer, and the undercut tool.
+
+[![The pitwall site](docs/site.png)](https://shlokkvaishnav.github.io/pitwall/)
+
+## Capabilities
+- Forecast each car's next lap time, with prediction ranges.
+- Estimate when a safety car or VSC is likely, and when a car can overtake.
+- Simulate the rest of a race many times to forecast finishing positions and compare pit-lap choices.
+- Recompute all of this lap by lap on a replayed race (see Engineering for the measured speed).
 
 [![The pitwall site](docs/site.png)](https://shlokkvaishnav.github.io/pitwall/)
 
@@ -16,7 +28,7 @@ of the lap-time forecast and one race seen through every layer.
 | Racing | When can a car pass, and when does an undercut work? | LightGBM on pairs of cars one lap at a time; a logistic undercut model from 1,190 real pit duels (2018 to 2026) |
 | Strategy | Put together, how does the race finish? | Monte Carlo simulators: B (pace, tyres, stops), C (B plus the hazard, passing and teams pitting under a safety car) and D (C with tuned settings), none better than the starting grid; an engine that re-simulates the rest of a race to rank pit laps (no better than a fixed-lap rule against real stops) |
 
-## Scorecard
+## Verified results and limitations
 Development numbers are walk-forward on earlier races. "Locked" means races kept out of everything until one final run:
 2026 rounds 13 to 18 were used up by [spec 11](docs/specs/11-holdout.md); rounds 19 to 23 are the next test
 ([spec 13](docs/specs/13-out-of-sample-rounds.md)), run once after the season ends on 6 December 2026.
@@ -47,11 +59,17 @@ flowchart LR
   D --> L[laps + features]
   L --> M[lap-time model<br/>LightGBM]
   L --> S[race simulator<br/>Monte Carlo]
+  S --> F[fastsim batch simulator<br/>+ strategy engine]
   L --> U[undercut duels]
   Y --> U
   U --> R[logistic model]
   R --> E[export JSON] --> W[site/<br/>browser maths]
 ```
+
+## Secondary components
+The undercut-probability model (specs 7 to 10) and the reinforcement-learning pit agent (spec 18, `scripts/rl_strategy.py`,
+`pitwall.strategy_env`) are kept in the repository but are not part of the main engine. The undercut model was not
+confirmed on the locked races (see above). The RL code is exploratory: there is no committed result file for it, and no claim here rests on it.
 
 ## Engineering
 - **One-command rebuild.** `make reproduce` downloads the public data (the dump has a pinned SHA-256), runs every experiment,
