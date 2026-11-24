@@ -105,3 +105,30 @@ def tyre_deg(race: Race, table: pd.DataFrame | None = None) -> float:
     yd = (y - y.groupby(c["driver"]).transform("mean")).to_numpy()
     (deg, _fuel), *_ = np.linalg.lstsq(xd, yd, rcond=None)
     return float(deg)
+
+
+def live_pace(
+    table: pd.DataFrame, drivers: list[str], lap: int, prior: np.ndarray, prior_laps: float = 10.0
+) -> tuple[np.ndarray, np.ndarray]:
+    """Pre-race pace updated with the clean laps run so far (up to `lap`): a weighted mean, the prior counting as
+    `prior_laps` laps. Returns the pace and the weight left on the prior (to shrink the pace shock with)."""
+    from .laps import clean_mask
+
+    t = table[(table["lap"] <= lap)]
+    c = t[clean_mask(t)]
+    if c.empty:
+        return prior.copy(), np.ones(len(drivers))
+    rel = c["time_s"] - c.groupby("lap")["time_s"].transform("median")
+    g = rel.groupby(c["driver"]).agg(["sum", "count"]).reindex(drivers).fillna(0.0)
+    n = g["count"].to_numpy(float)
+    pace = (prior_laps * prior + g["sum"].to_numpy(float)) / (prior_laps + n)
+    return pace, prior_laps / (prior_laps + n)
+
+
+def undercut_probability(model: dict, gap_s: float, age_diff: float, remaining_laps: int) -> float:
+    """The site's undercut model (spec 10, `site/data/undercut-model.json`): chance that a car pitting now, `gap_s`
+    behind the car ahead, is ahead after both stop. `age_diff` = tyre age of the car ahead minus the car's own."""
+    p = model["params"]
+    x = np.array([gap_s, age_diff, np.log(max(remaining_laps, 1))])
+    z = p["intercept"] + float(np.dot(p["coef"], (x - np.array(p["mean"])) / np.array(p["scale"])))
+    return float(1 / (1 + np.exp(-z)))
