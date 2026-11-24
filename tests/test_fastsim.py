@@ -74,3 +74,12 @@ def test_start_from_a_race_in_progress_and_a_fixed_ego_plan():
     assert (b.positions[:, 0] == 1).mean() > 0.9  # a 30 s lead with 10 laps left holds
     late = simulate(w, 300, seed=0, state=s, ego=4, ego_plan=np.array([NO_LAP]))
     assert (late.stops[:, 4] == 0).all()
+
+
+def test_batch_has_race_time_and_positions_are_unchanged_by_it():
+    w = _world(hazard=0.0)
+    b = simulate(w, 100, seed=3, retirements=False)
+    assert b.time is not None and b.time.shape == b.positions.shape
+    assert (b.time > 30 * 80).all()  # 30 laps of about 90 s
+    assert (np.argsort(b.time, 1).argsort(1) + 1 == b.positions).all()  # no retirements: time order is the finish order
+    assert (b.time.argmin(1) == (b.positions == 1).argmax(1)).all()

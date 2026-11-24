@@ -80,6 +80,7 @@ class Batch:
 
     positions: np.ndarray
     stops: np.ndarray  # (runs, D) number of stops made
+    time: np.ndarray | None = None  # (runs, D) race time at the end, s (of the laps a car completed)
 
 
 def simulate(
@@ -214,4 +215,4 @@ def simulate(
     key = -laps_done * 1e6 + cum
     pos = np.empty((runs, d), int)
     pos[rows[:, None], np.argsort(key, axis=1)] = rank + 1
-    return Batch(pos, stops)
+    return Batch(pos, stops, cum.copy())
