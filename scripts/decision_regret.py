@@ -177,7 +177,7 @@ def main() -> None:
         "label": "SIMULATED: scored with the engine's own model; not independent evidence of real-world gains",
         "commit": sha.stdout.strip(),
         "settings": {"top_n": TOP_N, "horizon": HORIZON, "engine_runs": RUNS, "eval_runs_per_lap": EVAL_RUNS,
-                     "smooth": SMOOTH, "eval_seed_offset": SEED_OFFSET, "bootstrap": BOOT},  # fmt: skip
+                     "smooth": SMOOTH, "eval_seed_offset": SEED_OFFSET, "bootstrap": BOOT},
         "dropped_real_stop_outside_grid": dropped,
         "all_stops": summary(df),
         "green_stops": summary(df[~df["neutral_lap"]]),
