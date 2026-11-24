@@ -64,5 +64,5 @@ Raw numbers: `results/21-simulator-d-dev.json`. Chosen setting: `w` = 0.5, `c` =
 
 The grid prior closes most of the gap to the grid: D's podium Brier with the tuned setting equals the grid's, and its
 ordering is slightly better. The honest number (setting chosen without the scored race) is 0.0748, still worse than
-the grid. In 7 of the 9 leave-one-out choices `c` was 0.5, the smallest value tried. The test on rounds 19 to 23 runs
+the grid. In 8 of the 9 leave-one-out choices `c` was 0.5, the smallest value tried. The test on rounds 19 to 23 runs
 with `w` = 0.5 and `c` = 0.75, unchanged.
