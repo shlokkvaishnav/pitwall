@@ -14,7 +14,7 @@ of the lap-time forecast and one race seen through every layer.
 | Pace | How fast will each car go next lap, and how sure are we? | LightGBM on recent laps, tyre age, gaps and track evolution, pre-trained on 2022 to 2025; conformal ranges; a causal transformer over each car's laps as a challenger |
 | Race events | When does a safety car or VSC come out? | Official race-control laps (OpenF1); a per-lap hazard with lap-1 and circuit terms, circuits shrunk to the mean |
 | Racing | When can a car pass, and when does an undercut work? | LightGBM on pairs of cars one lap at a time; a logistic undercut model from 1,190 real pit duels (2018 to 2026) |
-| Strategy | Put together, how does the race finish? | Monte Carlo simulators: B (pace, tyres, stops) and C (B plus the hazard, passing and teams pitting under a safety car) |
+| Strategy | Put together, how does the race finish? | Monte Carlo simulators: B (pace, tyres, stops), C (B plus the hazard, passing and teams pitting under a safety car) and D (C with tuned settings), none better than the starting grid; an engine that re-simulates the rest of a race to rank pit laps (no better than a fixed-lap rule against real stops) |
 
 ## Scorecard
 Development numbers are walk-forward on earlier races. "Locked" means races kept out of everything until one final run:
@@ -60,11 +60,11 @@ flowchart LR
 - **Fast Monte Carlo core.** `pitwall.fastsim` runs all simulated races of a batch in one set of numpy arrays, with a
   memo over the cells of the passing model's trees (same values as the trees). On the same three race inputs it runs
   530 to 1,490 races a second against 4 to 7 for the one-race-at-a-time simulator C, about 200 times faster
-  (`results/bench-sim.json`, a laptop under other load). A test checks that both give the same distribution of
+  (`results/bench-sim.json`: three 2026 races, measured on a laptop under other load, so treat the factor as rough). A test checks that both give the same distribution of
   finishing positions.
 - **Live replay.** `scripts/replay.py` feeds a past race to the engine one lap at a time, using only the laps run so
   far: each lap it re-simulates the rest of the race (500 races for the finishing order, up to 600 for the pit window)
-  and recomputes the undercut chance. Median update 0.52 s, 95th percentile 1.05 s (`results/replay.json`).
+  and recomputes the undercut chance. Median update 0.52 s, 95th percentile 1.05 s, measured on one race (the 2026 Dutch GP) and one car (`results/replay.json`).
 - **The browser and Python agree.** A Node test checks that the JavaScript model gives the scikit-learn probabilities (difference < 1e-5).
 - **Checks on each push:** ruff (lint), mypy (types), pytest, Node tests. CI runs only on push, never on a schedule.
 - **No raw data in the repository.** The site shows only model numbers.

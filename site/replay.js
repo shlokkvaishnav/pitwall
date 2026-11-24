@@ -76,7 +76,7 @@ fetch("data/live-replay.json").then((r) => r.json()).then((d) => {
   D = d;
   const s = $("liveLap"); s.max = d.frames.length; s.value = 1;
   $("liveCar").textContent = `${name(d.car)}, started 5th`;
-  $("liveMs").textContent = `${Math.round(d.latency_ms.median)} ms`;
+  $("liveMs").textContent = `${Math.round(d.latency_ms.median)} ms (median, one race, one car)`;
   s.addEventListener("input", draw);
   $("livePlay").addEventListener("click", play);
   draw();
