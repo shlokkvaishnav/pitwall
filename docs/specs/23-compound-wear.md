@@ -50,3 +50,11 @@ we report the rates with their intervals. Output: `results/23-decision-check-tes
 
 ## 7. Output
 `scripts/tyre_model.py`, `scripts/decision_check.py --tyres` (`results/23-decision-check-tyres.json`).
+
+## Note (2026-11-24, before the full run)
+Tyre model fitted (`results/23-tyre-model.json`, 77 races, commit b1e1812): median wear 0.025 (SOFT), 0.026
+(MEDIUM), 0.036 (HARD) s per lap of life; offsets +0.27 (SOFT) and −0.08 (HARD) s against MEDIUM. The race-level
+estimates vary widely (SOFT wear: quartiles −0.04 to 0.09), and the soft offset has the wrong sign for fresh tyres,
+which points to confounding (soft stints run early, in traffic, and are often managed). We use the model as
+registered. A plumbing run of the script on one race (2023 Australia, 15 decisions, not kept) checked that it runs;
+nothing was changed after it.

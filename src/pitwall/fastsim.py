@@ -17,6 +17,7 @@ import numpy as np
 
 from .sim import SC_GAP_S, START_GAP_S, STUCK_GAP_S
 from .strategy_env import MAX_GAP_S, REACT_LAPS, SC_PACE, SC_PIT_FACTOR, World
+from .tyrewear import NEXT, TyreRates
 
 BASE_S = 90.0
 NO_LAP = 10_000  # a plan slot with no stop
@@ -33,6 +34,7 @@ class State:
     alive: np.ndarray  # still running
     sc_left: int = 0  # laps left in a neutral period
     laps_done: np.ndarray | None = None  # laps completed (for cars out of the race); `lap` for all if None
+    compound: np.ndarray | None = None  # index into tyrewear.COMPOUNDS; MEDIUM for all if None
 
 
 def start_state(world: World, rng: np.random.Generator, runs: int) -> tuple[np.ndarray, ...]:
@@ -89,8 +91,13 @@ def simulate(
     ego: int | None = None,
     ego_plan: np.ndarray | None = None,
     retirements: bool = True,
+    tyres: TyreRates | None = None,
+    ego_compounds: np.ndarray | None = None,
 ) -> Batch:
-    """Simulate `runs` races to the flag. `ego_plan` (runs, S) or (S,): pit laps of car `ego`, NO_LAP to pad."""
+    """Simulate `runs` races to the flag. `ego_plan` (runs, S) or (S,): pit laps of car `ego`, NO_LAP to pad.
+
+    `tyres` (spec 23): lap time uses the compound's offset and wear in place of the single wear rate. Other cars
+    fit `tyrewear.NEXT` of their compound at a stop; car `ego` fits `ego_compounds[:, k]` at its k-th stop here."""
     inp, w = world.inp, world
     rng = np.random.default_rng(seed)
     n, d = inp.laps, len(inp.drivers)
@@ -114,6 +121,13 @@ def simulate(
     rows = np.arange(runs)
     rank = np.arange(d)[None, :]
     hazard = w.hazard
+    comp = np.ones((runs, d), int)
+    if state is not None and state.compound is not None:
+        comp = np.tile(np.asarray(state.compound, int), (runs, 1))
+    ego_comp = None
+    if tyres is not None and ego is not None and ego_compounds is not None:
+        ego_comp = np.broadcast_to(np.atleast_2d(np.asarray(ego_compounds, int)), (runs, np.shape(ego_compounds)[-1]))
+    ego_k = np.zeros(runs, int)
 
     while lap < n:
         lap += 1
@@ -132,7 +146,11 @@ def simulate(
         if fixed is not None:
             pit[:, ego] = (fixed == lap).any(-1)
 
-        t = BASE_S + pace + inp.wear_s_per_lap * age + rng.normal(0, inp.noise_s, (runs, d))
+        if tyres is None:
+            t = BASE_S + pace + inp.wear_s_per_lap * age + rng.normal(0, inp.noise_s, (runs, d))
+        else:
+            wear = tyres.offset[comp] + tyres.deg[comp] * age
+            t = BASE_S + pace + wear + rng.normal(0, inp.noise_s, (runs, d))
         loss = inp.pit_loss_s * np.where(sc, SC_PIT_FACTOR, 1.0)[:, None]
         t = t + np.where(pit, loss, 0.0)
         order = np.argsort(np.where(alive, cum, np.inf), axis=1)
@@ -183,6 +201,13 @@ def simulate(
             laps_done = np.where(alive, lap, laps_done)
         cum = np.where(alive, new, cum)
         age = np.where(pit, 1.0, age + 1.0)
+        if tyres is not None:
+            fitted = NEXT[comp]
+            if ego_comp is not None:
+                k = np.minimum(ego_k, ego_comp.shape[1] - 1)
+                fitted[:, ego] = ego_comp[rows, k]
+                ego_k = ego_k + pit[:, ego]
+            comp = np.where(pit, fitted, comp)
         stops = stops + pit
         sc_left = np.maximum(0, sc_left - 1)
 

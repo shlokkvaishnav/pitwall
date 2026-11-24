@@ -1,13 +1,14 @@
 """Spec 22: does the engine's pit window contain the real stops of the top 5 finishers? 2023 to 2025 races.
 
-Usage: PYTHONPATH=src:scripts .venv/bin/python scripts/decision_check.py
-Writes results/22-decision-check.json.
+Usage: PYTHONPATH=src:scripts .venv/bin/python scripts/decision_check.py [--tyres]
+Writes results/22-decision-check.json; with --tyres (spec 23: wear per compound) results/23-decision-check-tyres.json.
 """
 
 from __future__ import annotations
 
 import json
 import subprocess
+import sys
 import time
 from collections import Counter
 from dataclasses import replace
@@ -19,7 +20,7 @@ from race_sim_b import history
 from sc_hazard import dev_rows
 
 from pitwall.dump import Dump
-from pitwall.engine import pit_window, state_at, tyre_deg
+from pitwall.engine import pit_window, pit_window_tyres, state_at, tyre_deg
 from pitwall.hazard import Models as HazardModels
 from pitwall.hazard import race_rows
 from pitwall.laps import lap_table
@@ -27,10 +28,13 @@ from pitwall.overtake import Models as OvertakeModels
 from pitwall.pace import fit, qualifying_gap
 from pitwall.sim import inputs_from_history
 from pitwall.strategy_env import World
+from pitwall.tyres import join, parse
+from pitwall.tyrewear import COMPOUNDS, IDX, TyreRates
 
 ROOT = Path(__file__).resolve().parents[1]
 SEASONS = (2023, 2024, 2025)
 TOP_N, HORIZON, HALF, RUNS = 5, 45, 3, 40
+RUNS_TYRES = 20  # per (lap, compound) pair, spec 23
 MIN_HAZARD_RACES = 5
 BOOT = 10_000
 
@@ -62,7 +66,24 @@ def boot_ci(df: pd.DataFrame, col: str, rng: np.random.Generator) -> list[float]
     return [float(np.quantile(stats, 0.025)), float(np.quantile(stats, 0.975))]
 
 
+def tyre_rates(cid: int) -> TyreRates:
+    """Spec 23, section 2: the circuit's rates if it had at least 2 fitted races in 2019 to 2022, else all races."""
+    m = json.loads((ROOT / "results" / "23-tyre-model.json").read_text())
+    r = m["circuits"].get(str(cid), m["global"])
+    return TyreRates(np.array(r["deg"], float), np.array(r["offset"], float))
+
+
+def tyre_laps(dump: Dump, race, s: int, k: int) -> pd.DataFrame:
+    """Compound and tyre life per driver and lap (TracingInsights), or an empty frame."""
+    path = ROOT / "data" / "raw" / "tracinginsights" / str(s) / f"{k:02d}.json"
+    if not path.exists():
+        return pd.DataFrame(columns=["driver", "lap", "compound", "life"])
+    codes = {dump.driver_codes[x]: x for x in race.results["driver"] if x in dump.driver_codes.index}
+    return join(race, parse(path), codes)[["driver", "lap", "compound", "life"]]
+
+
 def main() -> None:
+    use_tyres = "--tyres" in sys.argv
     dump = Dump(ROOT / "data" / "raw" / "jolpica-dump" / "csv")
     races, stats, rows = history(dump, [])  # 2022 to 2025
     hz = dev_rows(dump)
@@ -107,6 +128,8 @@ def main() -> None:
                     all_lengths.setdefault(j, []).extend(v)
 
             table = lap_table(race)
+            ti = tyre_laps(dump, race, s, k) if use_tyres else None
+            rates = tyre_rates(cid) if use_tyres else None
             neutral = table.groupby("lap")["neutral"].any().to_dict()
             top = res[res["classified"]].sort_values("position").head(TOP_N)
             pits = race.pitstops.dropna(subset=["lap"])
@@ -124,7 +147,20 @@ def main() -> None:
                         continue
                     state = state_at(race, inp.drivers, t0, table)
                     extra = max(n_stops - int(state.stops[car]) - 1, 0)
-                    win = pit_window(world, state, car, cand, extra, runs=RUNS, seed=ri, half_width=HALF)
+                    choice = None
+                    if use_tyres:
+                        assert ti is not None and rates is not None
+                        now = ti[ti["lap"] == t0].set_index("driver").reindex(inp.drivers)
+                        state.compound = now["compound"].map(IDX).fillna(1).astype(int).to_numpy()
+                        state.age = np.where(now["life"].notna(), now["life"], state.age).astype(float)
+                        run_ = ti[(ti["driver"] == d) & (ti["lap"] <= t0) & ti["compound"].isin(COMPOUNDS)]
+                        allowed = [0, 1, 2]
+                        if run_["compound"].nunique() <= 1 and extra == 0:
+                            allowed.remove(int(state.compound[car]))
+                        win, choice = pit_window_tyres(world, state, car, cand, rates, allowed, extra, runs=RUNS_TYRES,
+                                                       seed=ri, half_width=HALF)  # fmt: skip
+                    else:
+                        win = pit_window(world, state, car, cand, extra, runs=RUNS, seed=ri, half_width=HALF)
                     lo, hi = cand[0], cand[-1]
                     med = lengths.get(j) or all_lengths.get(j) or [laps // (n_stops + 1)]
                     b1 = int(np.clip(t0 - 1 + np.median(med), lo, hi))
@@ -148,6 +184,7 @@ def main() -> None:
                             "in_engine": int(abs(stop - best) <= HALF),
                             "in_b1": int(abs(stop - b1) <= HALF),
                             "in_b2": int(abs(stop - b2) <= HALF),
+                            **({"compound": COMPOUNDS[choice]} if choice is not None else {}),
                         }
                     )
             print(key, race.name, f"{time.time() - t0_clock:.0f} s", len(recs), flush=True)
@@ -156,15 +193,19 @@ def main() -> None:
     rng = np.random.default_rng(0)
     df["d_b1"] = df["in_engine"] - df["in_b1"]
     df["d_b2"] = df["in_engine"] - df["in_b2"]
+    cols = ["in_engine", "in_b1", "in_b2", "d_b1", "d_b2"]
+    if use_tyres:  # paired against the spec 22 engine on the same decisions
+        old = pd.DataFrame(json.loads((ROOT / "results" / "22-decision-check.json").read_text())["decisions"])
+        old = old[["race", "driver", "stop", "in_engine"]].rename(columns={"in_engine": "in_spec22"})
+        df = df.merge(old, on=["race", "driver", "stop"], how="left")
+        df["d_spec22"] = df["in_engine"] - df["in_spec22"]
+        cols += ["in_spec22", "d_spec22"]
 
     def summary(part: pd.DataFrame) -> dict:
         return {
             "decisions": len(part),
             "races": int(part["race"].nunique()),
-            **{
-                c: {"rate": float(part[c].mean()), "ci95": boot_ci(part, c, rng)}
-                for c in ("in_engine", "in_b1", "in_b2", "d_b1", "d_b2")
-            },
+            **{c: {"rate": float(part[c].mean()), "ci95": boot_ci(part, c, rng)} for c in cols},
             "median_abs_error": {m: float((part[m] - part["real"]).abs().median()) for m in ("engine", "b1", "b2")},
         }
 
@@ -172,15 +213,21 @@ def main() -> None:
     best_b = "d_b1" if allv["in_b1"]["rate"] >= allv["in_b2"]["rate"] else "d_b2"
     sha = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True, check=True)
     out = {
-        "spec": "22-decision-check",
+        "spec": "23-compound-wear" if use_tyres else "22-decision-check",
         "commit": sha.stdout.strip(),
-        "settings": {"top_n": TOP_N, "horizon": HORIZON, "half_width": HALF, "runs_per_candidate": RUNS},
+        "settings": {
+            "top_n": TOP_N,
+            "horizon": HORIZON,
+            "half_width": HALF,
+            "runs_per_candidate": RUNS_TYRES if use_tyres else RUNS,
+        },
         "all_stops": allv,
         "green_stops": green,
-        "E1_engine_above_best_baseline": bool(allv[best_b]["ci95"][0] > 0),
+        ("E2" if use_tyres else "E1") + "_engine_above_best_baseline": bool(allv[best_b]["ci95"][0] > 0),
         "decisions": recs,
     }
-    (ROOT / "results" / "22-decision-check.json").write_text(json.dumps(out, indent=2))
+    name = "23-decision-check-tyres.json" if use_tyres else "22-decision-check.json"
+    (ROOT / "results" / name).write_text(json.dumps(out, indent=2))
     print(json.dumps({k: v for k, v in out.items() if k != "decisions"}, indent=2))
 
 

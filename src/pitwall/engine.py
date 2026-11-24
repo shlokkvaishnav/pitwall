@@ -14,6 +14,7 @@ from .data import Race
 from .fastsim import NO_LAP, State, simulate
 from .laps import lap_table
 from .strategy_env import World
+from .tyrewear import NEXT, TyreRates
 
 
 def state_at(race: Race, drivers: list[str], lap: int, table: pd.DataFrame | None = None) -> State:
@@ -132,3 +133,41 @@ def undercut_probability(model: dict, gap_s: float, age_diff: float, remaining_l
     x = np.array([gap_s, age_diff, np.log(max(remaining_laps, 1))])
     z = p["intercept"] + float(np.dot(p["coef"], (x - np.array(p["mean"])) / np.array(p["scale"])))
     return float(1 / (1 + np.exp(-z)))
+
+
+def pit_window_tyres(
+    world: World,
+    state: State,
+    car: int,
+    candidates: range,
+    tyres: TyreRates,
+    compounds: list[int],
+    extra_stops: int = 0,
+    runs: int = 20,
+    seed: int = 0,
+    half_width: int = 3,
+    smooth: int = 5,
+) -> tuple[Window, int]:
+    """Spec 23: the next stop is a pair (lap, compound). Returns the window around the best pair's lap and its
+    compound. Means are smoothed over laps for each compound; extra stops fit `tyrewear.NEXT` in turn."""
+    laps = np.array(list(candidates))
+    width = extra_stops + 1
+    plan, comp = [], []
+    for c in compounds:
+        chain = [c]
+        for _ in range(extra_stops):
+            chain.append(int(NEXT[chain[-1]]))
+        for p in laps:
+            plan.append(plan_from(int(p), extra_stops, world.inp.laps))
+            comp.append(chain)
+    plan_a = np.repeat(np.array(plan, int).reshape(-1, width), runs, axis=0)
+    comp_a = np.repeat(np.array(comp, int).reshape(-1, width), runs, axis=0)
+    b = simulate(world, len(plan_a), seed, state=state, ego=car, ego_plan=plan_a, tyres=tyres, ego_compounds=comp_a)
+    raw = b.positions[:, car].reshape(len(compounds), len(laps), runs).mean(2)
+    k = min(smooth, len(laps))
+    means = np.empty_like(raw)
+    for i in range(len(compounds)):
+        pad = np.pad(raw[i], (k // 2, k - 1 - k // 2), mode="edge")
+        means[i] = np.convolve(pad, np.ones(k) / k, mode="valid")
+    ci, li = np.unravel_index(int(np.argmin(means)), means.shape)
+    return Window(laps, means[ci], int(laps[li]), half_width), int(compounds[ci])
