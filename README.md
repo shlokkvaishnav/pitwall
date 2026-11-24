@@ -32,6 +32,8 @@ Development numbers are walk-forward on earlier races. "Locked" means races kept
 | Racing | Undercut tool | Brier skill 0.22 on 2024 and 2025. | **Not confirmed** (rounds 13 to 18): only 20 attempts, no better than the base rate. Too few to judge: about 80 are needed for 80% power. |
 | Strategy | Simulator B | Does not beat the starting grid. | Orders the field better than the grid, but its podium odds are worse. |
 | Strategy | Simulator C ([spec 20](docs/specs/20-simulator-c.md)) | Almost the same as B (podium Brier 0.0780 vs 0.0785) and still worse than the grid (0.070). The new layers are better on their own but do not move the whole: the pace input limits it. | Rounds 19 to 23. |
+| Strategy | Simulator D ([spec 21](docs/specs/21-simulator-d.md)) | Podium Brier 0.0701 with its two settings tuned on rounds 4 to 12, level with the grid (0.0700); 0.0748 when the setting is chosen without the scored race. Spearman 0.791 against 0.785 for the grid. | Rounds 19 to 23 (registered, runs once). |
+| Strategy | Engine pit window against real teams ([spec 22](docs/specs/22-decision-check.md)) | From the real race at the start of each stint, the 7-lap window holds the top 5 finishers' real stop in 29% of 591 stops (2023 to 2025; 95% interval 24 to 35%), below a fixed-lap rule (37%). The simulator has one wear rate for all compounds, so it does not reproduce teams' tyre plans. | — |
 | — | Battery use from lap times | Not visible: lap times are too coarse. Code removed. | — |
 
 The undercut probability is learned from attempts that teams chose to make, so it is not advice on whether to pit.
@@ -55,6 +57,14 @@ flowchart LR
 - **One-command rebuild.** `make reproduce` downloads the public data (the dump has a pinned SHA-256), runs every experiment,
   and compares every number with the committed results. `make docker-reproduce` does the same in a clean container.
   The last Docker run (before specs 12 and 13) rebuilt all 11 result files of that time with no difference.
+- **Fast Monte Carlo core.** `pitwall.fastsim` runs all simulated races of a batch in one set of numpy arrays, with a
+  memo over the cells of the passing model's trees (same values as the trees). On the same three race inputs it runs
+  530 to 1,490 races a second against 4 to 7 for the one-race-at-a-time simulator C, about 200 times faster
+  (`results/bench-sim.json`, a laptop under other load). A test checks that both give the same distribution of
+  finishing positions.
+- **Live replay.** `scripts/replay.py` feeds a past race to the engine one lap at a time, using only the laps run so
+  far: each lap it re-simulates the rest of the race (500 races for the finishing order, up to 600 for the pit window)
+  and recomputes the undercut chance. Median update 0.52 s, 95th percentile 1.05 s (`results/replay.json`).
 - **The browser and Python agree.** A Node test checks that the JavaScript model gives the scikit-learn probabilities (difference < 1e-5).
 - **Checks on each push:** ruff (lint), mypy (types), pytest, Node tests. CI runs only on push, never on a schedule.
 - **No raw data in the repository.** The site shows only model numbers.

@@ -9,7 +9,6 @@ from __future__ import annotations
 import numpy as np
 from scipy.special import expit
 
-
 MEMO_CELLS = 400_000
 
 

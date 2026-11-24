@@ -135,6 +135,27 @@
     </div>
   </section>
 
+  <section id="live">
+    <h2>Lap by lap, as if live</h2>
+    <p class="cap">The same race fed to the strategy engine one lap at a time. After each lap it sees only the laps run so far, simulates the rest of the race again and updates its odds. One update took <b id="liveMs">–</b> on a laptop.</p>
+    <div class="panel">
+      <div class="ctl"><div class="ctl-head"><label for="liveLap">After lap</label><output id="liveLapV"></output></div>
+        <input id="liveLap" type="range" min="1" max="2" step="1" value="1"></div>
+      <div class="lap-head">
+        <h3 class="ph"><span id="liveCar">–</span> <span class="ph-num" id="livePos">–</span> <span class="ph-sub" id="liveUc"></span></h3>
+        <button class="btn" id="livePlay" type="button">Replay</button>
+      </div>
+      <svg id="liveWin" role="img" aria-label="The simulated best laps for the next stop after each lap, with the real stops"></svg>
+      <div class="legend">
+        <span><i class="sw-band"></i>simulated best laps for the next stop</span>
+        <span><i class="sw-dot"></i>real stop</span>
+      </div>
+      <h3 class="ph" style="margin-top:1.2rem">Podium chance now</h3>
+      <svg id="livePod" role="img" aria-label="Chance of a podium for the five cars the engine expects in front"></svg>
+      <div class="tip">Odds from the simulator, not advice. The engine knows nothing after the lap shown: no later lap times, flags or stops.</div>
+    </div>
+  </section>
+
   <footer>
     <p>Learned from <span id="nEvents">1,190</span> real pit duels, 2018 – 2026, public timing data only (Jolpica-F1, TracingInsights). Runs in your browser. It gives the chance that an attempted undercut works, not advice on whether to pit.</p>
     <p><a href="https://github.com/shlokkvaishnav/pitwall">github.com/shlokkvaishnav/pitwall</a></p>
@@ -142,5 +163,6 @@
 </div>
 <script type="module" src="app.js"></script>
 <script type="module" src="strategy.js"></script>
+<script type="module" src="replay.js"></script>
 </body>
 </html>
