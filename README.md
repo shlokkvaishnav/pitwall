@@ -7,8 +7,11 @@ simulation to forecast race outcomes and to evaluate pit-stop strategies, using 
 data can take you towards such a model, builds it one layer at a time, and tests each layer on races it has not seen,
 including the places where it fails.
 
-**Live demo:** <https://shlokkvaishnav.github.io/pitwall/>. The site runs in your browser: a lap-by-lap replay of the
-lap-time forecast, one race seen through every layer, and the undercut tool.
+**Live demo:** <https://shlokkvaishnav.github.io/pitwall/>. The site runs in your browser. It leads with the strategy engine: a
+next-lap forecast replayed lap by lap, one race seen through every layer (safety car, overtaking, pit-stop plans), the
+race replayed lap by lap as if live, and what did not work. At the bottom, "One layer: will the undercut work?" shows the
+undercut tool, which was not confirmed on the locked 2026 races (20 attempts, no better than the base rate): an
+illustration, not advice.
 
 [![The pitwall site](docs/site.png)](https://shlokkvaishnav.github.io/pitwall/)
 
