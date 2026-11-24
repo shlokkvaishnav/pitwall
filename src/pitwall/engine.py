@@ -85,3 +85,23 @@ def pit_window(
     means = np.convolve(pad, np.ones(k) / k, mode="valid")
     best = int(laps[int(np.argmin(means))])
     return Window(laps, means, best, half_width)
+
+
+def tyre_deg(race: Race, table: pd.DataFrame | None = None) -> float:
+    """Tyre wear in s per lap of tyre age, net of fuel burn: clean laps, time = driver + deg × age + fuel × lap.
+
+    Within one stint age and lap move together; the stops reset age, which separates the two slopes. (The wear
+    input of simulators A to C is the slope within stints, which includes fuel burn and is often negative.)
+    """
+    t = lap_table(race) if table is None else table
+    from .laps import clean_mask
+
+    c = t[clean_mask(t)]
+    if c["stint"].nunique() < 2 or len(c) < 50:
+        return float("nan")
+    x = c[["tyre_age", "lap"]].astype(float)
+    y = c["time_s"].astype(float)
+    xd = (x - x.groupby(c["driver"]).transform("mean")).to_numpy()
+    yd = (y - y.groupby(c["driver"]).transform("mean")).to_numpy()
+    (deg, _fuel), *_ = np.linalg.lstsq(xd, yd, rcond=None)
+    return float(deg)
