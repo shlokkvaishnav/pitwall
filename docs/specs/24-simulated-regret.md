@@ -32,3 +32,22 @@ Favourable and unfavourable results are reported alike.
 
 ## 5. Output
 `scripts/decision_regret.py`, `results/24-decision-regret.json`.
+
+## Result (2026-11-24, script commit dbb090f; 69 races of 2023 to 2025, 582 decisions; 9 dropped, real stop outside the grid)
+**SIMULATED**: scored by the engine's own model. Raw numbers: `results/24-decision-regret.json`. Seconds of simulated
+race time; 95% race-block bootstrap intervals.
+
+| Option | Mean regret vs best grid lap | Time minus engine (paired) |
+|---|---|---|
+| (a) Engine lap | 7.21 (6.62 to 7.85) | 0 |
+| (b) Team's actual lap | 9.56 (8.63 to 10.58) | +2.34 (1.44 to 3.35) |
+| (c) Fixed-lap rule | 7.17 (6.40 to 7.96) | -0.04 (-0.70 to 0.64) |
+| (d) Tyre-age rule | 11.01 (8.72 to 14.17) | +3.79 (1.43 to 7.00) |
+
+Inside the model, the engine's laps are 2.3 s faster than the teams' real laps and about equal to the fixed-lap rule.
+The regret has a floor of several seconds for every option, because the best grid lap is the minimum of noisy means
+(100 runs per lap) and so is biased low; compare options with each other, not with zero. Stops on green laps (436):
+engine 7.08, actual 9.07, fixed 7.16, tyre-age 11.39. Stops on neutral laps (146): engine 7.61, actual 11.02,
+fixed 7.21, tyre-age 9.87. The engine had lower regret than the team's lap in 55.8% of decisions, than the fixed-lap
+rule in 45.5%. The simulator has no tyre-compound plan (spec 22, 23), so a gain over real teams in this model is
+not evidence of a real gain. Nothing here says the engine beats the fixed-lap rule.
