@@ -58,3 +58,19 @@ estimates vary widely (SOFT wear: quartiles −0.04 to 0.09), and the soft offse
 which points to confounding (soft stints run early, in traffic, and are often managed). We use the model as
 registered. A plumbing run of the script on one race (2023 Australia, 15 decisions, not kept) checked that it runs;
 nothing was changed after it.
+
+## Development re-run result (2026-11-24, commit 665fa7e; 69 races of 2023 to 2025, 591 decisions)
+Raw numbers: `results/23-decision-check-tyres.json`. Window ± 3 laps; 95% race-block bootstrap intervals.
+
+| Method | Window contains the real stop | Median error of the centre lap |
+|---|---|---|
+| Engine with compounds (spec 23) | 26.9% (22.2 to 31.5) | 8 laps |
+| Engine, one wear rate (spec 22) | 29.3% (24.0 to 34.7) | 7 laps |
+| B1 tyre-age rule | 31.1% (23.6 to 38.9) | 7 laps |
+| B2 fixed-lap rule | **36.7%** (29.5 to 43.9) | 5 laps |
+
+New engine − B2: −9.8 points (−17.0 to −2.6); − B1: −4.2 (−11.1 to 2.2); − spec 22 engine: −2.4 (−7.7 to 2.8).
+E2 is false. Per-compound wear did not help: the fitted rates are too close together and partly have the wrong sign
+(note above), so the engine's compound choice (SOFT 236, HARD 187, MEDIUM 168 times) does not follow real tyre plans.
+The test of section 6 still runs as registered, but its script mode (`--test` for 2026 rounds 19 to 23) is not
+written yet.
