@@ -13,6 +13,12 @@ from scipy.special import expit
 class TreeEnsemble:
     def __init__(self, dump: dict):
         self.trees = [self._flatten(t["tree_structure"]) for t in dump["tree_info"]]
+        nf = int(dump.get("max_feature_idx", max(int(t["feat"].max()) for t in self.trees))) + 1
+        self._cuts = [np.unique(np.concatenate([t["thr"][t["feat"] == f] for t in self.trees])) for f in range(nf)]
+        self._sizes = np.array([len(c) + 1 for c in self._cuts], np.int64)
+        self._radix = np.concatenate([np.cumprod(self._sizes[::-1])[::-1][1:], [1]]).astype(np.int64)
+        self._keys = np.zeros(0, np.int64)  # memo of `proba_memo`: sorted cell ids and their raw scores
+        self._vals = np.zeros(0)
 
     @staticmethod
     def _flatten(node: dict) -> dict[str, np.ndarray]:
@@ -65,3 +71,32 @@ class TreeEnsemble:
 
     def proba(self, x: np.ndarray) -> np.ndarray:
         return expit(self.raw(np.asarray(x, float)))
+
+    def proba_memo(self, x: np.ndarray) -> np.ndarray:
+        """Same values as `proba` for inputs without NaN, faster when the same cells come back (a simulation).
+
+        The split thresholds cut the feature space into cells where the model is constant. Each input row is mapped
+        to its cell; a cell is evaluated once, at a point inside it (the threshold just above the row's value),
+        and then read from a memo of the cells seen so far.
+        """
+        x = np.asarray(x, float)
+        idx = np.column_stack([np.searchsorted(c, x[:, j], side="left") for j, c in enumerate(self._cuts)])
+        ids = (idx * self._radix).sum(1)
+        u, inv = np.unique(ids, return_inverse=True)
+        pos = np.searchsorted(self._keys, u)
+        known = np.zeros(len(u), bool)
+        ok = pos < len(self._keys)
+        known[ok] = self._keys[pos[ok]] == u[ok]
+        if not known.all():
+            first = np.empty(len(u), int)
+            first[inv[::-1]] = np.arange(len(ids))[::-1]  # one row of each cell
+            i = idx[first[~known]]
+            rep = np.column_stack(
+                [np.append(c, c[-1] + 1.0 if len(c) else 0.0)[i[:, j]] for j, c in enumerate(self._cuts)]
+            )  # a point inside each cell: the threshold just above it, or above the last one
+            keys = np.concatenate([self._keys, u[~known]])
+            vals = np.concatenate([self._vals, self.raw(rep)])
+            o = np.argsort(keys, kind="stable")
+            self._keys, self._vals = keys[o], vals[o]
+            pos = np.searchsorted(self._keys, u)
+        return expit(self._vals[pos][inv])

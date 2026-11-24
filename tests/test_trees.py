@@ -18,3 +18,16 @@ def test_numpy_trees_equal_lightgbm():
     ours = TreeEnsemble(m.booster_.dump_model()).proba(test)
     theirs = m.predict_proba(test)[:, 1]
     assert np.allclose(ours, theirs, atol=1e-9)
+
+
+def test_memo_gives_the_same_values_as_the_trees():
+    rng = np.random.default_rng(1)
+    x = rng.normal(size=(3000, 6))
+    y = (x[:, 0] + 0.5 * x[:, 2] + rng.normal(0, 1, 3000) > 0.8).astype(int)
+    m = lgb.LGBMClassifier(n_estimators=50, max_depth=4, min_child_samples=50, random_state=0, verbose=-1).fit(x, y)
+    te = TreeEnsemble(m.booster_.dump_model())
+    for _ in range(3):  # new cells, then cells already in the memo
+        test = rng.normal(size=(400, 6))
+        test[:5] = te._cuts[0][0]  # exactly on a threshold
+        assert np.array_equal(te.proba_memo(test), te.proba(test))
+        assert np.array_equal(te.proba_memo(test[:50]), te.proba(test[:50]))

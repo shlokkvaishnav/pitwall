@@ -106,9 +106,16 @@ class Models:
         }
 
     def gbm_fast(
-        self, circuit_id: int, gap: np.ndarray, pace_delta: np.ndarray, tyre_age_diff: np.ndarray, race_frac: float
+        self,
+        circuit_id: int,
+        gap: np.ndarray,
+        pace_delta: np.ndarray,
+        tyre_age_diff: np.ndarray,
+        race_frac: float,
+        memo: bool = False,
     ) -> np.ndarray:
-        """`gbm` probabilities from arrays (same model as `predict`, without building a DataFrame)."""
+        """`gbm` probabilities from arrays (same model as `predict`, without building a DataFrame).
+        `memo`: the same values through `TreeEnsemble.proba_memo` (faster inside a simulation)."""
         n = len(gap)
         x = np.column_stack(
             [
@@ -122,7 +129,7 @@ class Models:
         )
         if self._trees is None:  # numpy evaluation: no LightGBM (OpenMP) call during a simulation
             self._trees = TreeEnsemble(self.gbm.booster_.dump_model())
-        return self._trees.proba(x)
+        return self._trees.proba_memo(x) if memo else self._trees.proba(x)
 
 
 def log_loss(y: np.ndarray, p: np.ndarray) -> float:
