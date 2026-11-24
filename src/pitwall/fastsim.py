@@ -32,6 +32,7 @@ class State:
     stops: np.ndarray  # stops made
     alive: np.ndarray  # still running
     sc_left: int = 0  # laps left in a neutral period
+    laps_done: np.ndarray | None = None  # laps completed (for cars out of the race); `lap` for all if None
 
 
 def start_state(world: World, rng: np.random.Generator, runs: int) -> tuple[np.ndarray, ...]:
@@ -105,6 +106,8 @@ def simulate(
     plans = sample_plans(world, rng, runs, state)
     pace = inp.pace + (rng.normal(0, inp.pace_shock_s, (runs, d)) if inp.pace_shock_s > 0 else 0.0)
     laps_done = np.full((runs, d), lap)
+    if state is not None and state.laps_done is not None:
+        laps_done = np.tile(np.asarray(state.laps_done, int), (runs, 1))
     fixed = None
     if ego is not None and ego_plan is not None:
         fixed = np.broadcast_to(np.atleast_2d(np.asarray(ego_plan, int)), (runs, np.shape(ego_plan)[-1]))

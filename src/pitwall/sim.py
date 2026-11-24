@@ -92,9 +92,15 @@ class SimInputs:
 
 
 def inputs_from_history(
-    history: list[RaceStats], circuit_id: int, grid: pd.DataFrame, laps: int, noise_s: float = 1.0
+    history: list[RaceStats],
+    circuit_id: int,
+    grid: pd.DataFrame,
+    laps: int,
+    noise_s: float = 1.0,
+    season: int = 2026,
 ) -> SimInputs:
-    """Build the inputs of spec 05, section 2. `history` must contain only races before the test race."""
+    """Build the inputs of spec 05, section 2. `history` must contain only races before the test race.
+    Form and the retirement rate come from the earlier races of `season`."""
     same = [h for h in history if h.circuit_id == circuit_id]
 
     def pick(values_same, values_all, fn):
@@ -109,7 +115,7 @@ def inputs_from_history(
         if same
         else float(np.mean([h.neutral_periods for h in history]))
     )
-    this_season = [h for h in history if h.season == 2026]
+    this_season = [h for h in history if h.season == season]
     if this_season:
         dnf = 1 - sum(h.classified for h in this_season) / max(sum(h.starters for h in this_season), 1)
         dnf_h = float(dnf / np.mean([h.laps for h in this_season]))
