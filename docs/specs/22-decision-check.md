@@ -49,3 +49,17 @@ cause: the wear input of simulators A to C is the slope of lap time on tyre age 
 burn; there it was −0.042 s per lap, so older tyres looked faster and the earliest stop looked best (the same cause
 as the "very early stops" of spec 20). The engine now uses the fuel-corrected wear of section 2. Nothing else
 changed; the full run has not been made.
+
+## Result (2026-11-24, commit f463659; 69 races of 2023 to 2025, 591 decisions)
+Raw numbers: `results/22-decision-check.json`. Window ± 3 laps for every method; 95% race-block bootstrap intervals.
+
+| Method | Window contains the real stop | Median error of the centre lap |
+|---|---|---|
+| Engine | 29.3% (24.0 to 34.6) | 7 laps |
+| B1 tyre-age rule | 31.1% (23.6 to 38.9) | 7 laps |
+| B2 fixed-lap rule | **36.7%** (29.5 to 43.9) | 5 laps |
+
+Engine − B1: −1.9 points (−9.9 to 6.1); engine − B2: −7.4 points (−13.8 to −1.2). E1 is false: the engine does
+not beat the simple rules, and the fixed-lap rule beats it. Stops not made on a neutral lap (437): engine 28.4%,
+B1 35.0%, B2 38.0%. The simulator has one wear rate for every compound and no tyre-choice rule, so the lap it
+prefers follows wear and traffic in the simulator, not the compound plans that set real stops.
