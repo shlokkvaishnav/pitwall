@@ -51,3 +51,18 @@ D1 is the main question. We report each race and the relative Brier difference `
 ## 6. Output
 `scripts/race_sim_d.py` (development), `scripts/race_sim_d.py --test` (once, refuses before the data exists),
 `results/21-simulator-d-dev.json`, later `results/21-simulator-d-test.json`.
+
+## Development result (2026-11-24; run started at commit 6dea5f0, file records 04aceea; 2026 rounds 4 to 12)
+Raw numbers: `results/21-simulator-d-dev.json`. Chosen setting: `w` = 0.5, `c` = 0.75 (fitted lap noise 0.39 s).
+
+| | Mean Spearman | Mean podium Brier |
+|---|---|---|
+| grid | 0.785 | 0.0700 |
+| simulator C (spec 20) | 0.754 | 0.0780 |
+| simulator D, chosen setting (tuned on these races) | **0.791** | 0.0701 |
+| simulator D, leave one round out | | 0.0748 |
+
+The grid prior closes most of the gap to the grid: D's podium Brier with the tuned setting equals the grid's, and its
+ordering is slightly better. The honest number (setting chosen without the scored race) is 0.0748, still worse than
+the grid. In 7 of the 9 leave-one-out choices `c` was 0.5, the smallest value tried. The test on rounds 19 to 23 runs
+with `w` = 0.5 and `c` = 0.75, unchanged.
