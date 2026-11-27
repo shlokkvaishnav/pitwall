@@ -1,0 +1,59 @@
+{
+  "spec": "19-team-radio",
+  "commit": "6f4574799a9d4d18387b7c8c78c494b4700d747e",
+  "clips": 6163,
+  "clips_with_lap": 5222,
+  "tag_counts": {
+    "box": 287,
+    "tyres": 611,
+    "pace": 626,
+    "issue": 253
+  },
+  "units": 67257,
+  "pit_next_rate": 0.031416804198819454,
+  "units_with_box_flag": 478,
+  "units_with_tyres_flag": 923,
+  "pit_rate_given_box_flag": 0.05230125523012552,
+  "log_loss": {
+    "lapdata": 0.1339669907102781,
+    "lapdata+radio": 0.1339782328635449
+  },
+  "rules": {
+    "R1_pass": false,
+    "R2_ci_lapdata_minus_radio": [
+      -6.50217010913924e-05,
+      4.084113310372921e-05
+    ],
+    "R2_pass": false
+  },
+  "tag_check": {
+    "box": {
+      "hand": 7,
+      "rule": 4,
+      "both": 4,
+      "agreement": 0.97,
+      "kappa": 0.713
+    },
+    "tyres": {
+      "hand": 23,
+      "rule": 15,
+      "both": 15,
+      "agreement": 0.92,
+      "kappa": 0.743
+    },
+    "pace": {
+      "hand": 12,
+      "rule": 11,
+      "both": 7,
+      "agreement": 0.91,
+      "kappa": 0.558
+    },
+    "issue": {
+      "hand": 9,
+      "rule": 5,
+      "both": 3,
+      "agreement": 0.92,
+      "kappa": 0.389
+    }
+  }
+}

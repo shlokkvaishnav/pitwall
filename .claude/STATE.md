@@ -5,7 +5,7 @@ break? README is organised by layer (pace, race events, racing, signals, strateg
 
 ## Branches
 - main: specs 14, 15, 16 merged and pushed.
-- research/simulator-c (NOT merged, not pushed; owner must ask): spec 18 and 19 results, radio fixes. Left untouched.
+- research/simulator-c: merged into main on 2026-11-27 (specs 18 and 19 results, radio fixes).
 - v2/strategy-engine (from origin/main, pushed, not merged): fast simulator (`pitwall.fastsim`, now also returns race
   time), spec 21 simulator D, spec 22 decision check (engine 29% vs fixed-lap rule 37%), spec 23 wear per compound
   (27%, no better), spec 24 SIMULATED regret (engine 2.3 s better than teams' real laps, same as fixed-lap rule,
@@ -17,7 +17,6 @@ break? README is organised by layer (pace, race events, racing, signals, strateg
   w = 0.5, c = 0.75) on rounds 19 to 23, once each.
 - Owner: look at the new site section at 1280 and 390 px, light and dark; then merge and redeploy; refresh
   `docs/site.png`.
-- Merge research/simulator-c when the owner says so (it touches STATE.md, README and the strategy site data).
 
 ## Open items
 - Simulator wear: the per-compound fit (spec 23) is confounded; simulators A to D use the within-stint slope.
